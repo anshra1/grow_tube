@@ -57,3 +57,11 @@ class UnknownFailure extends Failure {
   const UnknownFailure({super.message = 'An unexpected error occurred'})
     : super(title: 'Unknown Error');
 }
+
+/// Represents a video-related failure (Invalid URL, Private Video, Offline).
+class VideoFailure extends Failure {
+  const VideoFailure({
+    required super.message,
+    super.code,
+  }) : super(title: 'Video Error');
+}

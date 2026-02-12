@@ -69,3 +69,16 @@ class AuthException extends AppException {
     super.error,
   });
 }
+
+/// Thrown when video operations fail (e.g. invalid URL, offline, duplicate).
+class VideoException extends AppException {
+  const VideoException(
+    super.message, {
+    this.code,
+    super.stackTrace,
+    super.error,
+  });
+
+  /// Error code for UI handling: 'invalidUrl', 'videoUnavailable', 'duplicate', 'offline'.
+  final String? code;
+}
