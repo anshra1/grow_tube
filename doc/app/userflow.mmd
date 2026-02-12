@@ -1,0 +1,44 @@
+graph TD
+    %% Initial Entry
+    Start((Launch SkillTube)) --> CheckDB{Has Videos?}
+    CheckDB -->|No| Empty[<b>Empty Dashboard</b><br/>Add Video Prompt]
+    CheckDB -->|Yes| Dashboard[<b>Dashboard</b>]
+
+    %% The Hero Section (New Logic)
+    Dashboard --> Hero[<b>Sticky Hero Section</b><br/>Displays Last Played Video]
+    Hero --> HeroPlay{Action on Hero?}
+    HeroPlay -->|Tap Play Icon| InlinePlay[<b>Home Screen Playback</b><br/>Video plays in portrait header]
+    HeroPlay -->|Tap Full Screen Icon| Landscape[<b>Landscape Focus Mode</b><br/>MX Player Controls]
+    
+    %% The Feed
+    Dashboard --> Feed[<b>Video Feed</b><br/>Flat list of all videos]
+    Feed -->|<b>Tap Video Card</b>| Landscape[<b>Direct to Landscape</b>]
+
+    %% The Landscape Loop
+    Landscape --> Watch[Active Viewing]
+    Watch -->|Gesture: Swipe L/R| MXControls[Brightness / Volume]
+    Watch -->|Gesture: Horizontal| Seek[Precision Seeking]
+    Watch -->|Pinch| Zoom[Crop to Fill / Fit]
+
+    %% Exit Transition
+    Watch -->|Tap Back / Minimize| Hero
+    
+    %% The Hybrid Save (Data Safety)
+    Watch --> SaveLogic{Trigger Save?}
+    SaveLogic -->|Pause/Back/Close| Instant[(<b>Instant Save</b>)]
+    SaveLogic -->|60s Timer| Heartbeat[(<b>Heartbeat Save</b>)]
+    
+    Instant --> Sync[Update UI Progress Bars]
+    Sync --> Dashboard
+
+    %% Management
+    Feed -->|Long Press| Actions[Action Menu]
+    Actions -->|Delete| Delete[(<b>Delete from Isar</b>)]
+    Delete --> Dashboard
+
+    %% Styling
+    style Start fill:#137fec,color:#fff
+    style Landscape fill:#137fec,color:#fff,stroke:#fff,stroke-width:2px
+    style Hero fill:#137fec,color:#fff
+    style Instant fill:#10b981,color:#fff
+    style Delete fill:#ef4444,color:#fff 
