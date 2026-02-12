@@ -96,11 +96,12 @@ Contains code shared across the entire application.
 ### 🅱️ `lib/src/features/` (Vertical Slices)
 Features are independent modules. Currently, existing features include:
 
-*   **`authentication/`**: Handles user login and authentication logic.
+*   **`library/`**: Manages the video feed and user's collection.
+*   **`player/`**: The video playback experience.
 
 ---
 
-## 3. Feature Structure (Example: `authentication`)
+## 3. Feature Structure (Example: `library`)
 
 Inside a feature folder (like `lib/src/features/authentication`), we stick to **Clean Architecture** layers:
 

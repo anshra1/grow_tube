@@ -31,10 +31,7 @@
 
 ---
 
-## Import Path
 
-```dart
-import 'package:solearium/src/core/widgets/atoms/buttons/app_primary_button.dart';
 ```
 
 ---

@@ -77,7 +77,7 @@ abstract class AppException implements Exception {
 | `DatabaseException` | Local DB read/write fails | ObjectBox error |
 | `StorageException` | File I/O fails | Cannot write to disk |
 | `ParsingException` | JSON decode fails | Malformed API response |
-| `AuthException` | 401/403, token expired | Unauthorized access |
+| `VideoException` | Invalid YouTube URL, video unavailable/private | `youtube_explode_dart` fetch fails. Use `code` field: `invalidUrl`, `videoUnavailable` |
 
 ### Adding a New Exception
 
@@ -129,7 +129,7 @@ abstract class Failure extends Equatable {
 | `CacheFailure` | `CacheException` | Show "offline" state |
 | `ConnectionFailure` | `SocketException` | Show connectivity banner |
 | `ValidationFailure` | Business logic | Show inline error |
-| `AuthFailure` | `AuthException` | Redirect to login |
+| `VideoFailure` | `VideoException` | Show toast: "Invalid URL" or "Video unavailable" based on `code` |
 | `UnknownFailure` | Any uncaught | Show generic error |
 
 ### Adding a New Failure
@@ -224,11 +224,11 @@ Future<void> loadTask(String id) async {
 ├────────────────────┤      ├────────────────────┤
 │   CacheException   │ ───▶ │   CacheFailure     │
 ├────────────────────┤      ├────────────────────┤
-│   AuthException    │ ───▶ │   AuthFailure      │
-├────────────────────┤      ├────────────────────┤
 │  SocketException   │ ───▶ │ ConnectionFailure  │
 ├────────────────────┤      ├────────────────────┤
 │  ParsingException  │ ───▶ │   ServerFailure    │
+├────────────────────┤      ├────────────────────┤
+│  VideoException    │ ───▶ │   VideoFailure     │
 ├────────────────────┤      ├────────────────────┤
 │     (Unknown)      │ ───▶ │  UnknownFailure    │
 └────────────────────┘      └────────────────────┘

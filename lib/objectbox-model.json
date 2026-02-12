@@ -1,0 +1,74 @@
+{
+  "_note1": "KEEP THIS FILE! Check it into a version control system (VCS) like git.",
+  "_note2": "ObjectBox manages crucial IDs for your object model. See docs for details.",
+  "_note3": "If you have VCS merge conflicts, you must resolve them according to ObjectBox docs.",
+  "entities": [
+    {
+      "id": "1:5863521568893898851",
+      "lastPropertyId": "9:6494778161434609773",
+      "name": "VideoModel",
+      "properties": [
+        {
+          "id": "1:5558282081303751607",
+          "name": "id",
+          "type": 6,
+          "flags": 1
+        },
+        {
+          "id": "2:5866273296486531365",
+          "name": "youtubeId",
+          "indexId": "1:4065306276962701119",
+          "type": 9,
+          "flags": 2080
+        },
+        {
+          "id": "3:6861697640710049424",
+          "name": "title",
+          "type": 9
+        },
+        {
+          "id": "4:1488671335603469764",
+          "name": "channelName",
+          "type": 9
+        },
+        {
+          "id": "5:5002840078807243702",
+          "name": "thumbnailUrl",
+          "type": 9
+        },
+        {
+          "id": "6:9033770111852105582",
+          "name": "durationSeconds",
+          "type": 6
+        },
+        {
+          "id": "7:8085222500629745118",
+          "name": "lastWatchedPositionSeconds",
+          "type": 6
+        },
+        {
+          "id": "8:4932942474933510134",
+          "name": "addedAt",
+          "type": 12
+        },
+        {
+          "id": "9:6494778161434609773",
+          "name": "lastPlayedAt",
+          "type": 12
+        }
+      ],
+      "relations": []
+    }
+  ],
+  "lastEntityId": "1:5863521568893898851",
+  "lastIndexId": "1:4065306276962701119",
+  "lastRelationId": "0:0",
+  "lastSequenceId": "0:0",
+  "modelVersion": 5,
+  "modelVersionParserMinimum": 5,
+  "retiredEntityUids": [],
+  "retiredIndexUids": [],
+  "retiredPropertyUids": [],
+  "retiredRelationUids": [],
+  "version": 1
+}

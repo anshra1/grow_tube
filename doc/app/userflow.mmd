@@ -4,7 +4,7 @@ graph TD
     CheckDB -->|No| Empty[<b>Empty Dashboard</b><br/>Add Video Prompt]
     CheckDB -->|Yes| Dashboard[<b>Dashboard</b>]
 
-    %% The Hero Section (New Logic)
+    %% The Hero Section
     Dashboard --> Hero[<b>Sticky Hero Section</b><br/>Displays Last Played Video]
     Hero --> HeroPlay{Action on Hero?}
     HeroPlay -->|Tap Play Icon| InlinePlay[<b>Home Screen Playback</b><br/>Video plays in portrait header]
@@ -13,6 +13,16 @@ graph TD
     %% The Feed
     Dashboard --> Feed[<b>Video Feed</b><br/>Flat list of all videos]
     Feed -->|<b>Tap Video Card</b>| Landscape[<b>Direct to Landscape</b>]
+
+    %% Add Video (FAB — always accessible)
+    Dashboard --> FAB[<b>+ FAB Button</b>]
+    Empty --> AddBtn[<b>Add Video Button</b>]
+    FAB --> Modal[<b>URL Input Modal</b><br/>Auto-Paste from clipboard]
+    AddBtn --> Modal
+    Modal --> Fetch[<b>Metadata Fetch</b><br/>youtube_explode_dart]
+    Fetch -->|Success| Dashboard
+    Fetch -->|Error| Toast[<b>Error Toast</b><br/>Invalid URL / Offline / Unavailable]
+    Toast --> Modal
 
     %% The Landscape Loop
     Landscape --> Watch[Active Viewing]
@@ -28,12 +38,14 @@ graph TD
     SaveLogic -->|Pause/Back/Close| Instant[(<b>Instant Save</b>)]
     SaveLogic -->|60s Timer| Heartbeat[(<b>Heartbeat Save</b>)]
     
-    Instant --> Sync[Update UI Progress Bars]
+    Instant --> OBWrite[(Write to ObjectBox)]
+    Heartbeat --> OBWrite
+    OBWrite --> Sync[Update UI Progress Bars]
     Sync --> Dashboard
 
     %% Management
     Feed -->|Long Press| Actions[Action Menu]
-    Actions -->|Delete| Delete[(<b>Delete from Isar</b>)]
+    Actions -->|Delete| Delete[(<b>Delete from ObjectBox</b>)]
     Delete --> Dashboard
 
     %% Styling
@@ -41,4 +53,10 @@ graph TD
     style Landscape fill:#137fec,color:#fff,stroke:#fff,stroke-width:2px
     style Hero fill:#137fec,color:#fff
     style Instant fill:#10b981,color:#fff
-    style Delete fill:#ef4444,color:#fff 
+    style Heartbeat fill:#10b981,color:#fff
+    style OBWrite fill:#10b981,color:#fff
+    style Delete fill:#ef4444,color:#fff
+    style FAB fill:#8b5cf6,color:#fff
+    style AddBtn fill:#8b5cf6,color:#fff
+    style Modal fill:#8b5cf6,color:#fff
+    style Toast fill:#f59e0b,color:#fff

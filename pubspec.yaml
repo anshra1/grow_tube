@@ -15,7 +15,6 @@ dependencies:
     sdk: flutter
   flutter_bloc: ^9.1.1
   flutter_getit: ^3.0.1
-  flutter_secure_storage: ^10.0.0
   flutter_svg: ^2.0.10+1
   fpdart: ^1.1.0
   freezed_annotation: ^3.1.0
@@ -28,6 +27,7 @@ dependencies:
   mx_youtube_player:
     path: package/mx_youtube_player
   objectbox: ^5.2.0
+  youtube_explode_dart: ^2.3.5
   
   path_provider: ^2.1.2
   shared_preferences: ^2.2.3

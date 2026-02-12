@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Quick Add Video - SkillTube</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#137fec",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#101922",
+                    },
+                    fontFamily: {
+                        "display": ["Lexend", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        body {background-color: rgba(0,0,0,0.5); 
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="font-display text-slate-800 dark:text-white min-h-screen flex items-end justify-center sm:items-center p-0">
+<div class="w-full max-w-md bg-background-light dark:bg-background-dark relative flex flex-col rounded-t-3xl sm:rounded-2xl shadow-2xl overflow-hidden pb-8 sm:pb-0">
+<div class="w-full flex justify-center pt-3 pb-1 sm:hidden">
+<div class="w-12 h-1.5 bg-gray-300 dark:bg-gray-700 rounded-full"></div>
+</div>
+<header class="px-4 py-3 flex items-center justify-between bg-transparent z-10">
+<button class="text-primary hover:text-primary/80 text-base font-medium px-2 py-1 transition-colors">
+                Cancel
+            </button>
+<h1 class="text-lg font-semibold text-center flex-1">Add Video</h1>
+<button class="bg-primary hover:bg-primary/90 text-white text-sm font-semibold px-4 py-1.5 rounded-full shadow-lg shadow-primary/20 transition-all">
+                Add
+            </button>
+</header>
+<main class="px-5 pt-4 pb-8 flex flex-col gap-6">
+<section class="flex flex-col gap-4">
+<div class="relative group">
+<div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+<span class="material-icons-round text-primary text-xl">link</span>
+</div>
+<input autofocus="" class="w-full pl-12 pr-4 py-4 bg-white dark:bg-[#1a2632] border-2 border-transparent focus:border-primary rounded-xl text-lg placeholder-gray-400 dark:placeholder-gray-500 focus:ring-0 transition-all shadow-sm outline-none" placeholder="https://youtube.com/..." type="url"/>
+</div>
+<button class="w-full flex items-center justify-center gap-2 py-3.5 px-4 bg-primary/10 hover:bg-primary/20 active:bg-primary/30 text-primary rounded-xl transition-all border border-primary/20 border-dashed">
+<span class="material-icons-round text-sm">content_paste</span>
+<span class="text-sm font-medium">Auto-paste from clipboard</span>
+</button>
+</section>
+</main>
+</div>
+
+</body></html>

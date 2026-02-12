@@ -83,6 +83,7 @@ Anything not listed here is **not allowed** unless explicitly approved.
 | Package | Purpose |
 |---------|---------|
 | `internet_connection_checker_plus` | Check internet connectivity state |
+| `youtube_explode_dart` | Fetch video metadata (title, thumbnail, duration) without API key |
 
 > [!NOTE]
 > This is an offline-first app. Direct API calls are minimized or removed in favor of local data handling.
@@ -114,8 +115,7 @@ Anything not listed here is **not allowed** unless explicitly approved.
 | Data Type | Package | Use Case |
 |-----------|---------|----------|
 | Cached Data | `objectbox` | Offline-first data, large datasets |
-| Secrets | `flutter_secure_storage` | Auth tokens, passwords, API keys |
-| Simple Flags | `shared_preferences` | Onboarding status, theme preference |
+| Simple Flags | `shared_preferences` | Theme preference, simple app-level flags |
 
 > [!CAUTION]
 > **NEVER** store sensitive data in `shared_preferences` or `objectbox`.
