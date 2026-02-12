@@ -27,10 +27,7 @@ This explicitly forbids (but is not limited to):
 - any CRUD operation on repository contents
 
 ### 3. Push Rules
-- **Never push to `origin`.**
-- Always push to the `personal` remote.
-- If the current branch does not exist on the remote, set upstream using:
-  `git push -u personal <branch-name>`
+`
 
 ### 4. Error Handling
 - If any error occurs at any stage:
