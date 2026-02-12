@@ -14,7 +14,8 @@ extension ContextExtensions on BuildContext {
   /// Access the current ColorScheme
   ColorScheme get colorScheme => Theme.of(this).colorScheme;
 
-  
+  /// Access the current ColorScheme (alias)
+  ColorScheme get colors => colorScheme;
 
   /// Check if current theme is dark mode
   bool get isDarkMode => Theme.of(this).brightness == Brightness.dark;
