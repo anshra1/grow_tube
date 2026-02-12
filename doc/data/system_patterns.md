@@ -145,17 +145,4 @@ This document defines the architectural DNA of the project. **AI agents MUST adh
 | Repositories | `FeatureRepository` | `TaskRepository` |
 | Data Sources | `Remote/LocalFeatureDataSource` | `RemoteTaskDataSource` |
 
----
 
-## 8. Quick Reference
-
-| Scenario | Layer | Why |
-|----------|-------|-----|
-| "Email format invalid" | Domain | Data invariant |
-| "Show error in red" | UI | Visual formatting |
-| "Retry HTTP 3 times" | Repository | Infrastructure policy |
-| "JSON parsing" | DataSource | Serialization |
-| "Can't save while loading" | BLoC | UX guard |
-| "Free users can't upload video" | Domain | Business limit |
-| "Log purchase_failed event" | Repository | Cross-cutting |
-| "Format date as Mon, Dec 22" | BLoC | UI transformation |

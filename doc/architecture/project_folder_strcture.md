@@ -2,7 +2,7 @@
 
 **Welcome!** 👋
 
-This document explains how the **Solearium** source code (`lib/`) is organized. We follow **Clean Architecture** combined with **Feature-First** organization. This structure separates code by *what it does* (Features) and then by *technical responsibility* (Layers).
+This document explains how the **grow tube** source code (`lib/`) is organized. We follow **Clean Architecture** combined with **Feature-First** organization. This structure separates code by *what it does* (Features) and then by *technical responsibility* (Layers).
 
 ---
 
