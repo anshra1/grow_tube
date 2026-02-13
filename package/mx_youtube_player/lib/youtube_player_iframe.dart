@@ -15,6 +15,7 @@ export 'src/player_params.dart';
 export 'src/player_value.dart';
 export 'src/widgets/fullscreen_youtube_player.dart';
 // MX Player exports
+export 'src/widgets/mx_player.dart';
 export 'src/widgets/mx_player_overlay.dart';
 export 'src/widgets/mx_player_scaffold.dart';
 export 'src/widgets/youtube_player.dart';

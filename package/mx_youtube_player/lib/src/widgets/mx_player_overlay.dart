@@ -7,8 +7,17 @@ import 'package:screen_brightness/screen_brightness.dart';
 
 class MxPlayerOverlay extends StatefulWidget {
   final YoutubePlayerController controller;
+  final String title;
+  final String? channelName;
+  final bool isHeroMode;
 
-  const MxPlayerOverlay({super.key, required this.controller});
+  const MxPlayerOverlay({
+    super.key,
+    required this.controller,
+    required this.title,
+    this.channelName,
+    this.isHeroMode = false,
+  });
 
   @override
   State<MxPlayerOverlay> createState() => _MxPlayerOverlayState();
@@ -162,6 +171,143 @@ class _MxPlayerOverlayState extends State<MxPlayerOverlay> {
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
+        final content = Stack(
+          children: [
+            // Center Feedback (Volume/Brightness/Seek)
+            if (_showCenterOverlay && !widget.isHeroMode)
+              Center(
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                  decoration: BoxDecoration(
+                    color: Colors.black.withOpacity(0.7),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(_centerIcon, color: Colors.white, size: 40),
+                      const SizedBox(height: 8),
+                      Text(
+                        _centerText ?? '',
+                        style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
+            // Controls Overlay
+            if (_showControls && !widget.isHeroMode)
+              Container(
+                color: Colors.black.withOpacity(0.3),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    // Top Bar
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Row(
+                        children: [
+                          IconButton(
+                            icon: const Icon(Icons.arrow_back, color: Colors.white),
+                            onPressed: () => Navigator.maybePop(context),
+                          ),
+                          Expanded(
+                            child: Text(
+                              widget.title,
+                              style: const TextStyle(color: Colors.white, fontSize: 18),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    
+                    // Center Play Button
+                    IconButton(
+                      iconSize: 64,
+                      icon: const Icon(Icons.play_circle_fill, color: Colors.white),
+                      onPressed: _togglePlayPause,
+                    ),
+
+                    // Bottom Bar
+                    Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        children: [
+                          StreamBuilder<YoutubeVideoState>(
+                            stream: widget.controller.videoStateStream,
+                            builder: (context, snapshot) {
+                              final position = snapshot.data?.position.inSeconds.toDouble() ?? 0.0;
+                              final duration = widget.controller.metadata.duration.inSeconds.toDouble();
+                              
+                              return Row(
+                                children: [
+                                  Text(
+                                    _formatDuration(Duration(seconds: position.toInt())),
+                                    style: const TextStyle(color: Colors.white),
+                                  ),
+                                  Expanded(
+                                    child: SliderTheme(
+                                      data: SliderThemeData(
+                                        activeTrackColor: Colors.orange, // MX Style
+                                        thumbColor: Colors.orange,
+                                        inactiveTrackColor: Colors.grey,
+                                        trackHeight: 2.0,
+                                      ),
+                                      child: Slider(
+                                        value: position.clamp(0.0, duration > 0 ? duration : 1.0),
+                                        min: 0,
+                                        max: duration > 0 ? duration : 1.0,
+                                        onChanged: (val) {
+                                          widget.controller.seekTo(seconds: val);
+                                        },
+                                      ),
+                                    ),
+                                  ),
+                                  Text(
+                                    _formatDuration(Duration(seconds: duration.toInt())),
+                                    style: const TextStyle(color: Colors.white),
+                                  ),
+                                ],
+                              );
+                            },
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              IconButton(
+                                icon: const Icon(Icons.fullscreen, color: Colors.white),
+                                onPressed: () => widget.controller.toggleFullScreen(),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+            // In Hero Mode, we only show a floating Fullscreen button
+            if (widget.isHeroMode)
+              Align(
+                alignment: Alignment.bottomRight,
+                child: Padding(
+                  padding: const EdgeInsets.all(AppSizes.p8),
+                  child: IconButton(
+                    icon: const Icon(Icons.fullscreen, color: Colors.white, size: 28),
+                    onPressed: () => widget.controller.toggleFullScreen(),
+                  ),
+                ),
+              ),
+          ],
+        );
+
+        if (widget.isHeroMode) {
+          return content;
+        }
+
         return GestureDetector(
           onTap: () {
             setState(() {
@@ -177,125 +323,7 @@ class _MxPlayerOverlayState extends State<MxPlayerOverlay> {
           onHorizontalDragUpdate: (d) => _onHorizontalDragUpdate(d, constraints),
           onHorizontalDragEnd: _onHorizontalDragEnd,
           behavior: HitTestBehavior.translucent,
-          child: Stack(
-            children: [
-              // Center Feedback (Volume/Brightness/Seek)
-              if (_showCenterOverlay)
-                Center(
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                    decoration: BoxDecoration(
-                      color: Colors.black.withOpacity(0.7),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(_centerIcon, color: Colors.white, size: 40),
-                        const SizedBox(height: 8),
-                        Text(
-                          _centerText ?? '',
-                          style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-
-              // Controls Overlay
-              if (_showControls)
-                Container(
-                  color: Colors.black.withOpacity(0.3),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      // Top Bar
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Row(
-                          children: [
-                            IconButton(
-                              icon: const Icon(Icons.arrow_back, color: Colors.white),
-                              onPressed: () => Navigator.maybePop(context),
-                            ),
-                            const Expanded(
-                              child: Text(
-                                'Video Title', // Placeholder
-                                style: TextStyle(color: Colors.white, fontSize: 18),
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      
-                      // Center Play Button
-                      IconButton(
-                        iconSize: 64,
-                        icon: const Icon(Icons.play_circle_fill, color: Colors.white),
-                        onPressed: _togglePlayPause,
-                      ),
-
-                      // Bottom Bar
-                      Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Column(
-                          children: [
-                            StreamBuilder<YoutubeVideoState>(
-                              stream: widget.controller.videoStateStream,
-                              builder: (context, snapshot) {
-                                final position = snapshot.data?.position.inSeconds.toDouble() ?? 0.0;
-                                final duration = widget.controller.metadata.duration.inSeconds.toDouble();
-                                
-                                return Row(
-                                  children: [
-                                    Text(
-                                      _formatDuration(Duration(seconds: position.toInt())),
-                                      style: const TextStyle(color: Colors.white),
-                                    ),
-                                    Expanded(
-                                      child: SliderTheme(
-                                        data: SliderThemeData(
-                                          activeTrackColor: Colors.orange, // MX Style
-                                          thumbColor: Colors.orange,
-                                          inactiveTrackColor: Colors.grey,
-                                          trackHeight: 2.0,
-                                        ),
-                                        child: Slider(
-                                          value: position.clamp(0.0, duration > 0 ? duration : 1.0),
-                                          min: 0,
-                                          max: duration > 0 ? duration : 1.0,
-                                          onChanged: (val) {
-                                            widget.controller.seekTo(seconds: val);
-                                          },
-                                        ),
-                                      ),
-                                    ),
-                                    Text(
-                                      _formatDuration(Duration(seconds: duration.toInt())),
-                                      style: const TextStyle(color: Colors.white),
-                                    ),
-                                  ],
-                                );
-                              },
-                            ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: [
-                                IconButton(
-                                  icon: const Icon(Icons.fullscreen, color: Colors.white),
-                                  onPressed: () => widget.controller.toggleFullScreen(),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-            ],
-          ),
+          child: content,
         );
       },
     );

@@ -7,6 +7,7 @@ import 'package:skill_tube/src/features/library/data/repositories/video_reposito
 import 'package:skill_tube/src/features/library/domain/repositories/video_repository.dart';
 import 'package:skill_tube/src/features/library/domain/usecases/library_usecases.dart';
 import 'package:skill_tube/src/features/library/presentation/bloc/library_bloc.dart';
+import 'package:skill_tube/src/features/player/presentation/bloc/player_bloc.dart';
 import 'package:youtube_explode_dart/youtube_explode_dart.dart';
 
 final GetIt sl = GetIt.instance;
@@ -55,6 +56,12 @@ Future<void> init() async {
       getLastPlayedVideo: sl(),
       addVideo: sl(),
       deleteVideo: sl(),
+    ),
+  );
+
+  sl.registerFactory(
+    () => PlayerBloc(
+      getVideo: sl(),
     ),
   );
 }

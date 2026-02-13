@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:skill_tube/src/core/di/injection_container.dart' as di;
 import 'package:skill_tube/src/features/library/presentation/bloc/library_bloc.dart';
 import 'package:skill_tube/src/features/library/presentation/pages/dashboard/dashboard_page.dart';
+import 'package:skill_tube/src/features/player/presentation/screens/player_page.dart';
 import 'package:talker_flutter/talker_flutter.dart';
 
 final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>();
@@ -20,6 +21,13 @@ class AppRouter {
           create: (_) => di.sl<LibraryBloc>(),
           child: const DashboardPage(),
         ),
+      ),
+      GoRoute(
+        path: '/player/:videoId',
+        builder: (context, state) {
+          final videoId = state.pathParameters['videoId']!;
+          return PlayerPage(videoId: videoId);
+        },
       ),
     ],
   );

@@ -1,55 +1,34 @@
 import 'package:equatable/equatable.dart';
 import 'package:skill_tube/src/features/library/domain/entities/video.dart';
 
-sealed class PlayerState extends Equatable {
+abstract class PlayerState extends Equatable {
   const PlayerState();
 
   @override
   List<Object?> get props => [];
 }
 
-final class PlayerInitialState extends PlayerState {
+class PlayerInitialState extends PlayerState {
   const PlayerInitialState();
 }
 
-final class PlayerLoadingState extends PlayerState {
+class PlayerLoadingState extends PlayerState {
   const PlayerLoadingState();
 }
 
-final class PlayerReadyState extends PlayerState {
-  const PlayerReadyState({
-    required this.video,
-    required this.initialPosition,
-    this.areControlsVisible = true,
-  });
-
+class PlayerLoadedState extends PlayerState {
   final Video video;
 
-  /// The position to seek to when player initializes.
-  final int initialPosition;
-
-  final bool areControlsVisible;
+  const PlayerLoadedState(this.video);
 
   @override
-  List<Object?> get props => [video, initialPosition, areControlsVisible];
-
-  /// Helper to update control visibility without full rewrite
-  PlayerReadyState copyWith({
-    Video? video,
-    int? initialPosition,
-    bool? areControlsVisible,
-  }) {
-    return PlayerReadyState(
-      video: video ?? this.video,
-      initialPosition: initialPosition ?? this.initialPosition,
-      areControlsVisible: areControlsVisible ?? this.areControlsVisible,
-    );
-  }
+  List<Object?> get props => [video];
 }
 
-final class PlayerErrorState extends PlayerState {
-  const PlayerErrorState(this.message);
+class PlayerFailureState extends PlayerState {
   final String message;
+
+  const PlayerFailureState(this.message);
 
   @override
   List<Object?> get props => [message];

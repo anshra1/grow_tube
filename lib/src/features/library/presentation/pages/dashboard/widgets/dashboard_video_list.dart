@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:skill_tube/src/core/constants/app_icons.dart';
 import 'package:skill_tube/src/core/constants/app_strings.dart';
 import 'package:skill_tube/src/core/design_system/app_radius.dart';
@@ -74,84 +75,87 @@ class DashboardVideoCard extends StatelessWidget {
         ? (video.lastWatchedPositionSeconds / video.durationSeconds).clamp(0.0, 1.0)
         : 0.0;
 
-    return Container(
-      decoration: BoxDecoration(
-        color: context.colorScheme.surface,
-        borderRadius: AppRadius.roundedL,
-        border: Border.all(
-          color: context.colorScheme.outlineVariant.withValues(alpha: 0.5),
+    return GestureDetector(
+      onTap: () => context.push('/player/${video.youtubeId}'),
+      child: Container(
+        decoration: BoxDecoration(
+          color: context.colorScheme.surface,
+          borderRadius: AppRadius.roundedL,
+          border: Border.all(
+            color: context.colorScheme.outlineVariant.withValues(alpha: 0.5),
+          ),
+          boxShadow: AppShadows.card,
         ),
-        boxShadow: AppShadows.card,
-      ),
-      padding: const EdgeInsets.all(AppSizes.p12),
-      child: Row(
-        children: [
-          // Thumbnail
-          ClipRRect(
-            borderRadius: AppRadius.roundedM,
-            child: SizedBox(
-              width: 112, // w-28 = 7rem = 112px
-              height: 80, // h-20 = 5rem = 80px
-              child: Image.network(
-                video.thumbnailUrl,
-                fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) => Container(
-                  color: context.colorScheme.surfaceContainerHighest,
+        padding: const EdgeInsets.all(AppSizes.p12),
+        child: Row(
+          children: [
+            // Thumbnail
+            ClipRRect(
+              borderRadius: AppRadius.roundedM,
+              child: SizedBox(
+                width: 112, // w-28 = 7rem = 112px
+                height: 80, // h-20 = 5rem = 80px
+                child: Image.network(
+                  video.thumbnailUrl,
+                  fit: BoxFit.cover,
+                  errorBuilder: (_, __, ___) => Container(
+                    color: context.colorScheme.surfaceContainerHighest,
+                  ),
                 ),
               ),
             ),
-          ),
-          gapW16,
-          // content
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      child: Text(
-                        video.title,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: context.textTheme.bodyMedium?.copyWith(
-                          fontWeight: FontWeight.w600,
-                          color: context.colorScheme.onSurface,
-                          height: 1.2,
+            gapW16,
+            // content
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          video.title,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: context.textTheme.bodyMedium?.copyWith(
+                            fontWeight: FontWeight.w600,
+                            color: context.colorScheme.onSurface,
+                            height: 1.2,
+                          ),
                         ),
                       ),
-                    ),
-                    Icon(
-                      AppIcons.more,
-                      size: 20,
+                      Icon(
+                        AppIcons.more,
+                        size: 20,
+                        color: context.colorScheme.onSurfaceVariant,
+                      ),
+                    ],
+                  ),
+                  gapH4,
+                  Text(
+                    video.channelName,
+                    style: context.textTheme.labelSmall?.copyWith(
                       color: context.colorScheme.onSurfaceVariant,
                     ),
-                  ],
-                ),
-                gapH4,
-                Text(
-                  video.channelName,
-                  style: context.textTheme.labelSmall?.copyWith(
-                    color: context.colorScheme.onSurfaceVariant,
                   ),
-                ),
-                gapH8,
-                // Progress Bar
-                ClipRRect(
-                  borderRadius: AppRadius.roundedS,
-                  child: LinearProgressIndicator(
-                    value: progress,
-                    minHeight: 6,
-                    backgroundColor: context.colorScheme.onSurfaceVariant.withValues(alpha: 0.2),
-                    valueColor: AlwaysStoppedAnimation<Color>(context.colorScheme.primary),
+                  gapH8,
+                  // Progress Bar
+                  ClipRRect(
+                    borderRadius: AppRadius.roundedS,
+                    child: LinearProgressIndicator(
+                      value: progress,
+                      minHeight: 6,
+                      backgroundColor: context.colorScheme.onSurfaceVariant.withValues(alpha: 0.2),
+                      valueColor: AlwaysStoppedAnimation<Color>(context.colorScheme.primary),
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

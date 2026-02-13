@@ -14,4 +14,8 @@ class AppStrings {
   static const String dashboardViewLogs = 'View Logs';
   static const String dashboardNoVideos = 'No videos yet. Add one!';
   static const String dashboardError = 'Error';
+
+  // Player
+  static const String playerVideoNotFound = 'Video not found in library';
+  static const String playerLoadingVideo = 'Loading video...';
 }

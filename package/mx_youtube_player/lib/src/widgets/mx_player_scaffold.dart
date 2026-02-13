@@ -4,12 +4,18 @@ import 'package:mx_youtube_player/youtube_player_iframe.dart';
 
 class MxPlayerScaffold extends StatefulWidget {
   final YoutubePlayerController controller;
+  final String title;
+  final String? channelName;
+  final bool isHeroMode;
   final bool autoFullScreen;
   final Widget? child;
 
   const MxPlayerScaffold({
     super.key,
     required this.controller,
+    required this.title,
+    this.channelName,
+    this.isHeroMode = false,
     this.autoFullScreen = true,
     this.child,
   });
@@ -54,7 +60,12 @@ class _MxPlayerScaffoldState extends State<MxPlayerScaffold> {
                 aspectRatio: 16 / 9,
               ),
             ),
-            MxPlayerOverlay(controller: widget.controller),
+            MxPlayerOverlay(
+              controller: widget.controller,
+              title: widget.title,
+              channelName: widget.channelName,
+              isHeroMode: widget.isHeroMode,
+            ),
           ],
         );
 
