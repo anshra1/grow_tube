@@ -81,31 +81,29 @@ class _DashboardPageState extends State<DashboardPage> {
                       ),
                     ),
                     LibraryLoadedState(:final videos, :final heroVideo) => Column(
-                        children: [
-                          if (heroVideo != null)
-                            Padding(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: AppSizes.p16,
-                              ),
-                              child: Column(
-                                children: [
-                                  gapH16,
-                                  DashboardHero(video: heroVideo),
-                                  gapH16,
-                                ],
-                              ),
-                            ),
-                          Expanded(
-                            child: CustomScrollView(
-                              physics: const BouncingScrollPhysics(),
-                              slivers: [
-                                DashboardVideoList(videos: videos),
-                                const SliverToBoxAdapter(child: gapH48),
+                      children: [
+                        if (heroVideo != null)
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: AppSizes.p16),
+                            child: Column(
+                              children: [
+                                gapH16,
+                                DashboardHero(video: heroVideo),
+                                gapH16,
                               ],
                             ),
                           ),
-                        ],
-                      ),
+                        Expanded(
+                          child: CustomScrollView(
+                            physics: const BouncingScrollPhysics(),
+                            slivers: [
+                              DashboardVideoList(videos: videos),
+                              const SliverToBoxAdapter(child: gapH48),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
                   };
                 },
               ),

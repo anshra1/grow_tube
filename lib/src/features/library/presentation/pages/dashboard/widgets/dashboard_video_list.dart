@@ -64,7 +64,7 @@ class DashboardVideoList extends StatelessWidget {
               child: DashboardVideoCard(video: video),
             );
           },
-          childCount: videos.length, // +1 for header
+          childCount: videos.length + 1,
         ),
       ),
     );

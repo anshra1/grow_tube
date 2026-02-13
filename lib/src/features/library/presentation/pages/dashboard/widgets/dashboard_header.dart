@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:skill_tube/main.dart';
 import 'package:skill_tube/src/core/constants/app_icons.dart';
 import 'package:skill_tube/src/core/constants/app_strings.dart';
@@ -17,24 +18,14 @@ class DashboardHeader extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                AppStrings.dashboardGreeting,
-                style: context.textTheme.bodySmall?.copyWith(
-                  color: context.colorScheme.onSurfaceVariant,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-              gapH4,
-              Text(
-                AppStrings.dashboardUserName,
-                style: context.textTheme.headlineMedium?.copyWith(
-                  color: context.colorScheme.onSurface,
-                ),
-              ),
-            ],
+          Text(
+            'GrowTube',
+            style: GoogleFonts.oswald(
+              fontSize: 26,
+              fontWeight: FontWeight.bold,
+              color: context.colorScheme.onSurface,
+              letterSpacing: -0.5,
+            ),
           ),
           Row(
             children: [
