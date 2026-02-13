@@ -85,13 +85,13 @@ class _DashboardPageState extends State<DashboardPage> {
                           if (heroVideo != null)
                             Padding(
                               padding: const EdgeInsets.symmetric(
-                                horizontal: AppSizes.p24,
+                                horizontal: AppSizes.p16,
                               ),
                               child: Column(
                                 children: [
                                   gapH16,
                                   DashboardHero(video: heroVideo),
-                                  gapH24,
+                                  gapH16,
                                 ],
                               ),
                             ),

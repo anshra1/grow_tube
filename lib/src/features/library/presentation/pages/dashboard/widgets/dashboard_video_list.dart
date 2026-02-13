@@ -11,6 +11,8 @@ import 'package:skill_tube/src/features/library/domain/entities/video.dart';
 import 'package:skill_tube/src/features/library/presentation/bloc/library_bloc.dart';
 import 'package:skill_tube/src/features/library/presentation/bloc/library_event.dart';
 
+import 'package:skill_tube/src/features/library/presentation/pages/dashboard/widgets/delete_video_dialog.dart';
+
 import 'package:flutter/services.dart';
 
 class DashboardVideoList extends StatelessWidget {
@@ -21,7 +23,7 @@ class DashboardVideoList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SliverPadding(
-      padding: const EdgeInsets.symmetric(horizontal: AppSizes.p24),
+      padding: const EdgeInsets.symmetric(horizontal: AppSizes.p16),
       sliver: SliverList(
         delegate: SliverChildBuilderDelegate(
           (context, index) {
@@ -37,18 +39,7 @@ class DashboardVideoList extends StatelessWidget {
                         color: context.colorScheme.onSurface,
                       ),
                     ),
-                    TextButton(
-                      onPressed: () {
-                        // "See all"
-                      },
-                      style: TextButton.styleFrom(
-                        foregroundColor: context.colorScheme.primary,
-                        textStyle: context.textTheme.labelLarge?.copyWith(
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      child: const Text(AppStrings.dashboardSeeAll),
-                    ),
+                   
                   ],
                 ),
               );
@@ -110,25 +101,11 @@ class DashboardVideoCard extends StatelessWidget {
       onLongPress: () {
         showDialog(
           context: context,
-          builder: (dialogContext) => AlertDialog(
-            title: const Text(AppStrings.dashboardDeleteTitle),
-            content: Text('${AppStrings.dashboardDeleteConfirm} "${video.title}"?'),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(dialogContext).pop(),
-                child: const Text(AppStrings.commonCancel),
-              ),
-              TextButton(
-                onPressed: () {
-                  context.read<LibraryBloc>().add(LibraryVideoDeletedEvent(video.id));
-                  Navigator.of(dialogContext).pop();
-                },
-                style: TextButton.styleFrom(
-                  foregroundColor: context.colorScheme.error,
-                ),
-                child: const Text(AppStrings.commonDelete),
-              ),
-            ],
+          builder: (dialogContext) => DeleteVideoDialog(
+            videoTitle: video.title,
+            onDelete: () {
+              context.read<LibraryBloc>().add(LibraryVideoDeletedEvent(video.id));
+            },
           ),
         );
       },
@@ -189,7 +166,7 @@ class DashboardVideoCard extends StatelessWidget {
                 children: [
                   Text(
                     video.title,
-                    maxLines: 1,
+                    maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                     style: context.textTheme.bodyMedium?.copyWith(
                       fontWeight: FontWeight.w600,
