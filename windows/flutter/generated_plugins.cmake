@@ -6,6 +6,7 @@ list(APPEND FLUTTER_PLUGIN_LIST
   connectivity_plus
   firebase_core
   flutter_volume_controller
+  objectbox_flutter_libs
   screen_brightness_windows
   share_plus
   url_launcher_windows

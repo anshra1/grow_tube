@@ -4,6 +4,7 @@
 
 list(APPEND FLUTTER_PLUGIN_LIST
   flutter_volume_controller
+  objectbox_flutter_libs
   url_launcher_linux
 )
 

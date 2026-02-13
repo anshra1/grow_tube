@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:skill_tube/src/core/design_system/app_theme.dart';
 
 extension ContextExtensions on BuildContext {
   // ============================================================
@@ -16,6 +17,10 @@ extension ContextExtensions on BuildContext {
 
   /// Access the current ColorScheme (alias)
   ColorScheme get colors => colorScheme;
+
+  /// Access the AppColorsExtension
+  AppColorsExtension get appColors =>
+      Theme.of(this).extension<AppColorsExtension>() ?? AppColorsExtension.light;
 
   /// Check if current theme is dark mode
   bool get isDarkMode => Theme.of(this).brightness == Brightness.dark;

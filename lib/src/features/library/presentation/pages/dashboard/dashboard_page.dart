@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:skill_tube/src/core/constants/app_icons.dart';
+import 'package:skill_tube/src/core/constants/app_strings.dart';
 import 'package:skill_tube/src/core/design_system/app_sizes.dart';
 import 'package:skill_tube/src/core/utils/extensions/context_extensions.dart';
 import 'package:skill_tube/src/core/widgets/app_scaffold.dart';
 import 'package:skill_tube/src/features/library/presentation/bloc/library_bloc.dart';
 import 'package:skill_tube/src/features/library/presentation/bloc/library_event.dart';
 import 'package:skill_tube/src/features/library/presentation/bloc/library_state.dart';
+import 'package:skill_tube/src/features/library/presentation/pages/dashboard/widgets/add_video_bottom_sheet.dart';
 import 'package:skill_tube/src/features/library/presentation/pages/dashboard/widgets/dashboard_header.dart';
 import 'package:skill_tube/src/features/library/presentation/pages/dashboard/widgets/dashboard_hero.dart';
 import 'package:skill_tube/src/features/library/presentation/pages/dashboard/widgets/dashboard_video_list.dart';
@@ -24,19 +27,44 @@ class DashboardPage extends StatelessWidget {
           children: [
             const DashboardHeader(),
             Expanded(
-              child: BlocBuilder<LibraryBloc, LibraryState>(
+              child: BlocConsumer<LibraryBloc, LibraryState>(
+                listener: (context, state) {
+                  if (state is LibraryFailureState) {
+                    ScaffoldMessenger.of(
+                      context,
+                    ).showSnackBar(SnackBar(
+                      content: Text('${AppStrings.dashboardError}: ${state.message}'),
+                      backgroundColor: context.colorScheme.error,
+                    ));
+                  }
+                },
                 builder: (context, state) {
                   if (state is LibraryLoadingState && state is! LibraryLoadedState) {
-                    return const Center(child: CircularProgressIndicator());
+                    return Center(
+                      child: CircularProgressIndicator(
+                        color: context.colorScheme.primary,
+                      ),
+                    );
                   }
 
                   if (state is LibraryFailureState) {
-                    return Center(child: Text(state.message));
+                    return Center(
+                      child: Text(
+                        state.message,
+                        style: TextStyle(color: context.colorScheme.error),
+                      ),
+                    );
                   }
 
                   if (state is LibraryEmptyState) {
-                    // TODO: Implement Empty State Widget
-                    return const Center(child: Text('No videos yet. Add one!'));
+                    return Center(
+                      child: Text(
+                        AppStrings.dashboardNoVideos,
+                        style: context.textTheme.bodyLarge?.copyWith(
+                          color: context.colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                    );
                   }
 
                   if (state is LibraryLoadedState) {
@@ -72,11 +100,20 @@ class DashboardPage extends StatelessWidget {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          // TODO: Open Add Video Modal
-          // For now, just a placeholder or debug add
-          // context.read<LibraryBloc>().add(const LibraryVideoAddedEvent('https://youtu.be/...'));
+          showModalBottomSheet(
+            context: context,
+            isScrollControlled: true,
+            useSafeArea: true,
+            builder: (_) => AddVideoBottomSheet(
+              onAdd: (url) {
+                context.read<LibraryBloc>().add(LibraryVideoAddedEvent(url));
+              },
+            ),
+          );
         },
-        child: const Icon(Icons.add),
+        backgroundColor: context.colorScheme.primary,
+        foregroundColor: context.colorScheme.onPrimary,
+        child: const Icon(AppIcons.add),
       ),
     );
   }

@@ -4,7 +4,6 @@ import 'dart:developer';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
-import 'package:meta/meta.dart';
 import 'package:mx_youtube_player/src/iframe_api/src/functions/video_information.dart';
 import 'package:mx_youtube_player/youtube_player_iframe.dart';
 import 'package:url_launcher/url_launcher.dart' as uri_launcher;

@@ -2,7 +2,7 @@
 
 > **⚠️ STRICT RULE:** Adherence to this design system is mandatory. All UI code must follow these guidelines. PRs with hardcoded values will be rejected.
 
-This document outlines the standards for implementing UI in the `solearium` project. We follow the **Material Design 3** system, adapted for our specific brand needs.
+This document outlines the standards for implementing UI in the `skill_tube` project. We follow the **Material Design 3** system, adapted for our specific brand needs.
 
 ---
 
@@ -21,7 +21,7 @@ This document outlines the standards for implementing UI in the `solearium` proj
 
 4.  **No Raw Strings (i18n)**: Never use string literals for user-facing text.
     *   **Why?** Makes localization impossible.
-    *   **Instead:** Use `context.l10n.key`.
+    *   **Instead:** Use `AppStrings.key` (currently static constants).
 
 5.  **Icon Abstraction**: Never use `Icons.name` or raw asset paths.
     *   **Why?** Hard to switch icon sets or maintain consistency.
@@ -31,12 +31,14 @@ This document outlines the standards for implementing UI in the `solearium` proj
 
 ## 🎨 Colors
 
-We use the standard Material 3 `ColorScheme` plus a custom extension for semantic colors.
+We use the standard Material 3 `ColorScheme` plus a custom extension `AppColorsExtension` for semantic colors.
 
 ### Accessing Colors
 Use the `context` extensions provided in `context_extensions.dart`.
 
 ```dart
+import 'package:skill_tube/src/core/utils/extensions/context_extensions.dart';
+
 // ✅ GOOD
 Container(
   color: context.colorScheme.primary, // Brand Primary
@@ -55,6 +57,7 @@ Text(
 // ❌ BAD
 Container(color: Colors.blue)
 Container(color: Color(0xFF6200EE))
+Container(color: AppColors.primary) // Don't use static AppColors directly in widgets!
 ```
 
 ### Available Palettes
@@ -62,9 +65,10 @@ Container(color: Color(0xFF6200EE))
 *   **Brand**: `primary`, `secondary`, `tertiary` (via `context.colorScheme`)
 *   **UI**: `surface`, `background`, `outline` (via `context.colorScheme`)
 *   **Semantic** (via `context.appColors`):
-    *   `success` / `onSuccess`
-    *   `warning` / `onWarning`
-    *   `info` / `onInfo`
+    *   `success`
+    *   `warning`
+    *   `textPrimary`
+    *   `textSecondary`
 
 ---
 
@@ -110,7 +114,7 @@ All padding, margins, and gaps must use `AppSpacing`.
 
 ### Imports
 ```dart
-import 'package:solearium/src/core/design_system/app_spacing.dart';
+import 'package:skill_tube/src/core/design_system/app_spacing.dart';
 ```
 
 ### Usage
@@ -148,6 +152,8 @@ SizedBox(height: 10)
 Use `AppRadius` for all border radii.
 
 ```dart
+import 'package:skill_tube/src/core/design_system/app_radius.dart';
+
 // ✅ GOOD
 Container(
   decoration: BoxDecoration(
@@ -175,6 +181,8 @@ borderRadius: BorderRadius.circular(10)
 Use `AppSizes` for standard component heights and widths.
 
 ```dart
+import 'package:skill_tube/src/core/design_system/app_sizes.dart';
+
 // ✅ GOOD
 SizedBox(
   height: AppSizes.buttonHeightMd, // 44.0
@@ -214,6 +222,8 @@ height: 45
 Use `AppShadows` for consistent depth and elevation.
 
 ```dart
+import 'package:skill_tube/src/core/design_system/app_shadows.dart';
+
 // ✅ GOOD
 Container(
   decoration: BoxDecoration(
@@ -242,6 +252,8 @@ boxShadow: [BoxShadow(blurRadius: 10, color: Colors.black)]
 Use `AppDurations` for consistent motion.
 
 ```dart
+import 'package:skill_tube/src/core/design_system/app_durations.dart';
+
 // ✅ GOOD
 AnimatedOpacity(
   duration: AppDurations.fast, // 150ms
@@ -270,7 +282,7 @@ AnimatedOpacity(
 
 ### Usage
 ```dart
-import 'package:solearium/src/core/constants/app_strings.dart';
+import 'package:skill_tube/src/core/constants/app_strings.dart';
 
 // ✅ GOOD
 Text(AppStrings.loginTitle)
@@ -290,7 +302,7 @@ Text('Welcome Back')
 
 ### Usage
 ```dart
-import 'package:solearium/src/core/constants/app_icons.dart';
+import 'package:skill_tube/src/core/constants/app_icons.dart';
 
 // ✅ GOOD
 Icon(AppIcons.back)
@@ -310,5 +322,5 @@ Before asking for a review, verify:
 - [ ] Is all padding/spacing using `AppSpacing`?
 - [ ] Are all border radii using `AppRadius`?
 - [ ] Are there zero magic numbers in the layout code?
-- [ ] **Are there zero raw strings? 
+- [ ] **Are there zero raw strings?**
 - [ ] **Are all icons from `AppIcons`?**

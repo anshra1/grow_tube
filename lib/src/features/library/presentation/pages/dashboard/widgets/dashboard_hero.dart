@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:skill_tube/src/core/design_system/app_colors.dart';
+import 'package:skill_tube/src/core/constants/app_icons.dart';
+import 'package:skill_tube/src/core/constants/app_strings.dart';
 import 'package:skill_tube/src/core/design_system/app_radius.dart';
+import 'package:skill_tube/src/core/design_system/app_shadows.dart';
 import 'package:skill_tube/src/core/design_system/app_sizes.dart';
-import 'package:skill_tube/src/core/design_system/app_typography.dart';
 import 'package:skill_tube/src/core/utils/extensions/context_extensions.dart';
 import 'package:skill_tube/src/features/library/domain/entities/video.dart';
 
@@ -16,31 +17,18 @@ class DashboardHero extends StatelessWidget {
     // Determine progress
     final progress = video.durationSeconds > 0
         ? (video.lastWatchedPositionSeconds / video.durationSeconds).clamp(0.0, 1.0)
-        : 0;
+        : 0.0;
 
-    // Remaining or watched time formatting?
-    // Design has "12:40" and "24:15".
     final currentStr = _formatDuration(video.lastWatchedPositionSeconds);
     final totalStr = _formatDuration(video.durationSeconds);
 
     return AspectRatio(
-      aspectRatio:
-          16 /
-          9, // Standard video ratio for hero? Design implies taller, maybe 4/3 or custom.
-      // Design has h-48 (12rem = 192px).
-      // Let's use a SizedBox with height ~200.
+      aspectRatio: 16 / 9,
       child: Container(
-        height: 220,
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(AppRadius.r16),
-          color: context.colors.surface,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.2),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
-            ),
-          ],
+          borderRadius: AppRadius.roundedXL,
+          color: context.colorScheme.surface,
+          boxShadow: AppShadows.elevation3,
         ),
         clipBehavior: Clip.antiAlias,
         child: Stack(
@@ -50,20 +38,22 @@ class DashboardHero extends StatelessWidget {
             Image.network(
               video.thumbnailUrl,
               fit: BoxFit.cover,
-              errorBuilder: (_, __, ___) => Container(color: Colors.grey[800]),
+              errorBuilder: (_, __, ___) => Container(
+                color: context.colorScheme.surfaceContainerHighest,
+              ),
             ),
 
             // Gradient Overlay
             Container(
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                 gradient: LinearGradient(
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
                   colors: [
                     Colors.transparent,
-                    Colors.black87, // Darker at bottom
+                    context.colorScheme.scrim.withValues(alpha: 0.8),
                   ],
-                  stops: [0.4, 0.9],
+                  stops: const [0.4, 0.9],
                 ),
               ),
             ),
@@ -84,25 +74,25 @@ class DashboardHero extends StatelessWidget {
                         vertical: AppSizes.p4,
                       ),
                       decoration: BoxDecoration(
-                        color: AppColors.primary.withOpacity(0.9),
-                        borderRadius: BorderRadius.circular(AppRadius.r16),
+                        color: context.colorScheme.primary,
+                        borderRadius: AppRadius.roundedXL,
                       ),
                       child: Text(
-                        'Resume',
-                        style: AppTypography.labelSmall.copyWith(
-                          color: Colors.white,
+                        AppStrings.dashboardResume,
+                        style: context.textTheme.labelSmall?.copyWith(
+                          color: context.colorScheme.onPrimary,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
                     ),
 
-                  // Category (Channel Name as proxy?)
+                  // Category
                   Text(
                     video.channelName.toUpperCase(),
-                    style: AppTypography.labelSmall.copyWith(
-                      color: AppColors.primary200, // or a lighter primary
+                    style: context.textTheme.labelSmall?.copyWith(
+                      color: context.colorScheme.primaryContainer,
                       fontWeight: FontWeight.w600,
-                      letterSpacing: 1.0,
+                      letterSpacing: 1,
                     ),
                   ),
                   gapH4,
@@ -112,8 +102,8 @@ class DashboardHero extends StatelessWidget {
                     video.title,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
-                    style: AppTypography.h3.copyWith(
-                      color: Colors.white,
+                    style: context.textTheme.headlineSmall?.copyWith(
+                      color: context.colorScheme.onSurfaceVariant, // Or custom on-scrim color
                       height: 1.2,
                     ),
                   ),
@@ -126,13 +116,13 @@ class DashboardHero extends StatelessWidget {
                       Container(
                         width: 40,
                         height: 40,
-                        decoration: const BoxDecoration(
-                          color: AppColors.primary,
+                        decoration: BoxDecoration(
+                          color: context.colorScheme.primary,
                           shape: BoxShape.circle,
                         ),
-                        child: const Icon(
-                          Icons.play_arrow_rounded,
-                          color: Colors.white,
+                        child: Icon(
+                          AppIcons.play,
+                          color: context.colorScheme.onPrimary,
                           size: 24,
                         ),
                       ),
@@ -148,27 +138,27 @@ class DashboardHero extends StatelessWidget {
                               children: [
                                 Text(
                                   currentStr,
-                                  style: AppTypography.labelSmall.copyWith(
-                                    color: Colors.white70,
+                                  style: context.textTheme.labelSmall?.copyWith(
+                                    color: context.colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
                                   ),
                                 ),
                                 Text(
                                   totalStr,
-                                  style: AppTypography.labelSmall.copyWith(
-                                    color: Colors.white70,
+                                  style: context.textTheme.labelSmall?.copyWith(
+                                    color: context.colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
                                   ),
                                 ),
                               ],
                             ),
                             gapH4,
                             ClipRRect(
-                              borderRadius: BorderRadius.circular(AppRadius.r4),
+                              borderRadius: AppRadius.roundedS,
                               child: LinearProgressIndicator(
                                 value: progress,
                                 minHeight: 4,
-                                backgroundColor: Colors.white24,
-                                valueColor: const AlwaysStoppedAnimation<Color>(
-                                  AppColors.primary,
+                                backgroundColor: context.colorScheme.onSurfaceVariant.withValues(alpha: 0.2),
+                                valueColor: AlwaysStoppedAnimation<Color>(
+                                  context.colorScheme.primary,
                                 ),
                               ),
                             ),
@@ -197,3 +187,14 @@ class DashboardHero extends StatelessWidget {
     return '$min:$sec';
   }
 }
+
+  String _formatDuration(int seconds) {
+    if (seconds <= 0) return '00:00';
+    final duration = Duration(seconds: seconds);
+    final min = duration.inMinutes.remainder(60).toString().padLeft(2, '0');
+    final sec = duration.inSeconds.remainder(60).toString().padLeft(2, '0');
+    if (duration.inHours > 0) {
+      return '${duration.inHours}:$min:$sec';
+    }
+    return '$min:$sec';
+  }

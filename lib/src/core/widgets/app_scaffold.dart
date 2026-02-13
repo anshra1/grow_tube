@@ -6,12 +6,14 @@ class AppScaffold extends StatelessWidget {
   const AppScaffold({
     required this.body,
     this.appBar,
+    this.floatingActionButton,
     this.useSafeArea = true,
     super.key,
   });
 
   final Widget body;
   final PreferredSizeWidget? appBar;
+  final Widget? floatingActionButton;
   final bool useSafeArea;
 
   @override
@@ -27,6 +29,7 @@ class AppScaffold extends StatelessWidget {
         appBar: appBar,
         backgroundColor: context.colorScheme.surface,
         body: content,
+        floatingActionButton: floatingActionButton,
       ),
     );
   }

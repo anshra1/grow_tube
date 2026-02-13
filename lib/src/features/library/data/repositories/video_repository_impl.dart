@@ -1,4 +1,5 @@
 import 'package:fpdart/fpdart.dart';
+import 'package:skill_tube/main.dart';
 import 'package:skill_tube/src/core/common/typedef.dart';
 import 'package:skill_tube/src/core/error/exception.dart';
 import 'package:skill_tube/src/core/error/failure.dart';
@@ -6,6 +7,7 @@ import 'package:skill_tube/src/features/library/data/datasources/video_local_dat
 import 'package:skill_tube/src/features/library/data/datasources/video_remote_datasource.dart';
 import 'package:skill_tube/src/features/library/domain/entities/video.dart';
 import 'package:skill_tube/src/features/library/domain/repositories/video_repository.dart';
+import 'package:talker_flutter/talker_flutter.dart';
 
 class VideoRepositoryImpl implements VideoRepository {
   VideoRepositoryImpl({
@@ -23,8 +25,10 @@ class VideoRepositoryImpl implements VideoRepository {
       final entities = models.map((m) => m.toEntity()).toList();
       return Right(entities);
     } on DatabaseException catch (e) {
+      talker.error('Repository: Database error in getAllVideos: ${e.message}');
       return Left(CacheFailure(message: e.message));
     } catch (e) {
+      talker.error('Repository: Unknown error in getAllVideos: $e');
       return Left(UnknownFailure(message: e.toString()));
     }
   }
@@ -35,33 +39,35 @@ class VideoRepositoryImpl implements VideoRepository {
       final model = await localDataSource.getLastPlayedVideo();
       return Right(model?.toEntity());
     } on DatabaseException catch (e) {
+      talker.error('Repository: Database error in getLastPlayedVideo: ${e.message}');
       return Left(CacheFailure(message: e.message));
     } catch (e) {
+      talker.error('Repository: Unknown error in getLastPlayedVideo: $e');
       return Left(UnknownFailure(message: e.toString()));
     }
   }
 
   @override
   ResultFuture<Video> addVideo(String url) async {
+    talker.log('Repository: Adding video from URL: $url', logLevel: LogLevel.info);
     try {
-      // 1. Fetch from Remote (throws VideoException)
+      // 1. Fetch from Remote
       final model = await remoteDataSource.fetchVideoDetails(url);
+      talker.log('Repository: Remote metadata fetched for ${model.title}', logLevel: LogLevel.debug);
 
-      // 2. Save to Local (throws VideoException 'duplicate' or DatabaseException)
+      // 2. Save to Local
       await localDataSource.addVideo(model);
+      talker.log('Repository: Video saved to local storage', logLevel: LogLevel.info);
 
-      // 3. Return saved entity (re-query or use model)
-      // Since ID is auto-increment, the inserted model ID is updated by ObjectBox in place?
-      // Check ObjectBox behavior. Usually put() returns ID, assigns it to object.
-      // But verify. Assuming `addVideo` handles it or we re-fetch effectively.
-      // `localDataSource.addVideo` takes `VideoModel`. `_box.put(video)`.
-      // ObjectBox updates the ID on the object passed to put().
       return Right(model.toEntity());
     } on VideoException catch (e) {
+      talker.error('Repository: Video error adding video: ${e.message} (${e.code})');
       return Left(VideoFailure(message: e.message, code: e.code));
     } on DatabaseException catch (e) {
+      talker.error('Repository: Database error adding video: ${e.message}');
       return Left(CacheFailure(message: e.message));
     } catch (e) {
+      talker.error('Repository: Unexpected error adding video: $e');
       return Left(UnknownFailure(message: e.toString()));
     }
   }
@@ -72,8 +78,10 @@ class VideoRepositoryImpl implements VideoRepository {
       await localDataSource.deleteVideo(id);
       return const Right(null);
     } on DatabaseException catch (e) {
+      talker.error('Repository: Database error deleting video: ${e.message}');
       return Left(CacheFailure(message: e.message));
     } catch (e) {
+      talker.error('Repository: Unknown error deleting video: $e');
       return Left(UnknownFailure(message: e.toString()));
     }
   }
@@ -84,8 +92,10 @@ class VideoRepositoryImpl implements VideoRepository {
       final model = await localDataSource.getVideo(youtubeId);
       return Right(model?.toEntity());
     } on DatabaseException catch (e) {
+      talker.error('Repository: Database error getting video: ${e.message}');
       return Left(CacheFailure(message: e.message));
     } catch (e) {
+      talker.error('Repository: Unknown error getting video: $e');
       return Left(UnknownFailure(message: e.toString()));
     }
   }

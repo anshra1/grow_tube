@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:skill_tube/src/core/design_system/app_colors.dart';
+import 'package:skill_tube/src/core/constants/app_icons.dart';
+import 'package:skill_tube/src/core/constants/app_strings.dart';
 import 'package:skill_tube/src/core/design_system/app_radius.dart';
+import 'package:skill_tube/src/core/design_system/app_shadows.dart';
 import 'package:skill_tube/src/core/design_system/app_sizes.dart';
-import 'package:skill_tube/src/core/design_system/app_typography.dart';
 import 'package:skill_tube/src/core/utils/extensions/context_extensions.dart';
 import 'package:skill_tube/src/features/library/domain/entities/video.dart';
 
@@ -25,9 +26,9 @@ class DashboardVideoList extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      'My Videos',
-                      style: AppTypography.h3.copyWith(
-                        color: context.colors.textPrimary,
+                      AppStrings.dashboardMyVideos,
+                      style: context.textTheme.headlineSmall?.copyWith(
+                        color: context.colorScheme.onSurface,
                       ),
                     ),
                     TextButton(
@@ -36,12 +37,12 @@ class DashboardVideoList extends StatelessWidget {
                         // "See all"
                       },
                       style: TextButton.styleFrom(
-                        foregroundColor: AppColors.primary,
-                        textStyle: AppTypography.labelLarge.copyWith(
+                        foregroundColor: context.colorScheme.primary,
+                        textStyle: context.textTheme.labelLarge?.copyWith(
                           fontWeight: FontWeight.w600,
                         ),
                       ),
-                      child: const Text('See all'),
+                      child: const Text(AppStrings.dashboardSeeAll),
                     ),
                   ],
                 ),
@@ -71,36 +72,32 @@ class DashboardVideoCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final progress = video.durationSeconds > 0
         ? (video.lastWatchedPositionSeconds / video.durationSeconds).clamp(0.0, 1.0)
-        : 0;
+        : 0.0;
 
     return Container(
       decoration: BoxDecoration(
-        color: context.colors.surface,
-        borderRadius: BorderRadius.circular(AppRadius.r12),
+        color: context.colorScheme.surface,
+        borderRadius: AppRadius.roundedL,
         border: Border.all(
-          color: context.isDarkMode ? Colors.white10 : Colors.black.withOpacity(0.05),
+          color: context.colorScheme.outlineVariant.withValues(alpha: 0.5),
         ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.02),
-            blurRadius: 4,
-            offset: const Offset(0, 2),
-          ),
-        ],
+        boxShadow: AppShadows.card,
       ),
       padding: const EdgeInsets.all(AppSizes.p12),
       child: Row(
         children: [
           // Thumbnail
           ClipRRect(
-            borderRadius: BorderRadius.circular(AppRadius.r8),
+            borderRadius: AppRadius.roundedM,
             child: SizedBox(
               width: 112, // w-28 = 7rem = 112px
               height: 80, // h-20 = 5rem = 80px
               child: Image.network(
                 video.thumbnailUrl,
                 fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) => Container(color: Colors.grey[800]),
+                errorBuilder: (_, __, ___) => Container(
+                  color: context.colorScheme.surfaceContainerHighest,
+                ),
               ),
             ),
           ),
@@ -119,34 +116,36 @@ class DashboardVideoCard extends StatelessWidget {
                         video.title,
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
-                        style: AppTypography.bodyMedium.copyWith(
+                        style: context.textTheme.bodyMedium?.copyWith(
                           fontWeight: FontWeight.w600,
-                          color: context.colors.textPrimary,
+                          color: context.colorScheme.onSurface,
                           height: 1.2,
                         ),
                       ),
                     ),
-                    const Icon(Icons.more_vert_rounded, size: 20, color: Colors.grey),
+                    Icon(
+                      AppIcons.more,
+                      size: 20,
+                      color: context.colorScheme.onSurfaceVariant,
+                    ),
                   ],
                 ),
                 gapH4,
                 Text(
                   video.channelName,
-                  style: AppTypography.labelSmall.copyWith(
-                    color: context.colors.textSecondary,
+                  style: context.textTheme.labelSmall?.copyWith(
+                    color: context.colorScheme.onSurfaceVariant,
                   ),
                 ),
                 gapH8,
                 // Progress Bar
                 ClipRRect(
-                  borderRadius: BorderRadius.circular(AppRadius.r4),
+                  borderRadius: AppRadius.roundedS,
                   child: LinearProgressIndicator(
                     value: progress,
                     minHeight: 6,
-                    backgroundColor: context.isDarkMode
-                        ? Colors.grey[800]
-                        : Colors.grey[200],
-                    valueColor: const AlwaysStoppedAnimation<Color>(AppColors.primary),
+                    backgroundColor: context.colorScheme.onSurfaceVariant.withValues(alpha: 0.2),
+                    valueColor: AlwaysStoppedAnimation<Color>(context.colorScheme.primary),
                   ),
                 ),
               ],

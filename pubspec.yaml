@@ -27,8 +27,8 @@ dependencies:
   mx_youtube_player:
     path: package/mx_youtube_player
   objectbox: ^5.2.0
-  youtube_explode_dart: ^2.3.5
-  
+  objectbox_flutter_libs: ^5.2.0
+  youtube_explode_dart: ^3.0.5
   path_provider: ^2.1.2
   shared_preferences: ^2.2.3
   shimmer: ^3.0.0
@@ -39,24 +39,12 @@ dependencies:
   uuid: ^4.4.0
 
 dev_dependencies:
-  bloc_test: ^10.0.0
 
-  # Code Generation
   build_runner: ^2.4.11
-  faker: ^2.1.0
-  flutter_gen_runner: ^5.5.0+1
   flutter_lints: ^6.0.0
-  flutter_test:
-    sdk: flutter
   freezed: ^3.2.3
   json_serializable: ^6.8.0
-
-  # Testing
-  mocktail: ^1.0.3
   objectbox_generator: ^5.2.0
-
-  # Tools
-  very_good_analysis: ^10.1.0
 
 flutter:
   uses-material-design: true
