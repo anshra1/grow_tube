@@ -38,16 +38,17 @@ class _DashboardHeroState extends State<DashboardHero> {
   }
 
   void _initController() {
-    _controller = YoutubePlayerController.fromVideoId(
-      videoId: widget.video.youtubeId,
-      autoPlay: true,
-      params: const YoutubePlayerParams(
+    _controller = YoutubePlayerController(
+      params: YoutubePlayerParams(
         showControls: false,
         showFullscreenButton: true,
+        playlist: [widget.video.youtubeId],
+        startAt: Duration(
+          seconds: widget.video.isCompleted
+              ? 0
+              : widget.video.lastWatchedPositionSeconds,
+        ),
       ),
-      startSeconds: widget.video.isCompleted 
-          ? 0 
-          : widget.video.lastWatchedPositionSeconds.toDouble(),
     );
     
     // Set fullscreen listener to navigate to PlayerPage

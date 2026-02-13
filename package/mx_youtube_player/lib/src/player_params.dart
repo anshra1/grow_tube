@@ -109,6 +109,9 @@ class YoutubePlayerParams {
   /// The user agent for the player.
   final String? userAgent;
 
+  /// The duration at which the video should start.
+  final Duration startAt;
+
   /// Defines player parameters for the youtube player.
   const YoutubePlayerParams({
     this.mute = false,
@@ -127,6 +130,7 @@ class YoutubePlayerParams {
     this.playsInline = true,
     this.strictRelatedVideos = false,
     this.userAgent,
+    this.startAt = Duration.zero,
   });
 
   /// Creates [Map] representation of [YoutubePlayerParams].
@@ -154,6 +158,7 @@ class YoutubePlayerParams {
       },
       'playsinline': _boolean(playsInline),
       'rel': _boolean(!strictRelatedVideos),
+      'start': startAt.inSeconds,
     };
   }
 

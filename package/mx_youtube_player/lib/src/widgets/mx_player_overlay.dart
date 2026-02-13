@@ -2,6 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_volume_controller/flutter_volume_controller.dart';
+import 'package:mx_youtube_player/src/widgets/buffered_progress_bar.dart';
+import 'package:mx_youtube_player/src/widgets/marquee_text.dart';
 import 'package:mx_youtube_player/youtube_player_iframe.dart';
 import 'package:screen_brightness/screen_brightness.dart';
 
@@ -10,6 +12,7 @@ class MxPlayerOverlay extends StatefulWidget {
   final String title;
   final String? channelName;
   final bool isHeroMode;
+  final VoidCallback? onToggleZoom;
 
   const MxPlayerOverlay({
     super.key,
@@ -17,6 +20,7 @@ class MxPlayerOverlay extends StatefulWidget {
     required this.title,
     this.channelName,
     this.isHeroMode = false,
+    this.onToggleZoom,
   });
 
   @override
@@ -31,14 +35,17 @@ class _MxPlayerOverlayState extends State<MxPlayerOverlay> {
   IconData? _centerIcon;
   bool _showCenterOverlay = false;
   Timer? _centerOverlayTimer;
-  
-  // Drag State
-  double? _initialDragValue;
-  double? _currentDragValue;
-  bool _isVolumeDrag = false;
-  bool _isBrightnessDrag = false;
+
+  // Drag & Scale State
+  double? _initialVolume;
+  double? _currentVolume;
+  double? _initialBrightness;
+  double? _currentBrightness;
+  double? _startSeekSeconds;
   bool _isSeekDrag = false;
-  double _startSeekSeconds = 0;
+
+  // Debounce for zoom to prevent flickering
+  DateTime _lastZoomTime = DateTime.now();
 
   @override
   void initState() {
@@ -64,7 +71,7 @@ class _MxPlayerOverlayState extends State<MxPlayerOverlay> {
       _centerIcon = icon;
       _showCenterOverlay = true;
     });
-    
+
     _centerOverlayTimer?.cancel();
     _centerOverlayTimer = Timer(const Duration(seconds: 1), () {
       if (mounted) {
@@ -75,76 +82,100 @@ class _MxPlayerOverlayState extends State<MxPlayerOverlay> {
     });
   }
 
-  void _onVerticalDragStart(DragStartDetails details, BoxConstraints constraints) async {
-    final width = constraints.maxWidth;
-    final isRightSide = details.localPosition.dx > width / 2;
+  void _onScaleStart(ScaleStartDetails details, BoxConstraints constraints) async {
+    // Initialize Volume
+    _initialVolume = await FlutterVolumeController.getVolume();
+    _currentVolume = _initialVolume;
 
-    if (isRightSide) {
-      _isVolumeDrag = true;
-      _initialDragValue = await FlutterVolumeController.getVolume();
-    } else {
-      _isBrightnessDrag = true;
-      try {
-        _initialDragValue = await ScreenBrightness().current;
-      } catch (e) {
-        _initialDragValue = 0.5;
-      }
+    // Initialize Brightness
+    try {
+      _initialBrightness = await ScreenBrightness().current;
+    } catch (e) {
+      _initialBrightness = 0.5;
     }
-  }
+    _currentBrightness = _initialBrightness;
 
-  void _onVerticalDragUpdate(DragUpdateDetails details, BoxConstraints constraints) {
-    if (_initialDragValue == null) return;
-
-    final delta = -details.primaryDelta! / constraints.maxHeight * 2; // Sensitivity
-    _currentDragValue = (_currentDragValue ?? _initialDragValue!) + delta;
-    _currentDragValue = _currentDragValue!.clamp(0.0, 1.0);
-
-    if (_isVolumeDrag) {
-      FlutterVolumeController.setVolume(_currentDragValue!);
-      _showCenterFeedback(
-        '${(_currentDragValue! * 100).toInt()}%',
-        Icons.volume_up,
-      );
-    } else if (_isBrightnessDrag) {
-      ScreenBrightness().setScreenBrightness(_currentDragValue!);
-      _showCenterFeedback(
-        '${(_currentDragValue! * 100).toInt()}%',
-        Icons.brightness_6,
-      );
-    }
-  }
-
-  void _onVerticalDragEnd(DragEndDetails details) {
-    _isVolumeDrag = false;
-    _isBrightnessDrag = false;
-    _initialDragValue = null;
-    _currentDragValue = null;
-  }
-
-  Future<void> _onHorizontalDragStart(DragStartDetails details) async {
-    _isSeekDrag = true;
+    // Initialize Seek
     _startSeekSeconds = await widget.controller.currentTime;
+    _isSeekDrag = false;
   }
 
-  void _onHorizontalDragUpdate(DragUpdateDetails details, BoxConstraints constraints) async {
-    if (!_isSeekDrag) return;
+  void _onScaleUpdate(ScaleUpdateDetails details, BoxConstraints constraints) async {
+    // 1. Handle Zoom (Pinch)
+    if (details.pointerCount == 2) {
+      if (DateTime.now().difference(_lastZoomTime).inMilliseconds > 500) {
+        if (details.scale > 1.5 || details.scale < 0.5) {
+          widget.onToggleZoom?.call();
+          _lastZoomTime = DateTime.now();
+          _showCenterFeedback(details.scale > 1.0 ? 'Fill' : 'Fit', Icons.aspect_ratio);
+        }
+      }
+      return;
+    }
 
-    final duration = await widget.controller.duration;
-    final deltaSeconds = (details.primaryDelta! / constraints.maxWidth) * 90; // 90s swipe range
-    
-    var newPos = _startSeekSeconds + deltaSeconds;
-    newPos = newPos.clamp(0.0, duration);
-    
-    _startSeekSeconds = newPos; // Accumulate for smooth dragging
-    
-    final formattedTime = _formatDuration(Duration(seconds: newPos.toInt()));
-    _showCenterFeedback(formattedTime, Icons.fast_forward);
-    
-    widget.controller.seekTo(seconds: newPos, allowSeekAhead: false);
+    // 2. Handle Drag (1 Finger)
+    // Determine gesture type based on delta dominence
+    final dx = details.focalPointDelta.dx;
+    final dy = details.focalPointDelta.dy;
+
+    // Seek (Horizontal)
+    if (dx.abs() > dy.abs() && dx.abs() > 2.0 && !_isSeekDrag) {
+      // Start horizontal drag if strictly horizontal
+      _isSeekDrag = true;
+    }
+
+    // Vertical (Volume/Brightness)
+    if (dy.abs() > dx.abs() && !_isSeekDrag) {
+      final width = constraints.maxWidth;
+      final isRightSide = details.focalPoint.dx > width / 2;
+
+      // Calculate vertical delta (normalized 0-1)
+      // Negative delta means drag UP (increase)
+      final deltaLimit = -dy / constraints.maxHeight * 2;
+
+      if (isRightSide) {
+        // Volume
+        _currentVolume = (_currentVolume ?? 0) + deltaLimit;
+        _currentVolume = _currentVolume!.clamp(0.0, 1.0);
+        FlutterVolumeController.setVolume(_currentVolume!);
+        _showCenterFeedback('${(_currentVolume! * 100).toInt()}%', Icons.volume_up);
+      } else {
+        // Brightness
+        _currentBrightness = (_currentBrightness ?? 0.5) + deltaLimit;
+        _currentBrightness = _currentBrightness!.clamp(0.0, 1.0);
+        ScreenBrightness().setScreenBrightness(_currentBrightness!);
+        _showCenterFeedback(
+          '${(_currentBrightness! * 100).toInt()}%',
+          Icons.brightness_6,
+        );
+      }
+      return;
+    }
+
+    // Handle Seek Update
+    if (_isSeekDrag) {
+      final duration = await widget.controller.duration;
+      final deltaSeconds = (dx / constraints.maxWidth) * 90; // 90s swipe range
+
+      var newPos = (_startSeekSeconds ?? 0) + deltaSeconds;
+      newPos = newPos.clamp(0.0, duration);
+
+      // Update startSeek to accumulate for next frame?
+      // No, focalPointDelta is per frame. We need accumulated delta or update start base.
+      _startSeekSeconds = newPos; // This works for simplistic accumulation
+
+      final formattedTime = _formatDuration(Duration(seconds: newPos.toInt()));
+      _showCenterFeedback(formattedTime, Icons.fast_forward);
+
+      widget.controller.seekTo(seconds: newPos, allowSeekAhead: false);
+    }
   }
 
-  void _onHorizontalDragEnd(DragEndDetails details) {
-     _isSeekDrag = false;
+  void _onScaleEnd(ScaleEndDetails details) {
+    _initialVolume = null;
+    _initialBrightness = null;
+    _startSeekSeconds = null;
+    _isSeekDrag = false;
   }
 
   void _togglePlayPause() async {
@@ -162,8 +193,8 @@ class _MxPlayerOverlayState extends State<MxPlayerOverlay> {
     String twoDigits(int n) => n.toString().padLeft(2, '0');
     final minutes = twoDigits(duration.inMinutes.remainder(60));
     final seconds = twoDigits(duration.inSeconds.remainder(60));
-    return duration.inHours > 0 
-        ? '${duration.inHours}:$minutes:$seconds' 
+    return duration.inHours > 0
+        ? '${duration.inHours}:$minutes:$seconds'
         : '$minutes:$seconds';
   }
 
@@ -173,6 +204,21 @@ class _MxPlayerOverlayState extends State<MxPlayerOverlay> {
       builder: (context, constraints) {
         final content = Stack(
           children: [
+            // Buffering Indicator
+            if (!widget.isHeroMode)
+              StreamBuilder<YoutubePlayerValue>(
+                stream: widget.controller.stream,
+                builder: (context, snapshot) {
+                  final state = snapshot.data?.playerState;
+                  if (state == PlayerState.buffering) {
+                    return const Center(
+                      child: CircularProgressIndicator(color: Colors.orange),
+                    );
+                  }
+                  return const SizedBox.shrink();
+                },
+              ),
+
             // Center Feedback (Volume/Brightness/Seek)
             if (_showCenterOverlay && !widget.isHeroMode)
               Center(
@@ -189,7 +235,11 @@ class _MxPlayerOverlayState extends State<MxPlayerOverlay> {
                       const SizedBox(height: 8),
                       Text(
                         _centerText ?? '',
-                        style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ],
                   ),
@@ -213,16 +263,30 @@ class _MxPlayerOverlayState extends State<MxPlayerOverlay> {
                             onPressed: () => Navigator.maybePop(context),
                           ),
                           Expanded(
-                            child: Text(
-                              widget.title,
+                            child: MarqueeText(
+                              text: widget.title,
                               style: const TextStyle(color: Colors.white, fontSize: 18),
-                              overflow: TextOverflow.ellipsis,
                             ),
+                          ),
+                          // Options Menu
+                          PopupMenuButton<double>(
+                            icon: const Icon(Icons.more_vert, color: Colors.white),
+                            onSelected: (speed) {
+                              widget.controller.setPlaybackRate(speed);
+                              _showCenterFeedback('${speed}x', Icons.speed);
+                            },
+                            itemBuilder: (context) =>
+                                [0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0].map((speed) {
+                                  return PopupMenuItem(
+                                    value: speed,
+                                    child: Text('${speed}x Playback Speed'),
+                                  );
+                                }).toList(),
                           ),
                         ],
                       ),
                     ),
-                    
+
                     // Center Play Button
                     IconButton(
                       iconSize: 64,
@@ -238,9 +302,15 @@ class _MxPlayerOverlayState extends State<MxPlayerOverlay> {
                           StreamBuilder<YoutubeVideoState>(
                             stream: widget.controller.videoStateStream,
                             builder: (context, snapshot) {
-                              final position = snapshot.data?.position.inSeconds.toDouble() ?? 0.0;
-                              final duration = widget.controller.metadata.duration.inSeconds.toDouble();
-                              
+                              final position =
+                                  snapshot.data?.position.inSeconds.toDouble() ?? 0.0;
+                              final duration = widget
+                                  .controller
+                                  .metadata
+                                  .duration
+                                  .inSeconds
+                                  .toDouble();
+
                               return Row(
                                 children: [
                                   Text(
@@ -248,21 +318,15 @@ class _MxPlayerOverlayState extends State<MxPlayerOverlay> {
                                     style: const TextStyle(color: Colors.white),
                                   ),
                                   Expanded(
-                                    child: SliderTheme(
-                                      data: SliderThemeData(
-                                        activeTrackColor: Colors.orange, // MX Style
-                                        thumbColor: Colors.orange,
-                                        inactiveTrackColor: Colors.grey,
-                                        trackHeight: 2.0,
-                                      ),
-                                      child: Slider(
-                                        value: position.clamp(0.0, duration > 0 ? duration : 1.0),
-                                        min: 0,
-                                        max: duration > 0 ? duration : 1.0,
-                                        onChanged: (val) {
-                                          widget.controller.seekTo(seconds: val);
-                                        },
-                                      ),
+                                    child: BufferedProgressBar(
+                                      position: position,
+                                      buffered:
+                                          duration *
+                                          (snapshot.data?.loadedFraction ?? 0.0),
+                                      duration: duration,
+                                      onChanged: (val) {
+                                        widget.controller.seekTo(seconds: val);
+                                      },
                                     ),
                                   ),
                                   Text(
@@ -294,7 +358,7 @@ class _MxPlayerOverlayState extends State<MxPlayerOverlay> {
               Align(
                 alignment: Alignment.bottomRight,
                 child: Padding(
-                  padding: const EdgeInsets.all(AppSizes.p8),
+                  padding: const EdgeInsets.all(8),
                   child: IconButton(
                     icon: const Icon(Icons.fullscreen, color: Colors.white, size: 28),
                     onPressed: () => widget.controller.toggleFullScreen(),
@@ -316,12 +380,9 @@ class _MxPlayerOverlayState extends State<MxPlayerOverlay> {
             });
           },
           onDoubleTap: _togglePlayPause,
-          onVerticalDragStart: (d) => _onVerticalDragStart(d, constraints),
-          onVerticalDragUpdate: (d) => _onVerticalDragUpdate(d, constraints),
-          onVerticalDragEnd: _onVerticalDragEnd,
-          onHorizontalDragStart: _onHorizontalDragStart,
-          onHorizontalDragUpdate: (d) => _onHorizontalDragUpdate(d, constraints),
-          onHorizontalDragEnd: _onHorizontalDragEnd,
+          onScaleStart: (d) => _onScaleStart(d, constraints),
+          onScaleUpdate: (d) => _onScaleUpdate(d, constraints),
+          onScaleEnd: _onScaleEnd,
           behavior: HitTestBehavior.translucent,
           child: content,
         );

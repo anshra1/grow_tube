@@ -25,6 +25,8 @@ class MxPlayerScaffold extends StatefulWidget {
 }
 
 class _MxPlayerScaffoldState extends State<MxPlayerScaffold> {
+  BoxFit _fit = BoxFit.contain;
+
   @override
   void initState() {
     super.initState();
@@ -40,10 +42,14 @@ class _MxPlayerScaffoldState extends State<MxPlayerScaffold> {
   @override
   void dispose() {
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
-    SystemChrome.setPreferredOrientations([
-      DeviceOrientation.portraitUp,
-    ]);
+    SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
     super.dispose();
+  }
+
+  void _toggleZoom() {
+    setState(() {
+      _fit = _fit == BoxFit.contain ? BoxFit.cover : BoxFit.contain;
+    });
   }
 
   @override
@@ -55,9 +61,18 @@ class _MxPlayerScaffoldState extends State<MxPlayerScaffold> {
         final playerWidget = Stack(
           children: [
             Center(
-              child: YoutubePlayer(
-                controller: widget.controller,
-                aspectRatio: 16 / 9,
+              child: SizedBox.expand(
+                child: FittedBox(
+                  fit: _fit,
+                  child: SizedBox(
+                    width: 16 * 100, // Aspect Ratio reference
+                    height: 9 * 100,
+                    child: YoutubePlayer(
+                      controller: widget.controller,
+                      aspectRatio: 16 / 9,
+                    ),
+                  ),
+                ),
               ),
             ),
             MxPlayerOverlay(
@@ -65,6 +80,7 @@ class _MxPlayerScaffoldState extends State<MxPlayerScaffold> {
               title: widget.title,
               channelName: widget.channelName,
               isHeroMode: widget.isHeroMode,
+              onToggleZoom: _toggleZoom,
             ),
           ],
         );

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:mx_youtube_player/youtube_player_iframe.dart';
-import 'package:skill_tube/src/core/constants/app_strings.dart';
+import 'package:mx_youtube_player/youtube_player_iframe.dart' hide PlayerState;
 import 'package:skill_tube/src/core/di/injection_container.dart' as di;
 import 'package:skill_tube/src/core/utils/extensions/context_extensions.dart';
 import 'package:skill_tube/src/features/player/presentation/bloc/player_bloc.dart';
@@ -27,16 +26,17 @@ class _PlayerPageState extends State<PlayerPage> {
       child: BlocConsumer<PlayerBloc, PlayerState>(
         listener: (context, state) {
           if (state is PlayerLoadedState) {
-            _controller = YoutubePlayerController.fromVideoId(
-              videoId: state.video.youtubeId,
-              autoPlay: true,
-              params: const YoutubePlayerParams(
+            _controller = YoutubePlayerController(
+              params: YoutubePlayerParams(
                 showControls: false, // We use our custom HUD
                 showFullscreenButton: true,
+                playlist: [state.video.youtubeId], // Required for some features
+                startAt: Duration(
+                  seconds: state.video.isCompleted
+                      ? 0
+                      : state.video.lastWatchedPositionSeconds,
+                ),
               ),
-              startSeconds: state.video.isCompleted 
-                  ? 0 
-                  : state.video.lastWatchedPositionSeconds.toDouble(),
             );
           }
         },
@@ -44,9 +44,7 @@ class _PlayerPageState extends State<PlayerPage> {
           if (state is PlayerLoadingState) {
             return const Scaffold(
               backgroundColor: Colors.black,
-              body: Center(
-                child: CircularProgressIndicator(),
-              ),
+              body: Center(child: CircularProgressIndicator()),
             );
           }
 
@@ -70,10 +68,7 @@ class _PlayerPageState extends State<PlayerPage> {
             );
           }
 
-          return const Scaffold(
-            backgroundColor: Colors.black,
-            body: SizedBox.shrink(),
-          );
+          return const Scaffold(backgroundColor: Colors.black, body: SizedBox.shrink());
         },
       ),
     );
