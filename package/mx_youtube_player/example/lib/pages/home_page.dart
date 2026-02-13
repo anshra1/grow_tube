@@ -31,6 +31,7 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return MxPlayerScaffold(
       controller: _controller,
+      title: 'MX Player Example',
     );
   }
 
