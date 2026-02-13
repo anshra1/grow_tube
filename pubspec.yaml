@@ -42,8 +42,9 @@ dependencies:
 dev_dependencies:
 
   build_runner: ^2.4.11
-  flutter_launcher_icons: ^0.14.4
+
   flutter_lints: ^6.0.0
+  flutter_native_splash: ^2.4.7
   freezed: ^3.2.3
   json_serializable: ^6.8.0
   objectbox_generator: ^5.2.0
@@ -53,8 +54,11 @@ flutter:
   assets:
     - assets/icons/
 
-flutter_launcher_icons:
-  android: true
-  ios: true
-  image_path: "assets/icons/app_icon.png"
-  remove_alpha_ios: true
+
+
+flutter_native_splash:
+  color: "#f6f7f8"
+  image: "assets/icons/icon.png"
+  android_12:
+    image: "assets/icons/icon.png"
+    color: "#f6f7f8"
