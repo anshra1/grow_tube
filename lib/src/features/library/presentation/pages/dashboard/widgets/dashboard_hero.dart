@@ -1,13 +1,14 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:mx_youtube_player/youtube_player_iframe.dart';
-import 'package:skill_tube/src/core/constants/app_icons.dart';
-import 'package:skill_tube/src/core/constants/app_strings.dart';
+import 'package:omni_video_player/omni_video_player.dart';
 import 'package:skill_tube/src/core/design_system/app_radius.dart';
-import 'package:skill_tube/src/core/design_system/app_shadows.dart';
-import 'package:skill_tube/src/core/design_system/app_sizes.dart';
-import 'package:skill_tube/src/core/utils/extensions/context_extensions.dart';
 import 'package:skill_tube/src/features/library/domain/entities/video.dart';
+import 'package:skill_tube/src/features/library/presentation/bloc/library_bloc.dart';
+import 'package:skill_tube/src/features/library/presentation/bloc/library_event.dart';
 
 class DashboardHero extends StatefulWidget {
   const DashboardHero({required this.video, super.key});
@@ -19,250 +20,185 @@ class DashboardHero extends StatefulWidget {
 }
 
 class _DashboardHeroState extends State<DashboardHero> {
-  YoutubePlayerController? _controller;
-  bool _isPlaying = false;
+  OmniPlaybackController? _controller;
+  Timer? _heartbeatTimer;
 
   @override
   void initState() {
     super.initState();
+    _startHeartbeat();
   }
 
-  @override
-  void didUpdateWidget(DashboardHero oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.video.youtubeId != widget.video.youtubeId) {
-      _controller?.close();
-      _controller = null;
-      _isPlaying = false;
-    }
-  }
-
-  void _initController() {
-    _controller = YoutubePlayerController(
-      params: const YoutubePlayerParams(
-        showControls: false,
-        showFullscreenButton: true,
-        mute: false,
-        strictRelatedVideos: true,
-        playsInline: true,
-        origin: 'https://www.youtube-nocookie.com',
-      ),
-    );
-
-    _controller?.loadVideoById(
-      videoId: widget.video.youtubeId,
-      startSeconds: widget.video.isCompleted
-          ? 0
-          : widget.video.lastWatchedPositionSeconds.toDouble(),
-    );
-
-    // Set fullscreen listener to navigate to PlayerPage
-    _controller?.setFullScreenListener((isFullScreen) {
-      if (isFullScreen) {
-        _controller?.exitFullScreen(lock: false);
-        context.push('/player/${widget.video.youtubeId}');
-      }
+  void _startHeartbeat() {
+    _heartbeatTimer?.cancel();
+    _heartbeatTimer = Timer.periodic(const Duration(seconds: 60), (_) {
+      _saveProgress();
     });
   }
 
-  @override
-  Widget build(BuildContext context) {
-    final progress = widget.video.durationSeconds > 0
-        ? (widget.video.lastWatchedPositionSeconds / widget.video.durationSeconds).clamp(
-            0.0,
-            1.0,
-          )
-        : 0.0;
-
-    final currentStr = _formatDuration(widget.video.lastWatchedPositionSeconds);
-    final totalStr = _formatDuration(widget.video.durationSeconds);
-
-    return AspectRatio(
-      aspectRatio: 16 / 9,
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: AppRadius.roundedXL,
-          color: context.colorScheme.surface,
-          boxShadow: AppShadows.elevation3,
-        ),
-        clipBehavior: Clip.antiAlias,
-        child: _isPlaying && _controller != null
-            ? MxInlinePlayer(
-                controller: _controller!,
-                title: widget.video.title,
-                channelName: widget.video.channelName,
-              )
-            : Stack(
-                fit: StackFit.expand,
-                children: [
-                  // Background Image
-                  Image.network(
-                    widget.video.thumbnailUrl,
-                    fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) =>
-                        Container(color: context.colorScheme.surfaceContainerHighest),
-                  ),
-
-                  // Gradient Overlay
-                  Container(
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: [
-                          Colors.transparent,
-                          context.colorScheme.scrim.withValues(alpha: 0.8),
-                        ],
-                        stops: const [0.4, 0.9],
-                      ),
-                    ),
-                  ),
-
-                  // Content
-                  Padding(
-                    padding: const EdgeInsets.all(AppSizes.p20),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        // Badge
-                        if (progress > 0)
-                          Container(
-                            margin: const EdgeInsets.only(bottom: AppSizes.p12),
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: AppSizes.p12,
-                              vertical: AppSizes.p4,
-                            ),
-                            decoration: BoxDecoration(
-                              color: context.colorScheme.primary,
-                              borderRadius: AppRadius.roundedXL,
-                            ),
-                            child: Text(
-                              AppStrings.dashboardResume,
-                              style: context.textTheme.labelSmall?.copyWith(
-                                color: context.colorScheme.onPrimary,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-
-                        // Category
-                        Text(
-                          widget.video.channelName.toUpperCase(),
-                          style: context.textTheme.labelSmall?.copyWith(
-                            color: context.colorScheme.primaryContainer,
-                            fontWeight: FontWeight.w600,
-                            letterSpacing: 1,
-                          ),
-                        ),
-                        gapH4,
-
-                        // Title
-                        Text(
-                          widget.video.title,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          style: context.textTheme.headlineSmall?.copyWith(
-                            color: context.colorScheme.onSurfaceVariant,
-                            height: 1.2,
-                          ),
-                        ),
-                        gapH12,
-
-                        // Progress Row
-                        Row(
-                          children: [
-                            // Play Button
-                            GestureDetector(
-                              onTap: () {
-                                setState(() {
-                                  _initController();
-                                  _isPlaying = true;
-                                });
-                              },
-                              child: Container(
-                                width: 40,
-                                height: 40,
-                                decoration: BoxDecoration(
-                                  color: context.colorScheme.primary,
-                                  shape: BoxShape.circle,
-                                ),
-                                child: Icon(
-                                  AppIcons.play,
-                                  color: context.colorScheme.onPrimary,
-                                  size: 24,
-                                ),
-                              ),
-                            ),
-                            gapW12,
-
-                            // Progress Bar & Times
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Text(
-                                        currentStr,
-                                        style: context.textTheme.labelSmall?.copyWith(
-                                          color: context.colorScheme.onSurfaceVariant
-                                              .withValues(alpha: 0.7),
-                                        ),
-                                      ),
-                                      Text(
-                                        totalStr,
-                                        style: context.textTheme.labelSmall?.copyWith(
-                                          color: context.colorScheme.onSurfaceVariant
-                                              .withValues(alpha: 0.7),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  gapH4,
-                                  ClipRRect(
-                                    borderRadius: AppRadius.roundedS,
-                                    child: LinearProgressIndicator(
-                                      value: progress,
-                                      minHeight: 4,
-                                      backgroundColor: context
-                                          .colorScheme
-                                          .onSurfaceVariant
-                                          .withValues(alpha: 0.2),
-                                      valueColor: AlwaysStoppedAnimation<Color>(
-                                        context.colorScheme.primary,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-      ),
-    );
+  void _saveProgress() {
+    final controller = _controller;
+    if (controller != null) {
+      final position = controller.currentPosition.inSeconds;
+      // Only save if position is greater than 0 to avoid overwriting valid
+      // progress with 0 during initialization/disposal glitches.
+      // Completion is handled by the main player.
+      if (position > 0) {
+        context.read<LibraryBloc>().add(
+          LibraryVideoProgressUpdatedEvent(
+            youtubeId: widget.video.youtubeId,
+            positionSeconds: position,
+          ),
+        );
+      }
+    }
   }
 
-  String _formatDuration(int seconds) {
-    if (seconds <= 0) return '00:00';
-    final duration = Duration(seconds: seconds);
-    final min = duration.inMinutes.remainder(60).toString().padLeft(2, '0');
-    final sec = duration.inSeconds.remainder(60).toString().padLeft(2, '0');
-    if (duration.inHours > 0) {
-      return '${duration.inHours}:$min:$sec';
+  void _update() {
+    if (mounted) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) setState(() {});
+      });
     }
-    return '$min:$sec';
   }
 
   @override
   void dispose() {
-    _controller?.close();
+    _heartbeatTimer?.cancel();
+    _saveProgress();
+    _controller?.removeListener(_update);
     super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AspectRatio(
+      aspectRatio: 16 / 9,
+      child: ClipRRect(
+        borderRadius: AppRadius.roundedXL,
+        child: OmniVideoPlayer(
+          key: ValueKey(widget.video.youtubeId),
+          callbacks: VideoPlayerCallbacks(
+            onControllerCreated: (controller) {
+              _controller?.removeListener(_update);
+              _controller = controller..addListener(_update);
+
+              // Explicit seek fallback
+              final startPos = widget.video.isCompleted
+                  ? 0
+                  : widget.video.lastWatchedPositionSeconds;
+
+              if (startPos > 0) {
+                Future.delayed(const Duration(milliseconds: 500), () {
+                  if (mounted && _controller != null) {
+                    _controller!.seekTo(Duration(seconds: startPos));
+                  }
+                });
+              }
+            },
+                                onFullScreenToggled: (isFullScreen) async {
+                                  if (isFullScreen) {
+                                    final controller = _controller;
+                                    if (controller != null) {
+                                      final position = controller.currentPosition.inSeconds;
+                                      controller.pause(); // STOP the background player
+                      
+                                      // Save the exact position so the next screen picks it up
+                                      context.read<LibraryBloc>().add(
+                                            LibraryVideoProgressUpdatedEvent(
+                                              youtubeId: widget.video.youtubeId,
+                                              positionSeconds: position,
+                                            ),
+                                          );
+                                    }
+                      
+                                                  // When the fullscreen button is tapped, navigate to the dedicated
+                      
+                                                  // player page.
+                      
+                                                  
+                      
+                                                  // PRE-EMPTIVELY set orientation to landscape to avoid flicker
+                      
+                                                  await SystemChrome.setPreferredOrientations([
+                      
+                                                    DeviceOrientation.landscapeLeft,
+                      
+                                                    DeviceOrientation.landscapeRight,
+                      
+                                                  ]);
+                      
+                                    
+                      
+                                                  if (context.mounted) {
+                      
+                                                    await context.push('/player/${widget.video.youtubeId}');
+                      
+                                                  }
+                      
+                                    
+                      
+                                                  // FORCE portrait mode immediately when we come back
+                      
+                                                  SystemChrome.setPreferredOrientations([
+                      
+                                                    DeviceOrientation.portraitUp,
+                      
+                                                  ]);
+                      
+                                                }
+                      
+                                              },            onSeekRequest: (target) => true,
+          ),
+          configuration: VideoPlayerConfiguration(
+            videoSourceConfiguration:
+                VideoSourceConfiguration.youtube(
+                  videoUrl: Uri.parse(
+                    'https://www.youtube.com/watch?v=${widget.video.youtubeId}',
+                  ),
+                  preferredQualities: const [OmniVideoQuality.high720],
+                ).copyWith(
+                  autoPlay: false,
+                  initialPosition: Duration(
+                    seconds: widget.video.isCompleted
+                        ? 0
+                        : widget.video.lastWatchedPositionSeconds,
+                  ),
+                  allowSeeking: true,
+                ),
+            playerTheme: OmniVideoPlayerThemeData().copyWith(
+              icons: VideoPlayerIconTheme().copyWith(
+                error: Icons.warning,
+                playbackSpeedButton: Icons.speed,
+              ),
+              overlays: VideoPlayerOverlayTheme().copyWith(
+                backgroundColor: Colors.black,
+                alpha: 150,
+              ),
+            ),
+            playerUIVisibilityOptions: PlayerUIVisibilityOptions().copyWith(
+              showSeekBar: true,
+              showCurrentTime: true,
+              showDurationTime: true,
+              showRemainingTime: true,
+              showLoadingWidget: true,
+              showErrorPlaceholder: true,
+              showReplayButton: true,
+              showFullScreenButton: true,
+              showSwitchVideoQuality: true,
+              showPlaybackSpeedButton: true,
+              showMuteUnMuteButton: true,
+              showPlayPauseReplayButton: true,
+              enableForwardGesture: true,
+              enableBackwardGesture: true,
+              fitVideoToBounds: true,
+            ),
+            customPlayerWidgets: CustomPlayerWidgets().copyWith(
+              loadingWidget: const CircularProgressIndicator(color: Colors.white),
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }

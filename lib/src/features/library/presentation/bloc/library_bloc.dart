@@ -9,16 +9,19 @@ class LibraryBloc extends Bloc<LibraryEvent, LibraryState> {
     required this.getLastPlayedVideo,
     required this.addVideo,
     required this.deleteVideo,
+    required this.updateVideoProgress,
   }) : super(const LibraryInitialState()) {
     on<LibraryInitializedEvent>(_onInitialized);
     on<LibraryVideoAddedEvent>(_onVideoAdded);
     on<LibraryVideoDeletedEvent>(_onVideoDeleted);
+    on<LibraryVideoProgressUpdatedEvent>(_onProgressUpdated);
   }
 
   final GetAllVideos getAllVideos;
   final GetLastPlayedVideo getLastPlayedVideo;
   final AddVideo addVideo;
   final DeleteVideo deleteVideo;
+  final UpdateVideoProgress updateVideoProgress;
 
   Future<void> _onInitialized(
     LibraryInitializedEvent event,
@@ -26,6 +29,21 @@ class LibraryBloc extends Bloc<LibraryEvent, LibraryState> {
   ) async {
     emit(const LibraryLoadingState());
     await _refreshLibrary(emit);
+  }
+
+  Future<void> _onProgressUpdated(
+    LibraryVideoProgressUpdatedEvent event,
+    Emitter<LibraryState> emit,
+  ) async {
+    final result = await updateVideoProgress(UpdateVideoProgressParams(
+      youtubeId: event.youtubeId,
+      positionSeconds: event.positionSeconds,
+    ));
+
+    await result.fold(
+      (failure) async => emit(LibraryFailureState(failure.message)),
+      (_) async => _refreshLibrary(emit),
+    );
   }
 
   Future<void> _onVideoAdded(

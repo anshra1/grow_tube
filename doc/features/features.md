@@ -50,7 +50,7 @@ Sets up the app skeleton: routing, dependency injection, theme, logging, and ori
 
 | Layer | File | Responsibility |
 |-------|------|----------------|
-| Router | `core/router/app_router.dart` | GoRouter: `/` → DashboardPage, `/player/:videoId` → LandscapePlayerPage |
+| Router | `core/router/app_router.dart` | GoRouter: `/` → DashboardPage, `/player/:videoId` → PlayerPage |
 | DI | `core/di/injection_container.dart` | `get_it` registrations for Store, DataSources, Repos, UseCases, Blocs |
 | Bootstrap | `bootstrap.dart` | Init ObjectBox, Firebase, Talker. Call DI. Lock portrait globally |
 | App | `app.dart` | `MaterialApp.router` with GoRouter, M3 dark theme, `TalkerRouteObserver` |
@@ -231,7 +231,7 @@ Full-screen landscape player with MX Player–style gesture controls and a tap-t
 
 | File | Content |
 |------|---------|
-| `pages/landscape_player_page.dart` | Forces landscape via `SystemChrome`. Wraps `mx_youtube_player` (local package at `package/mx_youtube_player`). Queries DB for auto-resume position |
+| `pages/player_page.dart` | Fullscreen player page. Wraps `omni_video_player`. Queries DB for auto-resume position |
 | `widgets/player_hud.dart` | Overlay: center play/pause/replay + buffering indicator, top bar, bottom seek bar |
 | `bloc/player_bloc.dart` | `LoadVideoEvent(videoId)` → query position → seek. Manages HUD visibility, gesture state |
 

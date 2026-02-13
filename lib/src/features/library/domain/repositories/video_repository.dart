@@ -34,4 +34,7 @@ abstract class VideoRepository {
   /// Retrieves a specific video by its YouTube ID.
   /// Used by the Player to fetch metadata.
   ResultFuture<Video?> getVideo(String youtubeId);
+
+  /// Updates the watch progress and last played timestamp of a video.
+  ResultFuture<void> updateVideoProgress(String youtubeId, int positionSeconds);
 }

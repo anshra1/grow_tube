@@ -14,6 +14,12 @@ class AppStrings {
   static const String dashboardViewLogs = 'View Logs';
   static const String dashboardNoVideos = 'No videos yet. Add one!';
   static const String dashboardError = 'Error';
+  static const String dashboardDeleteTitle = 'Delete Video';
+  static const String dashboardDeleteConfirm = 'Are you sure you want to delete';
+
+  // Common
+  static const String commonCancel = 'Cancel';
+  static const String commonDelete = 'Delete';
 
   // Player
   static const String playerVideoNotFound = 'Video not found in library';

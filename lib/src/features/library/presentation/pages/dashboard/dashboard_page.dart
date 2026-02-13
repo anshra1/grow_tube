@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:skill_tube/src/core/constants/app_icons.dart';
 import 'package:skill_tube/src/core/constants/app_strings.dart';
@@ -12,15 +13,25 @@ import 'package:skill_tube/src/features/library/presentation/pages/dashboard/wid
 import 'package:skill_tube/src/features/library/presentation/pages/dashboard/widgets/dashboard_header.dart';
 import 'package:skill_tube/src/features/library/presentation/pages/dashboard/widgets/dashboard_hero.dart';
 import 'package:skill_tube/src/features/library/presentation/pages/dashboard/widgets/dashboard_video_list.dart';
+import 'package:toastification/toastification.dart';
 
-class DashboardPage extends StatelessWidget {
+class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    // Initial fetch
-    context.read<LibraryBloc>().add(const LibraryInitializedEvent());
+  State<DashboardPage> createState() => _DashboardPageState();
+}
 
+class _DashboardPageState extends State<DashboardPage> {
+  @override
+  void initState() {
+    super.initState();
+    // Enforce portrait mode for the dashboard
+    SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return AppScaffold(
       body: SafeArea(
         child: Column(
@@ -28,70 +39,74 @@ class DashboardPage extends StatelessWidget {
             const DashboardHeader(),
             Expanded(
               child: BlocConsumer<LibraryBloc, LibraryState>(
+                buildWhen: (previous, current) =>
+                    current is LibraryLoadedState ||
+                    current is LibraryEmptyState ||
+                    (current is LibraryLoadingState && previous is LibraryInitialState),
                 listener: (context, state) {
-                  if (state is LibraryFailureState) {
-                    ScaffoldMessenger.of(
-                      context,
-                    ).showSnackBar(SnackBar(
-                      content: Text('${AppStrings.dashboardError}: ${state.message}'),
-                      backgroundColor: context.colorScheme.error,
-                    ));
+                  switch (state) {
+                    case LibraryFailureState(:final message):
+                      toastification.show(
+                        context: context,
+                        type: ToastificationType.error,
+                        style: ToastificationStyle.fillColored,
+                        title: Text(AppStrings.dashboardError),
+                        description: Text(message),
+                        autoCloseDuration: const Duration(seconds: 4),
+                        alignment: Alignment.bottomCenter,
+                      );
+                    default:
+                      break;
                   }
                 },
                 builder: (context, state) {
-                  if (state is LibraryLoadingState && state is! LibraryLoadedState) {
-                    return Center(
+                  return switch (state) {
+                    LibraryInitialState() || LibraryLoadingState() => Center(
                       child: CircularProgressIndicator(
                         color: context.colorScheme.primary,
                       ),
-                    );
-                  }
-
-                  if (state is LibraryFailureState) {
-                    return Center(
+                    ),
+                    LibraryFailureState(:final message) => Center(
                       child: Text(
-                        state.message,
+                        message,
                         style: TextStyle(color: context.colorScheme.error),
                       ),
-                    );
-                  }
-
-                  if (state is LibraryEmptyState) {
-                    return Center(
+                    ),
+                    LibraryEmptyState() => Center(
                       child: Text(
                         AppStrings.dashboardNoVideos,
                         style: context.textTheme.bodyLarge?.copyWith(
                           color: context.colorScheme.onSurfaceVariant,
                         ),
                       ),
-                    );
-                  }
-
-                  if (state is LibraryLoadedState) {
-                    return CustomScrollView(
-                      physics: const BouncingScrollPhysics(),
-                      slivers: [
-                        SliverToBoxAdapter(
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: AppSizes.p24),
-                            child: Column(
-                              children: [
-                                if (state.heroVideo != null) ...[
+                    ),
+                    LibraryLoadedState(:final videos, :final heroVideo) => Column(
+                        children: [
+                          if (heroVideo != null)
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: AppSizes.p24,
+                              ),
+                              child: Column(
+                                children: [
+                                  gapH16,
+                                  DashboardHero(video: heroVideo),
                                   gapH24,
-                                  DashboardHero(video: state.heroVideo!),
                                 ],
-                                gapH32,
+                              ),
+                            ),
+                          Expanded(
+                            child: CustomScrollView(
+                              physics: const BouncingScrollPhysics(),
+                              slivers: [
+                                DashboardVideoList(videos: videos),
+                                const SliverToBoxAdapter(child: gapH48),
                               ],
                             ),
                           ),
-                        ),
-                        DashboardVideoList(videos: state.videos),
-                        const SliverToBoxAdapter(child: gapH48),
-                      ],
-                    );
-                  }
-
-                  return const SizedBox.shrink();
+                        ],
+                      ),
+                  };
                 },
               ),
             ),

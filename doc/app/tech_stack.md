@@ -132,7 +132,7 @@ Anything not listed here is **not allowed** unless explicitly approved.
 | Toast Notifications | `toastification` |
 | Loading States | `shimmer` |
 | Spacing | `gap` |
-| Player UI | `mx_youtube_player` |
+| Player UI | `omni_video_player` |
 | Icons/Assets | `flutter_svg` |
 
 **Styling Rules:**

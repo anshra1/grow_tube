@@ -10,6 +10,7 @@ abstract class VideoLocalDataSource {
   Future<void> addVideo(VideoModel video);
   Future<void> deleteVideo(int id);
   Future<VideoModel?> getVideo(String youtubeId);
+  Future<void> updateVideoProgress(String youtubeId, int positionSeconds);
 }
 
 class VideoLocalDataSourceImpl implements VideoLocalDataSource {
@@ -108,6 +109,37 @@ class VideoLocalDataSourceImpl implements VideoLocalDataSource {
       return video;
     } catch (e, st) {
       talker.handle(e, st, 'LocalDataSource: Error getting video');
+      throw DatabaseException(e.toString());
+    }
+  }
+
+  @override
+  Future<void> updateVideoProgress(String youtubeId, int positionSeconds) async {
+    talker.log(
+      'LocalDataSource: Updating progress for $youtubeId to $positionSeconds s',
+      logLevel: LogLevel.debug,
+    );
+    try {
+      final query = _box.query(VideoModel_.youtubeId.equals(youtubeId)).build();
+      final video = query.findFirst();
+      query.close();
+
+      if (video != null) {
+        // Prevent saving 0 if we already have progress, unless it's an explicit reset
+        if (positionSeconds == 0 && video.lastWatchedPositionSeconds > 0) {
+          talker.log('LocalDataSource: Received 0 position for $youtubeId. Existing was ${video.lastWatchedPositionSeconds}. Writing 0.', logLevel: LogLevel.warning);
+        }
+        
+        video.lastWatchedPositionSeconds = positionSeconds;
+        video.lastPlayedAt = DateTime.now();
+        _box.put(video);
+        talker.log('LocalDataSource: Progress updated successfully to $positionSeconds', logLevel: LogLevel.debug);
+      } else {
+        talker.error('LocalDataSource: Video not found for progress update: $youtubeId');
+        throw const DatabaseException('Video not found');
+      }
+    } catch (e, st) {
+      talker.handle(e, st, 'LocalDataSource: Error updating video progress');
       throw DatabaseException(e.toString());
     }
   }

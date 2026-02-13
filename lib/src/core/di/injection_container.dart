@@ -46,6 +46,7 @@ Future<void> init() async {
   sl.registerLazySingleton(() => AddVideo(sl()));
   sl.registerLazySingleton(() => DeleteVideo(sl()));
   sl.registerLazySingleton(() => GetVideo(sl()));
+  sl.registerLazySingleton(() => UpdateVideoProgress(sl()));
 
   // ============================================================
   // Blocs
@@ -56,6 +57,7 @@ Future<void> init() async {
       getLastPlayedVideo: sl(),
       addVideo: sl(),
       deleteVideo: sl(),
+      updateVideoProgress: sl(),
     ),
   );
 

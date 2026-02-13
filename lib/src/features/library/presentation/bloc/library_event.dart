@@ -29,3 +29,16 @@ final class LibraryVideoDeletedEvent extends LibraryEvent {
   @override
   List<Object?> get props => [id];
 }
+
+/// Triggered when a video's watch progress changes.
+final class LibraryVideoProgressUpdatedEvent extends LibraryEvent {
+  const LibraryVideoProgressUpdatedEvent({
+    required this.youtubeId,
+    required this.positionSeconds,
+  });
+  final String youtubeId;
+  final int positionSeconds;
+
+  @override
+  List<Object?> get props => [youtubeId, positionSeconds];
+}

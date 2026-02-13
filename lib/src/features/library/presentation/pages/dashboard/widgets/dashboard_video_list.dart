@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
-import 'package:skill_tube/src/core/constants/app_icons.dart';
 import 'package:skill_tube/src/core/constants/app_strings.dart';
 import 'package:skill_tube/src/core/design_system/app_radius.dart';
 import 'package:skill_tube/src/core/design_system/app_shadows.dart';
 import 'package:skill_tube/src/core/design_system/app_sizes.dart';
 import 'package:skill_tube/src/core/utils/extensions/context_extensions.dart';
 import 'package:skill_tube/src/features/library/domain/entities/video.dart';
-import 'package:skill_tube/src/features/library/presentation/pages/dashboard/widgets/dashboard_hero.dart';
+import 'package:skill_tube/src/features/library/presentation/bloc/library_bloc.dart';
+import 'package:skill_tube/src/features/library/presentation/bloc/library_event.dart';
+
+import 'package:flutter/services.dart';
 
 class DashboardVideoList extends StatelessWidget {
   const DashboardVideoList({required this.videos, super.key});
@@ -69,7 +73,7 @@ class DashboardVideoList extends StatelessWidget {
               child: DashboardVideoCard(video: video),
             );
           },
-          childCount: videos.length , // +1 for header
+          childCount: videos.length, // +1 for header
         ),
       ),
     );
@@ -81,14 +85,53 @@ class DashboardVideoCard extends StatelessWidget {
 
   final Video video;
 
+  String _formatDuration(int totalSeconds) {
+    final minutes = totalSeconds ~/ 60;
+    final seconds = totalSeconds % 60;
+    return '$minutes:${seconds.toString().padLeft(2, '0')}';
+  }
+
   @override
   Widget build(BuildContext context) {
     final progress = video.durationSeconds > 0
         ? (video.lastWatchedPositionSeconds / video.durationSeconds).clamp(0.0, 1.0)
         : 0.0;
 
+    final percentage = (progress * 100).toInt();
+
     return GestureDetector(
-      onTap: () => context.push('/player/${video.youtubeId}'),
+      onTap: () async {
+        await context.push('/player/${video.youtubeId}');
+        // Force portrait when returning from the player
+        SystemChrome.setPreferredOrientations([
+          DeviceOrientation.portraitUp,
+        ]);
+      },
+      onLongPress: () {
+        showDialog(
+          context: context,
+          builder: (dialogContext) => AlertDialog(
+            title: const Text(AppStrings.dashboardDeleteTitle),
+            content: Text('${AppStrings.dashboardDeleteConfirm} "${video.title}"?'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(dialogContext).pop(),
+                child: const Text(AppStrings.commonCancel),
+              ),
+              TextButton(
+                onPressed: () {
+                  context.read<LibraryBloc>().add(LibraryVideoDeletedEvent(video.id));
+                  Navigator.of(dialogContext).pop();
+                },
+                style: TextButton.styleFrom(
+                  foregroundColor: context.colorScheme.error,
+                ),
+                child: const Text(AppStrings.commonDelete),
+              ),
+            ],
+          ),
+        );
+      },
       child: Container(
         decoration: BoxDecoration(
           color: context.colorScheme.surface,
@@ -101,20 +144,41 @@ class DashboardVideoCard extends StatelessWidget {
         padding: const EdgeInsets.all(AppSizes.p12),
         child: Row(
           children: [
-            // Thumbnail
-            ClipRRect(
-              borderRadius: AppRadius.roundedM,
-              child: SizedBox(
-                width: 112, // w-28 = 7rem = 112px
-                height: 80, // h-20 = 5rem = 80px
-                child: Image.network(
-                  video.thumbnailUrl,
-                  fit: BoxFit.cover,
-                  errorBuilder: (_, __, ___) => Container(
-                    color: context.colorScheme.surfaceContainerHighest,
+            // Thumbnail with Duration Overlay
+            Stack(
+              children: [
+                ClipRRect(
+                  borderRadius: AppRadius.roundedM,
+                  child: SizedBox(
+                    width: 120,
+                    height: 70,
+                    child: Image.network(
+                      video.thumbnailUrl,
+                      fit: BoxFit.cover,
+                      errorBuilder: (_, __, ___) =>
+                          Container(color: context.colorScheme.surfaceContainerHighest),
+                    ),
                   ),
                 ),
-              ),
+                Positioned(
+                  bottom: 4,
+                  right: 4,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: Colors.black.withValues(alpha: 0.8),
+                      borderRadius: AppRadius.roundedS,
+                    ),
+                    child: Text(
+                      _formatDuration(video.durationSeconds),
+                      style: context.textTheme.labelSmall?.copyWith(
+                        color: Colors.white,
+                        fontSize: 10,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
             gapW16,
             // content
@@ -123,29 +187,17 @@ class DashboardVideoCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(
-                        child: Text(
-                          video.title,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          style: context.textTheme.bodyMedium?.copyWith(
-                            fontWeight: FontWeight.w600,
-                            color: context.colorScheme.onSurface,
-                            height: 1.2,
-                          ),
-                        ),
-                      ),
-                      Icon(
-                        AppIcons.more,
-                        size: 20,
-                        color: context.colorScheme.onSurfaceVariant,
-                      ),
-                    ],
+                  Text(
+                    video.title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: context.textTheme.bodyMedium?.copyWith(
+                      fontWeight: FontWeight.w600,
+                      color: context.colorScheme.onSurface,
+                    ),
                   ),
-                  gapH4,
+
+                  Gap(2),
                   Text(
                     video.channelName,
                     style: context.textTheme.labelSmall?.copyWith(
@@ -153,15 +205,44 @@ class DashboardVideoCard extends StatelessWidget {
                     ),
                   ),
                   gapH8,
-                  // Progress Bar
-                  ClipRRect(
-                    borderRadius: AppRadius.roundedS,
-                    child: LinearProgressIndicator(
-                      value: progress,
-                      minHeight: 6,
-                      backgroundColor: context.colorScheme.onSurfaceVariant.withValues(alpha: 0.2),
-                      valueColor: AlwaysStoppedAnimation<Color>(context.colorScheme.primary),
-                    ),
+                  // Progress Bar & Percentage
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Expanded(
+                            child: ClipRRect(
+                              borderRadius: AppRadius.roundedS,
+                              child: LinearProgressIndicator(
+                                value: progress,
+                                minHeight: 4,
+                                backgroundColor: context.colorScheme.primary.withValues(
+                                  alpha: 0.1,
+                                ),
+                                valueColor: AlwaysStoppedAnimation<Color>(
+                                  context.colorScheme.primary,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      gapH4,
+                      Text(
+                        '$percentage% watched',
+                        style: context.textTheme.labelSmall?.copyWith(
+                          color: percentage > 0
+                              ? context.colorScheme.primary
+                              : context.colorScheme.onSurfaceVariant,
+                          fontWeight: percentage > 0
+                              ? FontWeight.bold
+                              : FontWeight.normal,
+                          fontSize: 10,
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),

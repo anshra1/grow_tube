@@ -8,6 +8,9 @@ import 'package:skill_tube/src/core/router/app_router.dart';
 import 'package:skill_tube/src/core/utils/talker_bloc_observer.dart';
 import 'package:talker_flutter/talker_flutter.dart';
 
+import 'package:skill_tube/src/features/library/presentation/bloc/library_bloc.dart';
+import 'package:skill_tube/src/features/library/presentation/bloc/library_event.dart';
+
 late final Talker talker;
 
 Future<void> main() async {
@@ -30,18 +33,21 @@ class SkillTubeApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp.router(
-      title: 'Skill Tube',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFF137FEC), // Primary
-          brightness: Brightness.dark,
+    return BlocProvider(
+      create: (context) => di.sl<LibraryBloc>()..add(const LibraryInitializedEvent()),
+      child: MaterialApp.router(
+        title: 'Skill Tube',
+        debugShowCheckedModeBanner: false,
+        theme: ThemeData(
+          colorScheme: ColorScheme.fromSeed(
+            seedColor: const Color(0xFF137FEC), // Primary
+            brightness: Brightness.dark,
+          ),
+          useMaterial3: true,
+          extensions: [AppColorsExtension.light],
         ),
-        useMaterial3: true,
-        extensions: [AppColorsExtension.light],
+        routerConfig: AppRouter.router,
       ),
-      routerConfig: AppRouter.router,
     );
   }
 }

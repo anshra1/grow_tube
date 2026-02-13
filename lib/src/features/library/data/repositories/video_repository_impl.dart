@@ -99,4 +99,18 @@ class VideoRepositoryImpl implements VideoRepository {
       return Left(UnknownFailure(message: e.toString()));
     }
   }
+
+  @override
+  ResultFuture<void> updateVideoProgress(String youtubeId, int positionSeconds) async {
+    try {
+      await localDataSource.updateVideoProgress(youtubeId, positionSeconds);
+      return const Right(null);
+    } on DatabaseException catch (e) {
+      talker.error('Repository: Database error updating progress: ${e.message}');
+      return Left(CacheFailure(message: e.message));
+    } catch (e) {
+      talker.error('Repository: Unknown error updating progress: $e');
+      return Left(UnknownFailure(message: e.toString()));
+    }
+  }
 }

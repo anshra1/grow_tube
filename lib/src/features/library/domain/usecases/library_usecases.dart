@@ -67,3 +67,26 @@ class DeleteVideo extends FutureUseCaseWithParams<void, int> {
   @override
   ResultFuture<void> call(int params) => _repository.deleteVideo(params);
 }
+
+// ══════════════════════════════════════════════════════════════════════════════
+// UPDATE VIDEO PROGRESS
+// ══════════════════════════════════════════════════════════════════════════════
+
+class UpdateVideoProgressParams {
+  const UpdateVideoProgressParams({
+    required this.youtubeId,
+    required this.positionSeconds,
+  });
+  final String youtubeId;
+  final int positionSeconds;
+}
+
+/// Updates the watch progress and last played timestamp of a video.
+class UpdateVideoProgress extends FutureUseCaseWithParams<void, UpdateVideoProgressParams> {
+  const UpdateVideoProgress(this._repository);
+  final VideoRepository _repository;
+
+  @override
+  ResultFuture<void> call(UpdateVideoProgressParams params) =>
+      _repository.updateVideoProgress(params.youtubeId, params.positionSeconds);
+}
