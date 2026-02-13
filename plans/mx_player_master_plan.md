@@ -5,7 +5,7 @@ This document serves as the single source of truth for the status and implementa
 ---
 
 ## 1. Current Status: Features Already Implemented ✅
-The core gesture-based infrastructure is functional.
+The core gesture-based infrastructure is functional within the `package/mx_youtube_player`.
 
 | Feature | Description | Status |
 | :--- | :--- | :--- |
@@ -20,12 +20,10 @@ The core gesture-based infrastructure is functional.
 ---
 
 ## 2. The Problem Statement
-The current implementation lacks critical "Pro-learning" features defined in the PRD:
-- **Missing Options:** No way to change playback speed, video quality, or toggle captions.
-- **Visual Gaps:** The seek bar does not show buffered content, and there is no explicit loading indicator.
-- **Gesture Incompleteness:** Pinch-to-zoom (Crop to fill) is not implemented.
-- **UI Polish:** The title is static and doesn't handle overflow; no "Replay" state.
-- **Hero Mode Logic:** The "Touch-Lock" rule for the Dashboard is not enforced.
+The project currently has a "Library" and "Dashboard" but lacks integration with the video player. Specifically:
+- **No Player Integration:** The Dashboard Hero and Feed cards are static images; they do not yet host the `MxPlayer` widget.
+- **Missing Player Screen:** There is no dedicated full-screen player page/route in the main app.
+- **Missing Pro-learning Features:** No way to change playback speed, quality, or captions. No buffered progress visualization or pinch-to-zoom.
 
 ---
 
@@ -45,11 +43,18 @@ The current implementation lacks critical "Pro-learning" features defined in the
 
 ### C. Advanced Gestures & Rules
 - **Pinch-to-Zoom:** Toggle between "Crop to Fill" and "Fit to Screen".
-- **Hero Mode (Touch-Lock):** Disable all gestures except "Full Screen" when in the Dashboard feed.
+- **Hero Mode (Touch-Lock):** Implement inline playback in Dashboard with a rule to disable all gestures except "Full Screen".
 
 ---
 
 ## 4. Unified Implementation Plan 🛠️
+
+### Phase 0: Integration & Baseline
+1.  **Dedicated Player Screen:** Create `PlayerPage` in `lib/src/features/player/presentation/screens` and set up routing via `go_router`.
+2.  **Dashboard Integration:** 
+    -   Implement inline playback in `DashboardHero` using `MxPlayer`.
+    -   Refactor `MxPlayerOverlay` to accept dynamic titles and metadata.
+3.  **Refactor Overlay State:** Move gesture and timer logic from `MxPlayerOverlay` into a dedicated controller or `Cubit` to handle growing complexity.
 
 ### Phase 1: HUD Options & Loading Logic
 1.  **Options Menu:** Add a `PopupMenuButton` in the Top Bar.
@@ -63,13 +68,14 @@ The current implementation lacks critical "Pro-learning" features defined in the
 
 ### Phase 3: Advanced Gestures & Architectural Rules
 1.  **Pinch Handling:** Implement `onScaleUpdate` in the main `GestureDetector` to toggle `BoxFit.cover` (Pinch Out) and `BoxFit.contain` (Pinch In).
-2.  **Touch-Lock Implementation:** Add an `isHeroMode` flag. If true, use an `AbsorbPointer` or conditional logic to ignore gestures on the video body.
+2.  **Touch-Lock Implementation:** Enforce the rule where the `DashboardHero` player ignores all gestures except the "Full Screen" icon to prevent interaction conflicts during scrolling.
 
 ---
 
 ## 5. Success Criteria
+- [ ] User can navigate to a full-screen player from any video card.
+- [ ] Video plays inline in the Dashboard Hero section.
 - [ ] User can change playback speed to 1.5x via HUD.
 - [ ] User can "Pinch to Fill" the screen in landscape mode.
 - [ ] The seek bar shows a grey line indicating how much video is buffered.
 - [ ] The Hero player on the Dashboard does not seek when the user accidentally swipes it while scrolling.
-- [ ] A loading spinner appears if the internet connection is slow.
