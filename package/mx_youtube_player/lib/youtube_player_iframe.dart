@@ -18,6 +18,5 @@ export 'src/player_value.dart';
 export 'src/widgets/fullscreen_youtube_player.dart';
 export 'src/widgets/mx_inline_player.dart';
 export 'src/widgets/mx_landscape_player.dart';
-export 'src/widgets/mx_player_overlay.dart';
 export 'src/widgets/youtube_player.dart';
 export 'src/widgets/youtube_player_scaffold.dart';
