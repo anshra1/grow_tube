@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:mx_youtube_player/src/widgets/mx_inline_player.dart';
 import 'package:mx_youtube_player/youtube_player_iframe.dart';
 import 'package:skill_tube/src/core/constants/app_icons.dart';
 import 'package:skill_tube/src/core/constants/app_strings.dart';
@@ -43,8 +42,10 @@ class _DashboardHeroState extends State<DashboardHero> {
       params: const YoutubePlayerParams(
         showControls: false,
         showFullscreenButton: true,
-        pointerEvents: PointerEvents.none, // Allow touches to pass to GestureDetector
         mute: false,
+        strictRelatedVideos: true,
+        playsInline: true,
+        origin: 'https://www.youtube-nocookie.com',
       ),
     );
 

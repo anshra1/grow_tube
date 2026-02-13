@@ -44,6 +44,9 @@ class _MxPlayerOverlayState extends State<MxPlayerOverlay> {
   double? _startSeekSeconds;
   bool _isSeekDrag = false;
 
+  // Slider Drag State
+  double? _dragPosition;
+
   // Debounce for zoom to prevent flickering
   DateTime _lastZoomTime = DateTime.now();
 
@@ -167,11 +170,15 @@ class _MxPlayerOverlayState extends State<MxPlayerOverlay> {
       final formattedTime = _formatDuration(Duration(seconds: newPos.toInt()));
       _showCenterFeedback(formattedTime, Icons.fast_forward);
 
-      widget.controller.seekTo(seconds: newPos, allowSeekAhead: false);
+      // widget.controller.seekTo(seconds: newPos, allowSeekAhead: false);
     }
   }
 
   void _onScaleEnd(ScaleEndDetails details) {
+    if (_isSeekDrag && _startSeekSeconds != null) {
+      widget.controller.seekTo(seconds: _startSeekSeconds!, allowSeekAhead: true);
+    }
+
     _initialVolume = null;
     _initialBrightness = null;
     _startSeekSeconds = null;
@@ -203,7 +210,10 @@ class _MxPlayerOverlayState extends State<MxPlayerOverlay> {
     return LayoutBuilder(
       builder: (context, constraints) {
         final content = Stack(
+          fit: StackFit.expand,
           children: [
+            // Hit-testable background for gestures
+            Container(color: Colors.transparent),
             // Buffering Indicator
             if (!widget.isHeroMode)
               StreamBuilder<YoutubePlayerValue>(
@@ -329,45 +339,73 @@ class _MxPlayerOverlayState extends State<MxPlayerOverlay> {
                     ),
 
                     // Bottom Bar
+                    // Bottom Bar
                     Padding(
                       padding: const EdgeInsets.all(16.0),
                       child: Column(
                         children: [
-                          StreamBuilder<YoutubeVideoState>(
-                            stream: widget.controller.videoStateStream,
-                            builder: (context, snapshot) {
-                              final position =
-                                  snapshot.data?.position.inSeconds.toDouble() ?? 0.0;
-                              final duration = widget
-                                  .controller
-                                  .metadata
-                                  .duration
-                                  .inSeconds
-                                  .toDouble();
+                          StreamBuilder<YoutubePlayerValue>(
+                            stream: widget.controller.stream,
+                            builder: (context, valueSnapshot) {
+                              final duration =
+                                  valueSnapshot.data?.metaData.duration.inSeconds
+                                      .toDouble() ??
+                                  widget.controller.metadata.duration.inSeconds
+                                      .toDouble();
 
-                              return Row(
-                                children: [
-                                  Text(
-                                    _formatDuration(Duration(seconds: position.toInt())),
-                                    style: const TextStyle(color: Colors.white),
-                                  ),
-                                  Expanded(
-                                    child: BufferedProgressBar(
-                                      position: position,
-                                      buffered:
-                                          duration *
-                                          (snapshot.data?.loadedFraction ?? 0.0),
-                                      duration: duration,
-                                      onChanged: (val) {
-                                        widget.controller.seekTo(seconds: val);
-                                      },
-                                    ),
-                                  ),
-                                  Text(
-                                    _formatDuration(Duration(seconds: duration.toInt())),
-                                    style: const TextStyle(color: Colors.white),
-                                  ),
-                                ],
+                              return StreamBuilder<YoutubeVideoState>(
+                                stream: widget.controller.videoStateStream,
+                                builder: (context, stateSnapshot) {
+                                  final videoPosition =
+                                      stateSnapshot.data?.position.inSeconds.toDouble() ??
+                                      0.0;
+                                  final currentPosition = _dragPosition ?? videoPosition;
+
+                                  return Row(
+                                    children: [
+                                      Text(
+                                        _formatDuration(
+                                          Duration(seconds: currentPosition.toInt()),
+                                        ),
+                                        style: const TextStyle(color: Colors.white),
+                                      ),
+                                      Expanded(
+                                        child: BufferedProgressBar(
+                                          position: currentPosition,
+                                          buffered:
+                                              duration *
+                                              (stateSnapshot.data?.loadedFraction ?? 0.0),
+                                          duration: duration,
+                                          onChanged: (val) {
+                                            setState(() {
+                                              _dragPosition = val;
+                                            });
+                                          },
+                                          onChangeStart: (val) {
+                                            setState(() {
+                                              _dragPosition = val;
+                                            });
+                                          },
+                                          onChangeEnd: (val) {
+                                            widget.controller.seekTo(
+                                              seconds: val,
+                                              allowSeekAhead: true,
+                                            );
+                                            setState(() {
+                                              _dragPosition = null;
+                                            });
+                                          },
+                                        ),
+                                      ),
+                                      Text(
+                                        _formatDuration(
+                                          Duration(seconds: duration.toInt()),
+                                        ),
+                                        style: const TextStyle(color: Colors.white),
+                                      ),
+                                    ],
+                                  );
+                                },
                               );
                             },
                           ),

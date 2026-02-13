@@ -51,9 +51,7 @@ class YoutubePlayerController implements YoutubePlayerIFrameAPI {
       },
     );
 
-    webViewController = WebViewController.fromPlatformCreationParams(
-      webViewParams,
-    )
+    webViewController = WebViewController.fromPlatformCreationParams(webViewParams)
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
       ..setNavigationDelegate(navigationDelegate)
       ..setUserAgent(params.userAgent)
@@ -146,11 +144,7 @@ class YoutubePlayerController implements YoutubePlayerIFrameAPI {
   }) {
     return _run(
       'cueVideoById',
-      data: {
-        'videoId': videoId,
-        'startSeconds': startSeconds,
-        'endSeconds': endSeconds,
-      },
+      data: {'videoId': videoId, 'startSeconds': startSeconds, 'endSeconds': endSeconds},
     );
   }
 
@@ -196,11 +190,7 @@ class YoutubePlayerController implements YoutubePlayerIFrameAPI {
   }) {
     return _run(
       'loadVideoById',
-      data: {
-        'videoId': videoId,
-        'startSeconds': startSeconds,
-        'endSeconds': endSeconds,
-      },
+      data: {'videoId': videoId, 'startSeconds': startSeconds, 'endSeconds': endSeconds},
     );
   }
 
@@ -279,10 +269,7 @@ class YoutubePlayerController implements YoutubePlayerIFrameAPI {
     );
   }
 
-  Future<void> _run(
-    String functionName, {
-    Map<String, dynamic>? data,
-  }) async {
+  Future<void> _run(String functionName, {Map<String, dynamic>? data}) async {
     await _initCompleter.future;
 
     final varArgs = await _prepareData(data);
@@ -290,10 +277,7 @@ class YoutubePlayerController implements YoutubePlayerIFrameAPI {
     return webViewController.runJavaScript('player.$functionName($varArgs);');
   }
 
-  Future<String> _runWithResult(
-    String functionName, {
-    Map<String, dynamic>? data,
-  }) async {
+  Future<String> _runWithResult(String functionName, {Map<String, dynamic>? data}) async {
     await _initCompleter.future;
 
     final varArgs = await _prepareData(data);
@@ -313,9 +297,7 @@ class YoutubePlayerController implements YoutubePlayerIFrameAPI {
   Future<String> _evalWithResult(String javascript) async {
     await _eventHandler.isReady;
 
-    final result = await webViewController.runJavaScriptReturningResult(
-      javascript,
-    );
+    final result = await webViewController.runJavaScriptReturningResult(javascript);
 
     return result.toString();
   }
@@ -464,9 +446,9 @@ class YoutubePlayerController implements YoutubePlayerIFrameAPI {
   Future<List<double>> get availablePlaybackRates async {
     final rates = await _evalWithResult('getAvailablePlaybackRates()');
 
-    return List<num>.from(jsonDecode(rates))
-        .map((r) => r.toDouble())
-        .toList(growable: false);
+    return List<num>.from(
+      jsonDecode(rates),
+    ).map((r) => r.toDouble()).toList(growable: false);
   }
 
   @override
@@ -640,9 +622,7 @@ class YoutubePlayerController implements YoutubePlayerIFrameAPI {
     final path = uri.path;
 
     String? featureName;
-    if (host.contains('facebook') ||
-        host.contains('twitter') ||
-        host == 'youtu') {
+    if (host.contains('facebook') || host.contains('twitter') || host == 'youtu') {
       featureName = 'social';
     } else if (params.containsKey('feature')) {
       featureName = params['feature'];
@@ -693,16 +673,17 @@ class YoutubePlayerController implements YoutubePlayerIFrameAPI {
 /// The current state of the Youtube video.
 class YoutubeVideoState {
   /// Creates a new instance of [YoutubeVideoState].
-  const YoutubeVideoState({
-    this.position = Duration.zero,
-    this.loadedFraction = 0,
-  });
+  const YoutubeVideoState({this.position = Duration.zero, this.loadedFraction = 0});
 
   /// Creates a new instance of [YoutubeVideoState] from the given [json].
   factory YoutubeVideoState.fromJson(String json) {
-    final state = jsonDecode(json);
-    final currentTime = state['currentTime'] as num? ?? 0;
-    final loadedFraction = state['loadedFraction'] as num? ?? 0;
+    return YoutubeVideoState.fromMap(jsonDecode(json));
+  }
+
+  /// Creates a new instance of [YoutubeVideoState] from the given [map].
+  factory YoutubeVideoState.fromMap(Map<String, dynamic> map) {
+    final currentTime = map['currentTime'] as num? ?? 0;
+    final loadedFraction = map['loadedFraction'] as num? ?? 0;
     final positionInMs = (currentTime * 1000).truncate();
 
     return YoutubeVideoState(

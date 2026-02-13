@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:mx_youtube_player/src/widgets/mx_landscape_player.dart';
 import 'package:mx_youtube_player/youtube_player_iframe.dart' hide PlayerState;
 import 'package:skill_tube/src/core/di/injection_container.dart' as di;
 import 'package:skill_tube/src/features/player/presentation/bloc/player_bloc.dart';
@@ -30,8 +29,10 @@ class _PlayerPageState extends State<PlayerPage> {
               params: YoutubePlayerParams(
                 showControls: false, // We use our custom HUD
                 showFullscreenButton: true,
-                pointerEvents: PointerEvents.none, // Utilize our gestures
                 mute: false,
+                strictRelatedVideos: true,
+                playsInline: true,
+                origin: 'https://www.youtube-nocookie.com',
               ),
             );
 

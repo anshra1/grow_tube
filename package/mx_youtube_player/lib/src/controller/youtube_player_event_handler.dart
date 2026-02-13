@@ -130,7 +130,9 @@ class YoutubePlayerEventHandler {
   void onVideoState(Object data) {
     if (videoStateController.isClosed) return;
 
-    videoStateController.add(YoutubeVideoState.fromJson(data.toString()));
+    videoStateController.add(
+      YoutubeVideoState.fromMap(Map<String, dynamic>.from(data as Map)),
+    );
   }
 
   /// This event fires when the auto playback is blocked by the browser.
