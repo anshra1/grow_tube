@@ -21,10 +21,7 @@ final class LibraryEmptyState extends LibraryState {
 }
 
 final class LibraryLoadedState extends LibraryState {
-  const LibraryLoadedState({
-    required this.videos,
-    this.heroVideo,
-  });
+  const LibraryLoadedState({required this.videos, this.heroVideo});
 
   final List<Video> videos;
   final Video? heroVideo;
@@ -39,4 +36,20 @@ final class LibraryFailureState extends LibraryState {
 
   @override
   List<Object?> get props => [message];
+}
+
+/// A transient state to signal the UI to navigate to the player.
+final class LibraryPlayVideoSuccess extends LibraryState {
+  const LibraryPlayVideoSuccess({
+    required this.videos,
+    this.heroVideo,
+    required this.videoId,
+  });
+
+  final List<Video> videos;
+  final Video? heroVideo;
+  final String videoId;
+
+  @override
+  List<Object?> get props => [videos, heroVideo, videoId];
 }

@@ -3,7 +3,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:skill_tube/main.dart';
 import 'package:skill_tube/src/core/constants/app_icons.dart';
 import 'package:skill_tube/src/core/constants/app_strings.dart';
-import 'package:skill_tube/src/core/design_system/app_colors.dart';
 import 'package:skill_tube/src/core/design_system/app_sizes.dart';
 import 'package:skill_tube/src/core/utils/extensions/context_extensions.dart';
 import 'package:talker_flutter/talker_flutter.dart';
@@ -31,9 +30,7 @@ class DashboardHeader extends StatelessWidget {
             children: [
               IconButton(
                 onPressed: () => Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (context) => TalkerScreen(talker: talker),
-                  ),
+                  MaterialPageRoute(builder: (context) => TalkerScreen(talker: talker)),
                 ),
                 icon: const Icon(AppIcons.bug),
                 tooltip: AppStrings.dashboardViewLogs,
@@ -65,10 +62,7 @@ class DashboardHeader extends StatelessWidget {
                       decoration: BoxDecoration(
                         color: context.colorScheme.error,
                         shape: BoxShape.circle,
-                        border: Border.all(
-                          color: context.colorScheme.surface,
-                          width: 2,
-                        ),
+                        border: Border.all(color: context.colorScheme.surface, width: 2),
                       ),
                     ),
                   ),

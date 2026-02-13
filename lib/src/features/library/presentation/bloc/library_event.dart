@@ -42,3 +42,12 @@ final class LibraryVideoProgressUpdatedEvent extends LibraryEvent {
   @override
   List<Object?> get props => [youtubeId, positionSeconds];
 }
+
+/// Triggered from the clipboard monitor to add a video and then play it.
+final class LibraryVideoAddedAndPlayRequested extends LibraryEvent {
+  const LibraryVideoAddedAndPlayRequested(this.url);
+  final String url;
+
+  @override
+  List<Object?> get props => [url];
+}

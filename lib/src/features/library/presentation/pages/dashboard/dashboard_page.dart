@@ -1,9 +1,13 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:skill_tube/src/core/constants/app_icons.dart';
 import 'package:skill_tube/src/core/constants/app_strings.dart';
 import 'package:skill_tube/src/core/design_system/app_sizes.dart';
+import 'package:skill_tube/src/core/mixins/clipboard_monitor_mixin.dart';
 import 'package:skill_tube/src/core/utils/extensions/context_extensions.dart';
 import 'package:skill_tube/src/core/widgets/app_scaffold.dart';
 import 'package:skill_tube/src/features/library/presentation/bloc/library_bloc.dart';
@@ -22,7 +26,27 @@ class DashboardPage extends StatefulWidget {
   State<DashboardPage> createState() => _DashboardPageState();
 }
 
-class _DashboardPageState extends State<DashboardPage> {
+class _DashboardPageState extends State<DashboardPage> with ClipboardMonitorMixin {
+  @override
+  void onClipboardUrlDetected(String url, String videoId) {
+    toastification.show(
+      context: context,
+      type: ToastificationType.info,
+      style: ToastificationStyle.fillColored,
+      title: const Text('YouTube Link Detected'),
+      description: Text(url),
+      alignment: Alignment.topCenter,
+      autoCloseDuration: const Duration(seconds: 8),
+      primaryColor: context.colorScheme.secondary,
+      showProgressBar: false,
+
+      callbacks: ToastificationCallbacks(
+        onCloseButtonTap: (item) => toastification.dismiss(item),
+      ),
+      
+    );
+  }
+
   @override
   void initState() {
     super.initState();
@@ -42,6 +66,7 @@ class _DashboardPageState extends State<DashboardPage> {
                 buildWhen: (previous, current) =>
                     current is LibraryLoadedState ||
                     current is LibraryEmptyState ||
+                    current is LibraryPlayVideoSuccess ||
                     (current is LibraryLoadingState && previous is LibraryInitialState),
                 listener: (context, state) {
                   switch (state) {
@@ -55,6 +80,8 @@ class _DashboardPageState extends State<DashboardPage> {
                         autoCloseDuration: const Duration(seconds: 4),
                         alignment: Alignment.bottomCenter,
                       );
+                    case LibraryPlayVideoSuccess(:final videoId):
+                      context.push('/player/$videoId');
                     default:
                       break;
                   }
@@ -80,7 +107,8 @@ class _DashboardPageState extends State<DashboardPage> {
                         ),
                       ),
                     ),
-                    LibraryLoadedState(:final videos, :final heroVideo) => Column(
+                    LibraryLoadedState(:final videos, :final heroVideo) ||
+                    LibraryPlayVideoSuccess(:final videos, :final heroVideo) => Column(
                       children: [
                         if (heroVideo != null)
                           Padding(
@@ -129,5 +157,36 @@ class _DashboardPageState extends State<DashboardPage> {
         child: const Icon(AppIcons.add),
       ),
     );
+  }
+
+  @override
+  void didChangeTextScaleFactor() {
+    // TODO: implement didChangeTextScaleFactor
+  }
+
+  @override
+  void didChangeViewFocus(ViewFocusEvent event) {
+    // TODO: implement didChangeViewFocus
+  }
+
+  @override
+  void handleCancelBackGesture() {
+    // TODO: implement handleCancelBackGesture
+  }
+
+  @override
+  void handleCommitBackGesture() {
+    // TODO: implement handleCommitBackGesture
+  }
+
+  @override
+  bool handleStartBackGesture(PredictiveBackEvent backEvent) {
+    // TODO: implement handleStartBackGesture
+    throw UnimplementedError();
+  }
+
+  @override
+  void handleUpdateBackGestureProgress(PredictiveBackEvent backEvent) {
+    // TODO: implement handleUpdateBackGestureProgress
   }
 }

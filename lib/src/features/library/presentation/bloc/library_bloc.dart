@@ -15,6 +15,7 @@ class LibraryBloc extends Bloc<LibraryEvent, LibraryState> {
     on<LibraryVideoAddedEvent>(_onVideoAdded);
     on<LibraryVideoDeletedEvent>(_onVideoDeleted);
     on<LibraryVideoProgressUpdatedEvent>(_onProgressUpdated);
+    on<LibraryVideoAddedAndPlayRequested>(_onVideoAddedAndPlay);
   }
 
   final GetAllVideos getAllVideos;
@@ -22,6 +23,39 @@ class LibraryBloc extends Bloc<LibraryEvent, LibraryState> {
   final AddVideo addVideo;
   final DeleteVideo deleteVideo;
   final UpdateVideoProgress updateVideoProgress;
+
+  Future<void> _onVideoAddedAndPlay(
+    LibraryVideoAddedAndPlayRequested event,
+    Emitter<LibraryState> emit,
+  ) async {
+    final result = await addVideo(event.url);
+
+    await result.fold((failure) async => emit(LibraryFailureState(failure.message)), (
+      video,
+    ) async {
+      // Refresh library to get updated list/hero
+      // We manually fetch here to avoid double-emitting if we used _refreshLibrary
+      final videosResult = await getAllVideos();
+      final heroResult = await getLastPlayedVideo();
+
+      if (videosResult.isLeft()) {
+        final failure = videosResult.getLeft().toNullable()!;
+        emit(LibraryFailureState(failure.message));
+        return;
+      }
+
+      final videos = videosResult.getRight().toNullable()!;
+      final heroVideo = heroResult.fold((failure) => null, (video) => video);
+
+      emit(
+        LibraryPlayVideoSuccess(
+          videos: videos,
+          heroVideo: heroVideo,
+          videoId: video.youtubeId,
+        ),
+      );
+    });
+  }
 
   Future<void> _onInitialized(
     LibraryInitializedEvent event,
@@ -35,10 +69,12 @@ class LibraryBloc extends Bloc<LibraryEvent, LibraryState> {
     LibraryVideoProgressUpdatedEvent event,
     Emitter<LibraryState> emit,
   ) async {
-    final result = await updateVideoProgress(UpdateVideoProgressParams(
-      youtubeId: event.youtubeId,
-      positionSeconds: event.positionSeconds,
-    ));
+    final result = await updateVideoProgress(
+      UpdateVideoProgressParams(
+        youtubeId: event.youtubeId,
+        positionSeconds: event.positionSeconds,
+      ),
+    );
 
     await result.fold(
       (failure) async => emit(LibraryFailureState(failure.message)),
@@ -123,11 +159,6 @@ class LibraryBloc extends Bloc<LibraryEvent, LibraryState> {
     // F8: "Sticky top widget... No floating mini-player".
     // "Holds heroVideo state".
 
-    emit(
-      LibraryLoadedState(
-        videos: videos,
-        heroVideo: heroVideo,
-      ),
-    );
+    emit(LibraryLoadedState(videos: videos, heroVideo: heroVideo));
   }
 }
