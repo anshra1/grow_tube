@@ -287,9 +287,10 @@ class _MxPlayerOverlayState extends State<MxPlayerOverlay> {
                       ),
                     ),
 
-                    // Center Play Button
+                    // Center Play Button - ALWAYS VISIBLE (Hero or Full)
                     StreamBuilder<YoutubePlayerValue>(
                       stream: widget.controller.stream,
+                      // ... (content same as before, just removing the if check)
                       builder: (context, snapshot) {
                         final state = snapshot.data?.playerState ?? PlayerState.unknown;
                         IconData icon = Icons.play_circle_fill;

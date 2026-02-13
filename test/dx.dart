@@ -119,6 +119,7 @@ class _YoutubePlayerTestPageState extends State<YoutubePlayerTestPage> {
     return MxPlayerScaffold(
       controller: _controller,
       autoFullScreen: false,
+      title: 'YouTube Player Test',
       child: Scaffold(
         appBar: AppBar(title: const Text('YouTube Player Test'), centerTitle: true),
         body: ListView(

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mx_youtube_player/src/widgets/mx_inline_player.dart';
 import 'package:mx_youtube_player/youtube_player_iframe.dart';
 import 'package:skill_tube/src/core/constants/app_icons.dart';
 import 'package:skill_tube/src/core/constants/app_strings.dart';
@@ -39,18 +40,21 @@ class _DashboardHeroState extends State<DashboardHero> {
 
   void _initController() {
     _controller = YoutubePlayerController(
-      params: YoutubePlayerParams(
+      params: const YoutubePlayerParams(
         showControls: false,
         showFullscreenButton: true,
-        playlist: [widget.video.youtubeId],
-        startAt: Duration(
-          seconds: widget.video.isCompleted
-              ? 0
-              : widget.video.lastWatchedPositionSeconds,
-        ),
+        pointerEvents: PointerEvents.none, // Allow touches to pass to GestureDetector
+        mute: false,
       ),
     );
-    
+
+    _controller?.loadVideoById(
+      videoId: widget.video.youtubeId,
+      startSeconds: widget.video.isCompleted
+          ? 0
+          : widget.video.lastWatchedPositionSeconds.toDouble(),
+    );
+
     // Set fullscreen listener to navigate to PlayerPage
     _controller?.setFullScreenListener((isFullScreen) {
       if (isFullScreen) {
@@ -63,7 +67,10 @@ class _DashboardHeroState extends State<DashboardHero> {
   @override
   Widget build(BuildContext context) {
     final progress = widget.video.durationSeconds > 0
-        ? (widget.video.lastWatchedPositionSeconds / widget.video.durationSeconds).clamp(0.0, 1.0)
+        ? (widget.video.lastWatchedPositionSeconds / widget.video.durationSeconds).clamp(
+            0.0,
+            1.0,
+          )
         : 0.0;
 
     final currentStr = _formatDuration(widget.video.lastWatchedPositionSeconds);
@@ -79,10 +86,10 @@ class _DashboardHeroState extends State<DashboardHero> {
         ),
         clipBehavior: Clip.antiAlias,
         child: _isPlaying && _controller != null
-            ? MxPlayer(
+            ? MxInlinePlayer(
                 controller: _controller!,
                 title: widget.video.title,
-                isHeroMode: true,
+                channelName: widget.video.channelName,
               )
             : Stack(
                 fit: StackFit.expand,
@@ -91,9 +98,8 @@ class _DashboardHeroState extends State<DashboardHero> {
                   Image.network(
                     widget.video.thumbnailUrl,
                     fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) => Container(
-                      color: context.colorScheme.surfaceContainerHighest,
-                    ),
+                    errorBuilder: (_, __, ___) =>
+                        Container(color: context.colorScheme.surfaceContainerHighest),
                   ),
 
                   // Gradient Overlay
@@ -200,13 +206,15 @@ class _DashboardHeroState extends State<DashboardHero> {
                                       Text(
                                         currentStr,
                                         style: context.textTheme.labelSmall?.copyWith(
-                                          color: context.colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
+                                          color: context.colorScheme.onSurfaceVariant
+                                              .withValues(alpha: 0.7),
                                         ),
                                       ),
                                       Text(
                                         totalStr,
                                         style: context.textTheme.labelSmall?.copyWith(
-                                          color: context.colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
+                                          color: context.colorScheme.onSurfaceVariant
+                                              .withValues(alpha: 0.7),
                                         ),
                                       ),
                                     ],
@@ -217,7 +225,10 @@ class _DashboardHeroState extends State<DashboardHero> {
                                     child: LinearProgressIndicator(
                                       value: progress,
                                       minHeight: 4,
-                                      backgroundColor: context.colorScheme.onSurfaceVariant.withValues(alpha: 0.2),
+                                      backgroundColor: context
+                                          .colorScheme
+                                          .onSurfaceVariant
+                                          .withValues(alpha: 0.2),
                                       valueColor: AlwaysStoppedAnimation<Color>(
                                         context.colorScheme.primary,
                                       ),

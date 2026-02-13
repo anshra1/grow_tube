@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mx_youtube_player/youtube_player_iframe.dart';
 
-class MxPlayerScaffold extends StatefulWidget {
+class MxLandscapePlayer extends StatefulWidget {
   final YoutubePlayerController controller;
   final String title;
   final String? channelName;
@@ -10,7 +10,7 @@ class MxPlayerScaffold extends StatefulWidget {
   final bool autoFullScreen;
   final Widget? child;
 
-  const MxPlayerScaffold({
+  const MxLandscapePlayer({
     super.key,
     required this.controller,
     required this.title,
@@ -21,10 +21,10 @@ class MxPlayerScaffold extends StatefulWidget {
   });
 
   @override
-  State<MxPlayerScaffold> createState() => _MxPlayerScaffoldState();
+  State<MxLandscapePlayer> createState() => _MxLandscapePlayerState();
 }
 
-class _MxPlayerScaffoldState extends State<MxPlayerScaffold> {
+class _MxLandscapePlayerState extends State<MxLandscapePlayer> {
   BoxFit _fit = BoxFit.contain;
 
   @override

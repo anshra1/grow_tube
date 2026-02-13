@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:mx_youtube_player/src/widgets/mx_landscape_player.dart';
 import 'package:mx_youtube_player/youtube_player_iframe.dart' hide PlayerState;
 import 'package:skill_tube/src/core/di/injection_container.dart' as di;
 import 'package:skill_tube/src/features/player/presentation/bloc/player_bloc.dart';
@@ -31,13 +32,14 @@ class _PlayerPageState extends State<PlayerPage> {
                 showFullscreenButton: true,
                 pointerEvents: PointerEvents.none, // Utilize our gestures
                 mute: false,
-                playlist: [state.video.youtubeId],
-                startAt: Duration(
-                  seconds: state.video.isCompleted
-                      ? 0
-                      : state.video.lastWatchedPositionSeconds,
-                ),
               ),
+            );
+
+            _controller!.loadVideoById(
+              videoId: state.video.youtubeId,
+              startSeconds: state.video.isCompleted
+                  ? 0
+                  : state.video.lastWatchedPositionSeconds.toDouble(),
             );
 
             setState(() {});
@@ -64,7 +66,7 @@ class _PlayerPageState extends State<PlayerPage> {
           }
 
           if (state is PlayerLoadedState && _controller != null) {
-            return MxPlayerScaffold(
+            return MxLandscapePlayer(
               controller: _controller!,
               title: state.video.title,
               channelName: state.video.channelName,
