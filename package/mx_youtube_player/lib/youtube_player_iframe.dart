@@ -13,7 +13,6 @@ export 'src/iframe_api/youtube_player_iframe_api.dart';
 export 'src/meta_data.dart';
 // MX Player exports
 export 'src/player_params.dart';
-export 'src/player_params.dart';
 export 'src/player_value.dart';
 export 'src/widgets/fullscreen_youtube_player.dart';
 export 'src/widgets/mx_inline_player.dart';

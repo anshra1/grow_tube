@@ -29,7 +29,7 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return MxPlayerScaffold(
+    return MxLandscapePlayer(
       controller: _controller,
       title: 'MX Player Example',
     );

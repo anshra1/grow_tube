@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:mx_youtube_player/src/widgets/mx_player_overlay.dart';
 import 'package:mx_youtube_player/youtube_player_iframe.dart';
 
 /// A simplified MX Player widget that combines the player and the overlay.

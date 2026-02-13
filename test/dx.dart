@@ -54,9 +54,9 @@ class _YoutubePlayerTestPageState extends State<YoutubePlayerTestPage> {
     super.initState();
     _controller = YoutubePlayerController.fromVideoId(
       videoId: _videoId,
-      autoPlay: false,
+      autoPlay: true,
       params: const YoutubePlayerParams(
-        showControls: true, // MxPlayerScaffold handles controls
+        showControls: false, // MxPlayerScaffold handles controls
         showFullscreenButton: true, // MxPlayerScaffold handles fullscreen
         mute: false,
         strictRelatedVideos: true,
@@ -116,7 +116,7 @@ class _YoutubePlayerTestPageState extends State<YoutubePlayerTestPage> {
 
   @override
   Widget build(BuildContext context) {
-    return MxPlayerScaffold(
+    return MxLandscapePlayer(
       controller: _controller,
       autoFullScreen: false,
       title: 'YouTube Player Test',

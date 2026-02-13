@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:mx_youtube_player/src/widgets/mx_player_overlay.dart';
 import 'package:mx_youtube_player/youtube_player_iframe.dart';
 
-class MxLandscapePlayer extends StatefulWidget {
+class MxPlayerScaffold extends StatefulWidget {
   final YoutubePlayerController controller;
   final String title;
   final String? channelName;
@@ -11,7 +11,7 @@ class MxLandscapePlayer extends StatefulWidget {
   final bool autoFullScreen;
   final Widget? child;
 
-  const MxLandscapePlayer({
+  const MxPlayerScaffold({
     super.key,
     required this.controller,
     required this.title,
@@ -22,10 +22,10 @@ class MxLandscapePlayer extends StatefulWidget {
   });
 
   @override
-  State<MxLandscapePlayer> createState() => _MxLandscapePlayerState();
+  State<MxPlayerScaffold> createState() => _MxPlayerScaffoldState();
 }
 
-class _MxLandscapePlayerState extends State<MxLandscapePlayer> {
+class _MxPlayerScaffoldState extends State<MxPlayerScaffold> {
   BoxFit _fit = BoxFit.contain;
 
   @override
@@ -57,7 +57,7 @@ class _MxLandscapePlayerState extends State<MxLandscapePlayer> {
   Widget build(BuildContext context) {
     return OrientationBuilder(
       builder: (context, orientation) {
-        final isLandscape = orientation == Orientation.landscape || widget.autoFullScreen;
+        final isLandscape = orientation == Orientation.landscape;
 
         final playerWidget = Stack(
           children: [

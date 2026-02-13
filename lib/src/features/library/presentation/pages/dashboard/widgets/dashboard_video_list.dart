@@ -54,22 +54,22 @@ class DashboardVideoList extends StatelessWidget {
             final video = videos[index - 1];
 
             // First video uses Hero Player
-            if (index == 1) {
-              return Padding(
-                padding: const EdgeInsets.only(bottom: AppSizes.p16),
-                child: AspectRatio(
-                  aspectRatio: 16 / 9,
-                  child: DashboardHero(video: video),
-                ),
-              );
-            }
+            // if (index == 1) {
+            //   return Padding(
+            //     padding: const EdgeInsets.only(bottom: AppSizes.p16),
+            //     child: AspectRatio(
+            //       aspectRatio: 16 / 9,
+            //       child: DashboardHero(video: video),
+            //     ),
+            //   );
+            // }
 
             return Padding(
               padding: const EdgeInsets.only(bottom: AppSizes.p16),
               child: DashboardVideoCard(video: video),
             );
           },
-          childCount: videos.length + 1, // +1 for header
+          childCount: videos.length , // +1 for header
         ),
       ),
     );
