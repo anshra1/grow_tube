@@ -31,14 +31,13 @@ class _PlayerPageState extends State<PlayerPage> {
                 showFullscreenButton: true,
                 pointerEvents: PointerEvents.none, // Utilize our gestures
                 mute: false,
+                playlist: [state.video.youtubeId],
+                startAt: Duration(
+                  seconds: state.video.isCompleted
+                      ? 0
+                      : state.video.lastWatchedPositionSeconds,
+                ),
               ),
-            );
-
-            _controller!.loadVideoById(
-              videoId: state.video.youtubeId,
-              startSeconds: state.video.isCompleted
-                  ? 0
-                  : state.video.lastWatchedPositionSeconds.toDouble(),
             );
 
             setState(() {});

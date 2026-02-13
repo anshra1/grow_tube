@@ -7,6 +7,7 @@ import 'package:skill_tube/src/core/design_system/app_shadows.dart';
 import 'package:skill_tube/src/core/design_system/app_sizes.dart';
 import 'package:skill_tube/src/core/utils/extensions/context_extensions.dart';
 import 'package:skill_tube/src/features/library/domain/entities/video.dart';
+import 'package:skill_tube/src/features/library/presentation/pages/dashboard/widgets/hero_video_player.dart';
 
 class DashboardVideoList extends StatelessWidget {
   const DashboardVideoList({required this.videos, super.key});
@@ -34,7 +35,6 @@ class DashboardVideoList extends StatelessWidget {
                     ),
                     TextButton(
                       onPressed: () {
-                        // TODO: Navigate to full list? Or just scroll?
                         // "See all"
                       },
                       style: TextButton.styleFrom(
@@ -52,6 +52,18 @@ class DashboardVideoList extends StatelessWidget {
 
             // Adjust index because of header
             final video = videos[index - 1];
+
+            // First video uses Hero Player
+            if (index == 1) {
+              return Padding(
+                padding: const EdgeInsets.only(bottom: AppSizes.p16),
+                child: AspectRatio(
+                  aspectRatio: 16 / 9,
+                  child: HeroVideoPlayer(video: video),
+                ),
+              );
+            }
+
             return Padding(
               padding: const EdgeInsets.only(bottom: AppSizes.p16),
               child: DashboardVideoCard(video: video),
@@ -98,9 +110,8 @@ class DashboardVideoCard extends StatelessWidget {
                 child: Image.network(
                   video.thumbnailUrl,
                   fit: BoxFit.cover,
-                  errorBuilder: (_, __, ___) => Container(
-                    color: context.colorScheme.surfaceContainerHighest,
-                  ),
+                  errorBuilder: (_, __, ___) =>
+                      Container(color: context.colorScheme.surfaceContainerHighest),
                 ),
               ),
             ),
@@ -147,8 +158,12 @@ class DashboardVideoCard extends StatelessWidget {
                     child: LinearProgressIndicator(
                       value: progress,
                       minHeight: 6,
-                      backgroundColor: context.colorScheme.onSurfaceVariant.withValues(alpha: 0.2),
-                      valueColor: AlwaysStoppedAnimation<Color>(context.colorScheme.primary),
+                      backgroundColor: context.colorScheme.onSurfaceVariant.withValues(
+                        alpha: 0.2,
+                      ),
+                      valueColor: AlwaysStoppedAnimation<Color>(
+                        context.colorScheme.primary,
+                      ),
                     ),
                   ),
                 ],
