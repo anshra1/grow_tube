@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mx_youtube_player/youtube_player_iframe.dart' hide PlayerState;
 import 'package:skill_tube/src/core/di/injection_container.dart' as di;
-import 'package:skill_tube/src/core/utils/extensions/context_extensions.dart';
 import 'package:skill_tube/src/features/player/presentation/bloc/player_bloc.dart';
 import 'package:skill_tube/src/features/player/presentation/bloc/player_event.dart';
 import 'package:skill_tube/src/features/player/presentation/bloc/player_state.dart';
@@ -30,21 +29,26 @@ class _PlayerPageState extends State<PlayerPage> {
               params: YoutubePlayerParams(
                 showControls: false, // We use our custom HUD
                 showFullscreenButton: true,
-                playlist: [state.video.youtubeId], // Required for some features
-                startAt: Duration(
-                  seconds: state.video.isCompleted
-                      ? 0
-                      : state.video.lastWatchedPositionSeconds,
-                ),
+                pointerEvents: PointerEvents.none, // Utilize our gestures
+                mute: false,
               ),
             );
+
+            _controller!.loadVideoById(
+              videoId: state.video.youtubeId,
+              startSeconds: state.video.isCompleted
+                  ? 0
+                  : state.video.lastWatchedPositionSeconds.toDouble(),
+            );
+
+            setState(() {});
           }
         },
         builder: (context, state) {
-          if (state is PlayerLoadingState) {
+          if (state is PlayerLoadingState || _controller == null) {
             return const Scaffold(
               backgroundColor: Colors.black,
-              body: Center(child: CircularProgressIndicator()),
+              body: Center(child: CircularProgressIndicator(color: Colors.orange)),
             );
           }
 
@@ -54,7 +58,7 @@ class _PlayerPageState extends State<PlayerPage> {
               body: Center(
                 child: Text(
                   state.message,
-                  style: TextStyle(color: context.colorScheme.error),
+                  style: TextStyle(color: Theme.of(context).colorScheme.error),
                 ),
               ),
             );

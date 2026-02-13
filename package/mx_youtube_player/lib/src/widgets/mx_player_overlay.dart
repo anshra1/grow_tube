@@ -288,10 +288,43 @@ class _MxPlayerOverlayState extends State<MxPlayerOverlay> {
                     ),
 
                     // Center Play Button
-                    IconButton(
-                      iconSize: 64,
-                      icon: const Icon(Icons.play_circle_fill, color: Colors.white),
-                      onPressed: _togglePlayPause,
+                    StreamBuilder<YoutubePlayerValue>(
+                      stream: widget.controller.stream,
+                      builder: (context, snapshot) {
+                        final state = snapshot.data?.playerState ?? PlayerState.unknown;
+                        IconData icon = Icons.play_circle_fill;
+                        VoidCallback action = _togglePlayPause;
+
+                        if (state == PlayerState.playing) {
+                          icon = Icons.pause_circle_filled;
+                          action = widget.controller.pauseVideo;
+                        } else if (state == PlayerState.ended) {
+                          icon = Icons.replay_circle_filled;
+                          action = () {
+                            widget.controller.seekTo(seconds: 0);
+                            widget.controller.playVideo();
+                          };
+                        } else {
+                          icon = Icons.play_circle_fill;
+                          action = widget.controller.playVideo;
+                        }
+
+                        return IconButton(
+                          iconSize: 64,
+                          icon: Icon(icon, color: Colors.white),
+                          onPressed: () {
+                            action();
+                            // Show feedback
+                            if (state == PlayerState.playing) {
+                              _showCenterFeedback('Paused', Icons.pause);
+                            } else if (state == PlayerState.ended) {
+                              _showCenterFeedback('Replay', Icons.replay);
+                            } else {
+                              _showCenterFeedback('Playing', Icons.play_arrow);
+                            }
+                          },
+                        );
+                      },
                     ),
 
                     // Bottom Bar
