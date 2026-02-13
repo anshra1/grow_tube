@@ -14,6 +14,7 @@ import 'package:skill_tube/src/features/library/presentation/bloc/library_bloc.d
 import 'package:skill_tube/src/features/library/presentation/bloc/library_event.dart';
 import 'package:skill_tube/src/features/library/presentation/bloc/library_state.dart';
 import 'package:skill_tube/src/features/library/presentation/pages/dashboard/widgets/add_video_bottom_sheet.dart';
+import 'package:skill_tube/src/features/library/presentation/pages/dashboard/widgets/clipboard_video_prompt.dart';
 import 'package:skill_tube/src/features/library/presentation/pages/dashboard/widgets/dashboard_header.dart';
 import 'package:skill_tube/src/features/library/presentation/pages/dashboard/widgets/dashboard_hero.dart';
 import 'package:skill_tube/src/features/library/presentation/pages/dashboard/widgets/dashboard_video_list.dart';
@@ -29,21 +30,33 @@ class DashboardPage extends StatefulWidget {
 class _DashboardPageState extends State<DashboardPage> with ClipboardMonitorMixin {
   @override
   void onClipboardUrlDetected(String url, String videoId) {
-    toastification.show(
+    toastification.showCustom(
       context: context,
-      type: ToastificationType.info,
-      style: ToastificationStyle.fillColored,
-      title: const Text('YouTube Link Detected'),
-      description: Text(url),
-      alignment: Alignment.topCenter,
-      autoCloseDuration: const Duration(seconds: 8),
-      primaryColor: context.colorScheme.secondary,
-      showProgressBar: false,
-
-      callbacks: ToastificationCallbacks(
-        onCloseButtonTap: (item) => toastification.dismiss(item),
-      ),
-      
+      alignment: Alignment.bottomCenter,
+      autoCloseDuration: const Duration(seconds: 10),
+      animationBuilder: (context, animation, alignment, child) {
+        return SlideTransition(
+          position: Tween<Offset>(
+            begin: const Offset(0, 1),
+            end: const Offset(0, 0),
+          ).animate(animation),
+          child: child,
+        );
+      },
+      builder: (context, holder) {
+        return ClipboardVideoPrompt(
+          url: url,
+          onDismiss: () => toastification.dismiss(holder),
+          onAdd: () {
+            context.read<LibraryBloc>().add(LibraryVideoAddedEvent(url));
+            toastification.dismiss(holder);
+          },
+          onWatch: () {
+            context.read<LibraryBloc>().add(LibraryVideoAddedAndPlayRequested(url));
+            toastification.dismiss(holder);
+          },
+        );
+      },
     );
   }
 
@@ -64,11 +77,11 @@ class _DashboardPageState extends State<DashboardPage> with ClipboardMonitorMixi
             Expanded(
               child: BlocConsumer<LibraryBloc, LibraryState>(
                 buildWhen: (previous, current) =>
-                    current is LibraryLoadedState ||
-                    current is LibraryEmptyState ||
-                    current is LibraryPlayVideoSuccess ||
-                    (current is LibraryLoadingState && previous is LibraryInitialState),
-                listener: (context, state) {
+                    current is! LibraryPlayVideoSuccess &&
+                    (current is LibraryLoadedState ||
+                        current is LibraryEmptyState ||
+                        (current is LibraryLoadingState && previous is LibraryInitialState)),
+                listener: (context, state) async {
                   switch (state) {
                     case LibraryFailureState(:final message):
                       toastification.show(
@@ -81,7 +94,11 @@ class _DashboardPageState extends State<DashboardPage> with ClipboardMonitorMixi
                         alignment: Alignment.bottomCenter,
                       );
                     case LibraryPlayVideoSuccess(:final videoId):
-                      context.push('/player/$videoId');
+                      // Await the player and then reset orientation
+                      await context.push('/player/$videoId');
+                      SystemChrome.setPreferredOrientations([
+                        DeviceOrientation.portraitUp,
+                      ]);
                     default:
                       break;
                   }
@@ -89,10 +106,10 @@ class _DashboardPageState extends State<DashboardPage> with ClipboardMonitorMixi
                 builder: (context, state) {
                   return switch (state) {
                     LibraryInitialState() || LibraryLoadingState() => Center(
-                      child: CircularProgressIndicator(
-                        color: context.colorScheme.primary,
+                        child: CircularProgressIndicator(
+                          color: context.colorScheme.primary,
+                        ),
                       ),
-                    ),
                     LibraryFailureState(:final message) => Center(
                       child: Text(
                         message,
@@ -100,15 +117,14 @@ class _DashboardPageState extends State<DashboardPage> with ClipboardMonitorMixi
                       ),
                     ),
                     LibraryEmptyState() => Center(
-                      child: Text(
-                        AppStrings.dashboardNoVideos,
-                        style: context.textTheme.bodyLarge?.copyWith(
-                          color: context.colorScheme.onSurfaceVariant,
+                        child: Text(
+                          AppStrings.dashboardNoVideos,
+                          style: context.textTheme.bodyLarge?.copyWith(
+                            color: context.colorScheme.onSurfaceVariant,
+                          ),
                         ),
                       ),
-                    ),
-                    LibraryLoadedState(:final videos, :final heroVideo) ||
-                    LibraryPlayVideoSuccess(:final videos, :final heroVideo) => Column(
+                    LibraryLoadedState(:final videos, :final heroVideo) => Column(
                       children: [
                         if (heroVideo != null)
                           Padding(
@@ -132,6 +148,7 @@ class _DashboardPageState extends State<DashboardPage> with ClipboardMonitorMixi
                         ),
                       ],
                     ),
+                    LibraryPlayVideoSuccess() => const SizedBox.shrink(),
                   };
                 },
               ),

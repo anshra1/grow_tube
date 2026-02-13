@@ -36,38 +36,6 @@ class DashboardHeader extends StatelessWidget {
                 tooltip: AppStrings.dashboardViewLogs,
               ),
               gapW8,
-              Stack(
-                children: [
-                  Container(
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      border: Border.all(
-                        color: context.colorScheme.primary.withValues(alpha: 0.5),
-                        width: 2,
-                      ),
-                    ),
-                    child: const CircleAvatar(
-                      radius: 20,
-                      backgroundImage: NetworkImage(
-                        'https://lh3.googleusercontent.com/aida-public/AB6AXuClOSBU8sYOvchtWleaLNnJxhF5JnRFnuG7vJym5QUdO_hqJOVDCdS6tDTG1OSldUdWLNn0Nm9SY9qZ8DW9VAXqQXHTqT0Uuzls4Jba50fHFD6j51sGi_kn9tSaC1nVrPCHHm1uvDh-8hHss43gwby3NsFfstjZLZ_qqyzgQiPAv6fxp6I1CaT9KSAeLblwQP-0zejPvtRyqe-nMPKHz86BZyOTO1KKAQOXU_tFegN_Jhzbw6M-nxg2WFiYKyD-cXCRhMM-F6J1wFw',
-                      ),
-                    ),
-                  ),
-                  Positioned(
-                    top: 0,
-                    right: 0,
-                    child: Container(
-                      width: 12,
-                      height: 12,
-                      decoration: BoxDecoration(
-                        color: context.colorScheme.error,
-                        shape: BoxShape.circle,
-                        border: Border.all(color: context.colorScheme.surface, width: 2),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
             ],
           ),
         ],

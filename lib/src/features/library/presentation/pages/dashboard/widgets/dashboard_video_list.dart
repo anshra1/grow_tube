@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
@@ -10,10 +11,7 @@ import 'package:skill_tube/src/core/utils/extensions/context_extensions.dart';
 import 'package:skill_tube/src/features/library/domain/entities/video.dart';
 import 'package:skill_tube/src/features/library/presentation/bloc/library_bloc.dart';
 import 'package:skill_tube/src/features/library/presentation/bloc/library_event.dart';
-
 import 'package:skill_tube/src/features/library/presentation/pages/dashboard/widgets/delete_video_dialog.dart';
-
-import 'package:flutter/services.dart';
 
 class DashboardVideoList extends StatelessWidget {
   const DashboardVideoList({required this.videos, super.key});
@@ -25,47 +23,33 @@ class DashboardVideoList extends StatelessWidget {
     return SliverPadding(
       padding: const EdgeInsets.symmetric(horizontal: AppSizes.p16),
       sliver: SliverList(
-        delegate: SliverChildBuilderDelegate(
-          (context, index) {
-            if (index == 0) {
-              return Padding(
-                padding: const EdgeInsets.only(bottom: AppSizes.p16),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      AppStrings.dashboardMyVideos,
-                      style: context.textTheme.headlineSmall?.copyWith(
-                        color: context.colorScheme.onSurface,
-                      ),
-                    ),
-                   
-                  ],
-                ),
-              );
-            }
-
-            // Adjust index because of header
-            final video = videos[index - 1];
-
-            // First video uses Hero Player
-            // if (index == 1) {
-            //   return Padding(
-            //     padding: const EdgeInsets.only(bottom: AppSizes.p16),
-            //     child: AspectRatio(
-            //       aspectRatio: 16 / 9,
-            //       child: DashboardHero(video: video),
-            //     ),
-            //   );
-            // }
-
+        delegate: SliverChildBuilderDelegate((context, index) {
+          if (index == 0) {
             return Padding(
               padding: const EdgeInsets.only(bottom: AppSizes.p16),
-              child: DashboardVideoCard(video: video),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    AppStrings.dashboardMyVideos,
+                    style: context.textTheme.headlineSmall?.copyWith(
+                      color: context.colorScheme.onSurface,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
             );
-          },
-          childCount: videos.length + 1,
-        ),
+          }
+
+          // Adjust index because of header
+          final video = videos[index - 1];
+
+          return Padding(
+            padding: const EdgeInsets.only(bottom: AppSizes.p16),
+            child: DashboardVideoCard(video: video),
+          );
+        }, childCount: videos.length + 1),
       ),
     );
   }
@@ -94,9 +78,7 @@ class DashboardVideoCard extends StatelessWidget {
       onTap: () async {
         await context.push('/player/${video.youtubeId}');
         // Force portrait when returning from the player
-        SystemChrome.setPreferredOrientations([
-          DeviceOrientation.portraitUp,
-        ]);
+        SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
       },
       onLongPress: () {
         showDialog(
