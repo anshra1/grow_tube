@@ -7,7 +7,6 @@ import 'package:skill_tube/src/features/library/data/repositories/video_reposito
 import 'package:skill_tube/src/features/library/domain/repositories/video_repository.dart';
 import 'package:skill_tube/src/features/library/domain/usecases/library_usecases.dart';
 import 'package:skill_tube/src/features/library/presentation/bloc/library_bloc.dart';
-import 'package:skill_tube/src/features/player/presentation/bloc/player_bloc.dart';
 import 'package:youtube_explode_dart/youtube_explode_dart.dart';
 
 final GetIt sl = GetIt.instance;
@@ -24,12 +23,8 @@ Future<void> init() async {
   // ============================================================
   // Data Sources
   // ============================================================
-  sl.registerLazySingleton<VideoLocalDataSource>(
-    () => VideoLocalDataSourceImpl(sl()),
-  );
-  sl.registerLazySingleton<VideoRemoteDataSource>(
-    () => VideoRemoteDataSourceImpl(sl()),
-  );
+  sl.registerLazySingleton<VideoLocalDataSource>(() => VideoLocalDataSourceImpl(sl()));
+  sl.registerLazySingleton<VideoRemoteDataSource>(() => VideoRemoteDataSourceImpl(sl()));
 
   // ============================================================
   // Repositories
@@ -45,7 +40,6 @@ Future<void> init() async {
   sl.registerLazySingleton(() => GetLastPlayedVideo(sl()));
   sl.registerLazySingleton(() => AddVideo(sl()));
   sl.registerLazySingleton(() => DeleteVideo(sl()));
-  sl.registerLazySingleton(() => GetVideo(sl()));
   sl.registerLazySingleton(() => UpdateVideoProgress(sl()));
 
   // ============================================================
@@ -58,12 +52,6 @@ Future<void> init() async {
       addVideo: sl(),
       deleteVideo: sl(),
       updateVideoProgress: sl(),
-    ),
-  );
-
-  sl.registerFactory(
-    () => PlayerBloc(
-      getVideo: sl(),
     ),
   );
 }

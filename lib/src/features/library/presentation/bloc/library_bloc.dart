@@ -16,6 +16,7 @@ class LibraryBloc extends Bloc<LibraryEvent, LibraryState> {
     on<LibraryVideoDeletedEvent>(_onVideoDeleted);
     on<LibraryVideoProgressUpdatedEvent>(_onProgressUpdated);
     on<LibraryVideoAddedAndPlayRequested>(_onVideoAddedAndPlay);
+    on<LibraryVideoSelectedEvent>(_onVideoSelected);
   }
 
   final GetAllVideos getAllVideos;
@@ -23,6 +24,16 @@ class LibraryBloc extends Bloc<LibraryEvent, LibraryState> {
   final AddVideo addVideo;
   final DeleteVideo deleteVideo;
   final UpdateVideoProgress updateVideoProgress;
+
+  Future<void> _onVideoSelected(
+    LibraryVideoSelectedEvent event,
+    Emitter<LibraryState> emit,
+  ) async {
+    final state = this.state;
+    if (state is LibraryLoadedState) {
+      emit(LibraryLoadedState(videos: state.videos, heroVideo: event.video));
+    }
+  }
 
   Future<void> _onVideoAddedAndPlay(
     LibraryVideoAddedAndPlayRequested event,
@@ -33,27 +44,11 @@ class LibraryBloc extends Bloc<LibraryEvent, LibraryState> {
     await result.fold((failure) async => emit(LibraryFailureState(failure.message)), (
       video,
     ) async {
-      // Refresh library to get updated list/hero
-      // We manually fetch here to avoid double-emitting if we used _refreshLibrary
-      final videosResult = await getAllVideos();
-      final heroResult = await getLastPlayedVideo();
-
-      if (videosResult.isLeft()) {
-        final failure = videosResult.getLeft().toNullable()!;
-        emit(LibraryFailureState(failure.message));
-        return;
-      }
-
-      final videos = videosResult.getRight().toNullable()!;
-      final heroVideo = heroResult.fold((failure) => null, (video) => video);
-
-      emit(
-        LibraryPlayVideoSuccess(
-          videos: videos,
-          heroVideo: heroVideo,
-          videoId: video.youtubeId,
-        ),
-      );
+      // Refresh library to get updated list/hero.
+      // The repo's getLastPlayedVideo logic (lastPlayed ?? addedAt)
+      // should pick up this new video as the hero automatically
+      // because it's the most recently added/interacted with.
+      await _refreshLibrary(emit);
     });
   }
 

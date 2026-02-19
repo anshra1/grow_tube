@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:skill_tube/src/features/library/domain/entities/video.dart';
 
 sealed class LibraryEvent extends Equatable {
   const LibraryEvent();
@@ -43,11 +44,20 @@ final class LibraryVideoProgressUpdatedEvent extends LibraryEvent {
   List<Object?> get props => [youtubeId, positionSeconds];
 }
 
-/// Triggered from the clipboard monitor to add a video and then play it.
+/// Triggered when the clipboard monitor adds a video and requests to play it.
 final class LibraryVideoAddedAndPlayRequested extends LibraryEvent {
   const LibraryVideoAddedAndPlayRequested(this.url);
   final String url;
 
   @override
   List<Object?> get props => [url];
+}
+
+/// Triggered when a user selects a video from the list to play inline.
+final class LibraryVideoSelectedEvent extends LibraryEvent {
+  const LibraryVideoSelectedEvent(this.video);
+  final Video video;
+
+  @override
+  List<Object?> get props => [video];
 }

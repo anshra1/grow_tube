@@ -1,18 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:gap/gap.dart';
-import 'package:go_router/go_router.dart';
 import 'package:skill_tube/src/core/constants/app_strings.dart';
-import 'package:skill_tube/src/core/design_system/app_radius.dart';
-import 'package:skill_tube/src/core/design_system/app_shadows.dart';
 import 'package:skill_tube/src/core/design_system/app_sizes.dart';
 import 'package:skill_tube/src/core/utils/extensions/context_extensions.dart';
 import 'package:skill_tube/src/features/library/domain/entities/video.dart';
-import 'package:skill_tube/src/features/library/presentation/bloc/library_bloc.dart';
-import 'package:skill_tube/src/features/library/presentation/bloc/library_event.dart';
 import 'package:skill_tube/src/features/library/presentation/pages/dashboard/widgets/dashboard_video_card.dart';
-import 'package:skill_tube/src/features/library/presentation/pages/dashboard/widgets/delete_video_dialog.dart';
 
 class DashboardVideoList extends StatelessWidget {
   const DashboardVideoList({required this.videos, super.key});
@@ -55,4 +46,3 @@ class DashboardVideoList extends StatelessWidget {
     );
   }
 }
-

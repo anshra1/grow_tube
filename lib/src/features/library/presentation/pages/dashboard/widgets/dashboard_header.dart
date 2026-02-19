@@ -13,7 +13,7 @@ class DashboardHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(AppSizes.p16),
+      padding: const EdgeInsets.symmetric(horizontal: AppSizes.p16),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [

@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
-import 'package:go_router/go_router.dart';
 import 'package:skill_tube/src/core/design_system/app_radius.dart';
 import 'package:skill_tube/src/core/design_system/app_shadows.dart';
 import 'package:skill_tube/src/core/design_system/app_sizes.dart';
@@ -32,10 +30,8 @@ class DashboardVideoCard extends StatelessWidget {
     final percentage = (progress * 100).toInt();
 
     return GestureDetector(
-      onTap: () async {
-        await context.push('/player/${video.youtubeId}');
-        // Force portrait when returning from the player
-        SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+      onTap: () {
+        context.read<LibraryBloc>().add(LibraryVideoSelectedEvent(video));
       },
       onLongPress: () {
         showDialog(

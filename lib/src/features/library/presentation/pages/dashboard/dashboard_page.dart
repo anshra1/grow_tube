@@ -3,7 +3,6 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
 import 'package:skill_tube/src/core/constants/app_icons.dart';
 import 'package:skill_tube/src/core/constants/app_strings.dart';
 import 'package:skill_tube/src/core/design_system/app_sizes.dart';
@@ -16,8 +15,8 @@ import 'package:skill_tube/src/features/library/presentation/bloc/library_state.
 import 'package:skill_tube/src/features/library/presentation/pages/dashboard/widgets/add_video_bottom_sheet.dart';
 import 'package:skill_tube/src/features/library/presentation/pages/dashboard/widgets/clipboard_video_prompt.dart';
 import 'package:skill_tube/src/features/library/presentation/pages/dashboard/widgets/dashboard_header.dart';
-import 'package:skill_tube/src/features/library/presentation/pages/dashboard/widgets/dashboard_hero.dart';
 import 'package:skill_tube/src/features/library/presentation/pages/dashboard/widgets/dashboard_video_list.dart';
+import 'package:skill_tube/src/features/library/presentation/pages/dashboard/widgets/dashboard_video_player.dart';
 import 'package:toastification/toastification.dart';
 
 class DashboardPage extends StatefulWidget {
@@ -67,56 +66,78 @@ class _DashboardPageState extends State<DashboardPage> with ClipboardMonitorMixi
     SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   }
 
+  bool _isFullScreen = false;
+  final GlobalKey _playerKey = GlobalKey();
+
   @override
   Widget build(BuildContext context) {
     return AppScaffold(
-      body: SafeArea(
-        child: Column(
-          children: [
-            const DashboardHeader(),
-            Expanded(
-              child: BlocConsumer<LibraryBloc, LibraryState>(
-                buildWhen: (previous, current) =>
-                    current is! LibraryPlayVideoSuccess &&
-                    (current is LibraryLoadedState ||
-                        current is LibraryEmptyState ||
-                        (current is LibraryLoadingState && previous is LibraryInitialState)),
-                listener: (context, state) async {
-                  switch (state) {
-                    case LibraryFailureState(:final message):
-                      toastification.show(
-                        context: context,
-                        type: ToastificationType.error,
-                        style: ToastificationStyle.fillColored,
-                        title: Text(AppStrings.dashboardError),
-                        description: Text(message),
-                        autoCloseDuration: const Duration(seconds: 4),
-                        alignment: Alignment.bottomCenter,
-                      );
-                    case LibraryPlayVideoSuccess(:final videoId):
-                      // Await the player and then reset orientation
-                      await context.push('/player/$videoId');
-                      SystemChrome.setPreferredOrientations([
-                        DeviceOrientation.portraitUp,
-                      ]);
-                    default:
-                      break;
-                  }
-                },
-                builder: (context, state) {
-                  return switch (state) {
-                    LibraryInitialState() || LibraryLoadingState() => Center(
+      body: PopScope(
+        canPop: !_isFullScreen,
+        onPopInvokedWithResult: (didPop, result) async {
+          if (didPop) return;
+          if (_isFullScreen) {
+            // Exit fullscreen
+            // We need to notify the player or just force state?
+            // Since the player controls the system UI, we might need a way to tell it to exit.
+            // But here we can just reset UI and let the player widget react if possible,
+            // or better: The Player widget should listen to orientation or we rely on the user toggling the button.
+            // However, typical behavior is back button exits fullscreen.
+            // For now, let's just reverse the SystemChrome and state.
+            setState(() => _isFullScreen = false);
+            await SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+            await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+          }
+        },
+        child: SafeArea(
+          top: !_isFullScreen,
+          bottom: !_isFullScreen,
+          left: !_isFullScreen,
+          right: !_isFullScreen,
+          child: Column(
+            children: [
+              if (!_isFullScreen) const DashboardHeader(),
+              Expanded(
+                child: BlocConsumer<LibraryBloc, LibraryState>(
+                  buildWhen: (previous, current) =>
+                      current is! LibraryPlayVideoSuccess &&
+                      (current is LibraryLoadedState ||
+                          current is LibraryEmptyState ||
+                          (current is LibraryLoadingState &&
+                              previous is LibraryInitialState)),
+                  listener: (context, state) async {
+                    switch (state) {
+                      case LibraryFailureState(:final message):
+                        toastification.show(
+                          context: context,
+                          type: ToastificationType.error,
+                          style: ToastificationStyle.fillColored,
+                          title: Text(AppStrings.dashboardError),
+                          description: Text(message),
+                          autoCloseDuration: const Duration(seconds: 4),
+                          alignment: Alignment.bottomCenter,
+                        );
+                      case LibraryPlayVideoSuccess():
+                        // No-op, we don't handle this anymore, but just in case
+                        break;
+                      default:
+                        break;
+                    }
+                  },
+                  builder: (context, state) {
+                    return switch (state) {
+                      LibraryInitialState() || LibraryLoadingState() => Center(
                         child: CircularProgressIndicator(
                           color: context.colorScheme.primary,
                         ),
                       ),
-                    LibraryFailureState(:final message) => Center(
-                      child: Text(
-                        message,
-                        style: TextStyle(color: context.colorScheme.error),
+                      LibraryFailureState(:final message) => Center(
+                        child: Text(
+                          message,
+                          style: TextStyle(color: context.colorScheme.error),
+                        ),
                       ),
-                    ),
-                    LibraryEmptyState() => Center(
+                      LibraryEmptyState() => Center(
                         child: Text(
                           AppStrings.dashboardNoVideos,
                           style: context.textTheme.bodyLarge?.copyWith(
@@ -124,55 +145,80 @@ class _DashboardPageState extends State<DashboardPage> with ClipboardMonitorMixi
                           ),
                         ),
                       ),
-                    LibraryLoadedState(:final videos, :final heroVideo) => Column(
-                      children: [
-                        if (heroVideo != null)
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: AppSizes.p16),
-                            child: Column(
-                              children: [
-                                gapH16,
-                                DashboardHero(video: heroVideo),
-                                gapH16,
-                              ],
-                            ),
-                          ),
-                        Expanded(
-                          child: CustomScrollView(
-                            physics: const BouncingScrollPhysics(),
-                            slivers: [
-                              DashboardVideoList(videos: videos),
-                              const SliverToBoxAdapter(child: gapH48),
+                      LibraryLoadedState(:final videos, :final heroVideo) => Column(
+                        children: [
+                          if (heroVideo != null) ...[
+                            if (!_isFullScreen) ...[
+                              Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: AppSizes.p16,
+                                ),
+                                child: Column(
+                                  children: [
+                                    gapH16,
+                                    DashboardVideoPlayer(
+                                      key: _playerKey,
+                                      video: heroVideo,
+                                      onFullScreenChanged: (isFull) {
+                                        setState(() => _isFullScreen = isFull);
+                                      },
+                                    ),
+                                    gapH16,
+                                  ],
+                                ),
+                              ),
+                            ] else ...[
+                              Expanded(
+                                child: DashboardVideoPlayer(
+                                  key: _playerKey,
+                                  video: heroVideo,
+                                  onFullScreenChanged: (isFull) {
+                                    setState(() => _isFullScreen = isFull);
+                                  },
+                                ),
+                              ),
                             ],
-                          ),
-                        ),
-                      ],
-                    ),
-                    LibraryPlayVideoSuccess() => const SizedBox.shrink(),
-                  };
-                },
+                          ],
+                          if (!_isFullScreen)
+                            Expanded(
+                              child: CustomScrollView(
+                                physics: const BouncingScrollPhysics(),
+                                slivers: [
+                                  DashboardVideoList(videos: videos),
+                                  const SliverToBoxAdapter(child: gapH48),
+                                ],
+                              ),
+                            ),
+                        ],
+                      ),
+                      LibraryPlayVideoSuccess() => const SizedBox.shrink(),
+                    };
+                  },
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          showModalBottomSheet(
-            context: context,
-            isScrollControlled: true,
-            useSafeArea: true,
-            builder: (_) => AddVideoBottomSheet(
-              onAdd: (url) {
-                context.read<LibraryBloc>().add(LibraryVideoAddedEvent(url));
+      floatingActionButton: !_isFullScreen
+          ? FloatingActionButton(
+              onPressed: () {
+                showModalBottomSheet(
+                  context: context,
+                  isScrollControlled: true,
+                  useSafeArea: true,
+                  builder: (_) => AddVideoBottomSheet(
+                    onAdd: (url) {
+                      context.read<LibraryBloc>().add(LibraryVideoAddedEvent(url));
+                    },
+                  ),
+                );
               },
-            ),
-          );
-        },
-        backgroundColor: context.colorScheme.primary,
-        foregroundColor: context.colorScheme.onPrimary,
-        child: const Icon(AppIcons.add),
-      ),
+              backgroundColor: context.colorScheme.primary,
+              foregroundColor: context.colorScheme.onPrimary,
+              child: const Icon(AppIcons.add),
+            )
+          : null,
     );
   }
 
