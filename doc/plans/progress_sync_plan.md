@@ -17,19 +17,19 @@ Replicate the seamless "YouTube-style" watch progress syncing across devices whi
 | **Dispose** | Player widget is removed (e.g., navigating away, closing app). | **Instant** (if Rule Met) | ✅ Implemented in `DashboardVideoPlayer` |
 | **Fullscreen**| Transitioning between inline/fullscreen modes. | **Instant** (Side-effect) | ✅ Implicitly handled by widget rebuild/dispose |
 | **Heartbeat** | Periodic background save while playing. | **Every 60s** | ✅ Implemented (Timer) |
-| **Minimum Engagement Rule** | **Optimized:** Only push to Cloud if the **current session duration > 30 seconds**. Short views (<30s) are treated as "Preview/Bounce" and only saved locally. | - | 🛠️ To Implement |
+| **Minimum Engagement Rule** | **Timestamp Delta Strategy:** Push to Cloud only if the progress change is significant enough to warrant a write. | - | 🛠️ To Implement |
 
 ## 3. Data Flow
 
 ### 3.1 Writing Progress (Local -> Cloud)
-1.  **Event**: `DashboardVideoPlayer` detects a trigger (e.g., Pause).
-2.  **Logic Check**:
-    - Has this specific play session lasted > 30 seconds?
-    - OR was the video already "In Progress" (resume scenario)?
-    - IF YES: Proceed to Cloud Push.
-    - IF NO: Save to Local ObjectBox ONLY.
-3.  **Local Save**: `VideoLocalDataSource` updates ObjectBox immediately (Always).
-4.  **Cloud Push**: `SyncRepository` pushes the update to Firestore.
+1.  **Event**: `DashboardVideoPlayer` detects a trigger (e.g., Pause) and calls `VideoRepository.updateProgress`.
+2.  **Read Local**: Repository fetches current `video` from ObjectBox to get `storedPosition`.
+3.  **Local Save**: Always update ObjectBox with `newPosition` immediately. (Fast, offline-first).
+4.  **Logic Check (Cloud Sync)**:
+    - **Rule 1 (First Watch)**: IF `storedPosition == 0` AND `newPosition > 30s` -> **SYNC**.
+    - **Rule 2 (Resuming)**: IF `storedPosition > 0` AND `abs(newPosition - storedPosition) > 5s` -> **SYNC**.
+    - **Otherwise**: **SKIP CLOUD**.
+5.  **Cloud Push**: If Rule Met, `SyncRepository` pushes update to Firestore.
     - **Optimization**: Debounce pushes if they happen too rapidly.
 
 ### 3.2 Reading Progress (Cloud -> Local)
