@@ -1,0 +1,47 @@
+flowchart TD
+    %% Define User Actions
+    Trigger_Pause([User Pauses Video]):::trigger
+    Trigger_Dispose([User Closes Video]):::trigger
+
+    %% Define Components
+    UI_Player[DashboardVideoPlayer]:::ui
+    BLOC[LibraryBloc]:::bloc
+    REPO[VideoRepository]:::repo
+    LOCAL_DB[(ObjectBox Local DB)]:::db
+    CLOUD_DB[(Firestore Cloud DB)]:::cloud
+
+    %% Logic Flow
+    Trigger_Pause --> UI_Player
+    Trigger_Dispose --> UI_Player
+    
+    UI_Player --"Event: UpdateProgress(id, pos)"--> BLOC
+    BLOC --"Call: updateVideoProgress(id, pos)"--> REPO
+
+    subgraph Repository Logic ["Repository (Brain)"]
+        direction TB
+        Step1_Read[Read Current Local State]:::step
+        Step2_Save[WRITE to Local DB (Always)]:::step
+        Decision_Sync{Sync Rule Check?}:::decision
+        
+        Step1_Read --"Get oldPosition"--> Step2_Save
+        Step2_Save --"Update updatedAt"--> LOCAL_DB
+        Step2_Save --> Decision_Sync
+        
+        Decision_Sync --"Old=0 & New<30s"--> Don't_Sync[SKIP Cloud]:::skip
+        Decision_Sync --"Old=0 & New>30s"--> Push_to_Cloud[PUSH to Cloud]:::sync
+        Decision_Sync --"Old>0 & Diff>5s"--> Push_to_Cloud
+    end
+
+    Push_to_Cloud --"Write: users/{uid}/videos/{id}"--> CLOUD_DB
+    
+    %% Styles
+    classDef trigger fill:#f9f,stroke:#333,stroke-width:2px;
+    classDef ui fill:#ccf,stroke:#333;
+    classDef bloc fill:#aaf,stroke:#333;
+    classDef repo fill:#ffe,stroke:#d4a017,stroke-width:2px;
+    classDef db fill:#eee,stroke:#333;
+    classDef cloud fill:#bef,stroke:#333,stroke-dasharray: 5 5;
+    classDef step fill:#fff,stroke:#333;
+    classDef decision fill:#ff9,stroke:#333,stroke-width:2px;
+    classDef sync fill:#afa,stroke:#333;
+    classDef skip fill:#faa,stroke:#333;

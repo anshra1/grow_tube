@@ -152,7 +152,7 @@ class _DashboardVideoPlayerState extends State<DashboardVideoPlayer> {
                   : widget.video.lastWatchedPositionSeconds;
 
               if (startPos > 0) {
-                Future.delayed(const Duration(milliseconds: 500), () {
+                Future.delayed(const Duration(milliseconds: 200), () {
                   if (mounted && _controller != null) {
                     _controller!.seekTo(Duration(seconds: startPos));
                   }
