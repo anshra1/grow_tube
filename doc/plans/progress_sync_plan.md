@@ -13,20 +13,24 @@ Replicate the seamless "YouTube-style" watch progress syncing across devices whi
 
 | Trigger | Description | Frequency | Implementation Status |
 | :--- | :--- | :--- | :--- |
-| **Pause** | User taps pause button. | **Instant** | ✅ Implemented in `DashboardVideoPlayer` |
-| **Dispose** | Player widget is removed (e.g., navigating away, closing app). | **Instant** | ✅ Implemented in `DashboardVideoPlayer` |
+| **Pause** | User taps pause button. | **Instant** (if Rule Met) | ✅ Implemented in `DashboardVideoPlayer` |
+| **Dispose** | Player widget is removed (e.g., navigating away, closing app). | **Instant** (if Rule Met) | ✅ Implemented in `DashboardVideoPlayer` |
 | **Fullscreen**| Transitioning between inline/fullscreen modes. | **Instant** (Side-effect) | ✅ Implicitly handled by widget rebuild/dispose |
 | **Heartbeat** | Periodic background save while playing. | **Every 60s** | ✅ Implemented (Timer) |
-| **Seek** | User scrubs through the timeline. | **Deferred** | ❌ Not explicit (handled by next heartbeat/pause). Considered sufficient. |
+| **Minimum Engagement Rule** | **Optimized:** Only push to Cloud if the **current session duration > 30 seconds**. Short views (<30s) are treated as "Preview/Bounce" and only saved locally. | - | 🛠️ To Implement |
 
 ## 3. Data Flow
 
 ### 3.1 Writing Progress (Local -> Cloud)
 1.  **Event**: `DashboardVideoPlayer` detects a trigger (e.g., Pause).
-2.  **Action**: Calls `LibraryBloc.add(LibraryVideoProgressUpdatedEvent)`.
-3.  **Local Save**: `VideoLocalDataSource` updates ObjectBox immediately.
-4.  **Cloud Push**: `SyncRepository` (to be implemented) detects the ObjectBox change and pushes to Firestore `users/{uid}/videos/{videoId}`.
-    - **Optimization**: Debounce pushes if they happen too rapidly (e.g., repeated seeking).
+2.  **Logic Check**:
+    - Has this specific play session lasted > 30 seconds?
+    - OR was the video already "In Progress" (resume scenario)?
+    - IF YES: Proceed to Cloud Push.
+    - IF NO: Save to Local ObjectBox ONLY.
+3.  **Local Save**: `VideoLocalDataSource` updates ObjectBox immediately (Always).
+4.  **Cloud Push**: `SyncRepository` pushes the update to Firestore.
+    - **Optimization**: Debounce pushes if they happen too rapidly.
 
 ### 3.2 Reading Progress (Cloud -> Local)
 1.  **Listener**: `SyncRepository` listens to Firestore stream.

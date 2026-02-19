@@ -115,26 +115,7 @@ class _DashboardVideoPlayerState extends State<DashboardVideoPlayer> {
     }
   }
 
-  @override
-  void dispose() {
-    _heartbeatTimer?.cancel();
-    _saveProgress();
-    _controller?.removeListener(_update);
-    super.dispose();
-  }
-
-  bool _wasPlaying = false;
-
   void _update() {
-    final controller = _controller;
-    if (controller != null) {
-      if (_wasPlaying && !controller.isPlaying) {
-        // Just paused
-        _saveProgress();
-      }
-      _wasPlaying = controller.isPlaying;
-    }
-
     if (mounted) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         // Debounce setState to avoid rapid updates if not needed,
@@ -142,6 +123,14 @@ class _DashboardVideoPlayerState extends State<DashboardVideoPlayer> {
         if (mounted) setState(() {});
       });
     }
+  }
+
+  @override
+  void dispose() {
+    _heartbeatTimer?.cancel();
+    _saveProgress();
+    _controller?.removeListener(_update);
+    super.dispose();
   }
 
   @override
