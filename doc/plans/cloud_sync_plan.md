@@ -10,11 +10,15 @@ Enable users to synchronize their video library and watch progress across multip
     - `cloud_firestore`: For real-time database sync.
     - `google_sign_in`: For easy authentication.
 
-## 2. Authentication Strategy
-- **Goal**: Identify the user to sync *their* data.
-- **Method**: Google Sign-In. It's low friction and standard for Android apps.
-- **Anonymous Auth**: Consider starting with Anonymous Auth and upgrading to Google, but for "multi-device" specifically, Google Sign-In is the direct path.
-- **UI**: Add a simple "Sign In to Sync" button in the Dashboard (or a settings modal).
+## 2. Authentication Strategy (Guest First)
+- **Default State**: **Guest Mode (Anonymous)**.
+    - All features work immediately using local ObjectBox database.
+    - No sign-in required to start using the app.
+- **Upgrade Path**: **Google Sign-In**.
+    - User chooses to "Sign In to Sync".
+    - **Action**: Existing local data is **merged** with the new cloud account.
+    - Result: Multi-device sync is enabled without data loss.
+- **Library**: `firebase_auth` handles anonymous sessions and link-ups.
 
 ## 3. Data Architecture (Offline-First)
 

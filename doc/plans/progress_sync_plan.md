@@ -26,6 +26,9 @@ Replicate the seamless "YouTube-style" watch progress syncing across devices whi
 2.  **Read Local**: Repository fetches current `video` from ObjectBox to get `storedPosition`.
 3.  **Local Save**: Always update ObjectBox with `newPosition` immediately. (Fast, offline-first).
 4.  **Logic Check (Cloud Sync)**:
+    - **Step 0 (Auth Check)**: **Is the user signed in?**
+        - IF NO: **STOP**. (Data stays local-only).
+        - IF YES: Proceed to Rule Check.
     - **Rule 1 (First Watch)**: IF `storedPosition == 0` AND `newPosition > 30s` -> **SYNC**.
     - **Rule 2 (Resuming)**: IF `storedPosition > 0` AND `abs(newPosition - storedPosition) > 5s` -> **SYNC**.
     - **Otherwise**: **SKIP CLOUD**.
