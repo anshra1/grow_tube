@@ -9,6 +9,7 @@ import 'package:skill_tube/src/core/design_system/app_sizes.dart';
 import 'package:skill_tube/src/core/mixins/clipboard_monitor_mixin.dart';
 import 'package:skill_tube/src/core/utils/extensions/context_extensions.dart';
 import 'package:skill_tube/src/core/widgets/app_scaffold.dart';
+import 'package:skill_tube/src/features/library/domain/entities/video.dart';
 import 'package:skill_tube/src/features/library/presentation/bloc/library_bloc.dart';
 import 'package:skill_tube/src/features/library/presentation/bloc/library_event.dart';
 import 'package:skill_tube/src/features/library/presentation/bloc/library_state.dart';
@@ -27,8 +28,14 @@ class DashboardPage extends StatefulWidget {
 }
 
 class _DashboardPageState extends State<DashboardPage> with ClipboardMonitorMixin {
+  /// Keeps track of video IDs we've already shown a prompt for in this session.
+  final Set<String> _promptedVideoIds = {};
+
   @override
   void onClipboardUrlDetected(String url, String videoId) {
+    if (_promptedVideoIds.contains(videoId)) return;
+
+    _promptedVideoIds.add(videoId);
     toastification.showCustom(
       context: context,
       alignment: Alignment.bottomCenter,
@@ -62,142 +69,78 @@ class _DashboardPageState extends State<DashboardPage> with ClipboardMonitorMixi
   @override
   void initState() {
     super.initState();
-    // Enforce portrait mode for the dashboard
     SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   }
 
   bool _isFullScreen = false;
   final GlobalKey _playerKey = GlobalKey();
 
+  void _onFullScreenChanged(bool isFull) {
+    setState(() => _isFullScreen = isFull);
+  }
+
+  void _exitFullScreen() async {
+    setState(() => _isFullScreen = false);
+    await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+    await SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+  }
+
   @override
   Widget build(BuildContext context) {
     return AppScaffold(
       body: PopScope(
         canPop: !_isFullScreen,
-        onPopInvokedWithResult: (didPop, result) async {
+        onPopInvokedWithResult: (didPop, result) {
           if (didPop) return;
-          if (_isFullScreen) {
-            // Exit fullscreen
-            // We need to notify the player or just force state?
-            // Since the player controls the system UI, we might need a way to tell it to exit.
-            // But here we can just reset UI and let the player widget react if possible,
-            // or better: The Player widget should listen to orientation or we rely on the user toggling the button.
-            // However, typical behavior is back button exits fullscreen.
-            // For now, let's just reverse the SystemChrome and state.
-            setState(() => _isFullScreen = false);
-            await SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
-            await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
-          }
+          if (_isFullScreen) _exitFullScreen();
         },
-        child: SafeArea(
-          top: !_isFullScreen,
-          bottom: !_isFullScreen,
-          left: !_isFullScreen,
-          right: !_isFullScreen,
-          child: Column(
-            children: [
-              if (!_isFullScreen) const DashboardHeader(),
-              Expanded(
-                child: BlocConsumer<LibraryBloc, LibraryState>(
-                  buildWhen: (previous, current) =>
-                      current is! LibraryPlayVideoSuccess &&
-                      (current is LibraryLoadedState ||
-                          current is LibraryEmptyState ||
-                          (current is LibraryLoadingState &&
-                              previous is LibraryInitialState)),
-                  listener: (context, state) async {
-                    switch (state) {
-                      case LibraryFailureState(:final message):
-                        toastification.show(
-                          context: context,
-                          type: ToastificationType.error,
-                          style: ToastificationStyle.fillColored,
-                          title: Text(AppStrings.dashboardError),
-                          description: Text(message),
-                          autoCloseDuration: const Duration(seconds: 4),
-                          alignment: Alignment.bottomCenter,
-                        );
-                      case LibraryPlayVideoSuccess():
-                        // No-op, we don't handle this anymore, but just in case
-                        break;
-                      default:
-                        break;
-                    }
-                  },
-                  builder: (context, state) {
-                    return switch (state) {
-                      LibraryInitialState() || LibraryLoadingState() => Center(
-                        child: CircularProgressIndicator(
-                          color: context.colorScheme.primary,
-                        ),
-                      ),
-                      LibraryFailureState(:final message) => Center(
-                        child: Text(
-                          message,
-                          style: TextStyle(color: context.colorScheme.error),
-                        ),
-                      ),
-                      LibraryEmptyState() => Center(
-                        child: Text(
-                          AppStrings.dashboardNoVideos,
-                          style: context.textTheme.bodyLarge?.copyWith(
-                            color: context.colorScheme.onSurfaceVariant,
-                          ),
-                        ),
-                      ),
-                      LibraryLoadedState(:final videos, :final heroVideo) => Column(
-                        children: [
-                          if (heroVideo != null) ...[
-                            if (!_isFullScreen) ...[
-                              Padding(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: AppSizes.p16,
-                                ),
-                                child: Column(
-                                  children: [
-                                    gapH16,
-                                    DashboardVideoPlayer(
-                                      key: _playerKey,
-                                      video: heroVideo,
-                                      onFullScreenChanged: (isFull) {
-                                        setState(() => _isFullScreen = isFull);
-                                      },
-                                    ),
-                                    gapH16,
-                                  ],
-                                ),
-                              ),
-                            ] else ...[
-                              Expanded(
-                                child: DashboardVideoPlayer(
-                                  key: _playerKey,
-                                  video: heroVideo,
-                                  onFullScreenChanged: (isFull) {
-                                    setState(() => _isFullScreen = isFull);
-                                  },
-                                ),
-                              ),
-                            ],
-                          ],
-                          if (!_isFullScreen)
-                            Expanded(
-                              child: CustomScrollView(
-                                physics: const BouncingScrollPhysics(),
-                                slivers: [
-                                  DashboardVideoList(videos: videos),
-                                  const SliverToBoxAdapter(child: gapH48),
-                                ],
-                              ),
-                            ),
-                        ],
-                      ),
-                      LibraryPlayVideoSuccess() => const SizedBox.shrink(),
-                    };
-                  },
+        child: BlocConsumer<LibraryBloc, LibraryState>(
+          buildWhen: (previous, current) =>
+              current is! LibraryPlayVideoSuccess &&
+              (current is LibraryLoadedState ||
+                  current is LibraryEmptyState ||
+                  (current is LibraryLoadingState && previous is LibraryInitialState)),
+          listener: (context, state) async {
+            switch (state) {
+              case LibraryFailureState(:final message):
+                toastification.show(
+                  context: context,
+                  type: ToastificationType.error,
+                  style: ToastificationStyle.fillColored,
+                  title: Text(AppStrings.dashboardError),
+                  description: Text(message),
+                  autoCloseDuration: const Duration(seconds: 4),
+                  alignment: Alignment.bottomCenter,
+                );
+              case LibraryPlayVideoSuccess():
+                break;
+              default:
+                break;
+            }
+          },
+          builder: (context, state) {
+            return switch (state) {
+              LibraryInitialState() || LibraryLoadingState() => Center(
+                child: CircularProgressIndicator(color: context.colorScheme.primary),
+              ),
+              LibraryFailureState(:final message) => Center(
+                child: Text(message, style: TextStyle(color: context.colorScheme.error)),
+              ),
+              LibraryEmptyState() => Center(
+                child: Text(
+                  AppStrings.dashboardNoVideos,
+                  style: context.textTheme.bodyLarge?.copyWith(
+                    color: context.colorScheme.onSurfaceVariant,
+                  ),
                 ),
               ),
-            ],
-          ),
+              LibraryLoadedState(:final videos, :final heroVideo) => _buildLoadedContent(
+                videos,
+                heroVideo,
+              ),
+              LibraryPlayVideoSuccess() => const SizedBox.shrink(),
+            };
+          },
         ),
       ),
       floatingActionButton: !_isFullScreen
@@ -222,34 +165,69 @@ class _DashboardPageState extends State<DashboardPage> with ClipboardMonitorMixi
     );
   }
 
-  @override
-  void didChangeTextScaleFactor() {
-    // TODO: implement didChangeTextScaleFactor
+  Widget _buildLoadedContent(List<Video> videos, Video? heroVideo) {
+    // Build the player widget once — it will be placed in different
+    // layout positions depending on fullscreen state, but always
+    // with the same GlobalKey so Flutter keeps it mounted.
+    final player = heroVideo != null
+        ? DashboardVideoPlayer(
+            key: _playerKey,
+            video: heroVideo,
+            isFullScreen: _isFullScreen,
+            onFullScreenChanged: _onFullScreenChanged,
+          )
+        : null;
+
+    // ── Fullscreen mode: black background, player fills screen ──
+    if (_isFullScreen && player != null) {
+      return ClipRect(
+        child: Container(color: Colors.black, child: player),
+      );
+    }
+
+    // ── Normal mode: header + player + video list ──
+    return SafeArea(
+      child: Column(
+        children: [
+          const DashboardHeader(),
+          Expanded(
+            child: CustomScrollView(
+              physics: const BouncingScrollPhysics(),
+              slivers: [
+                if (player != null)
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: AppSizes.p16),
+                      child: Column(children: [gapH16, player, gapH16]),
+                    ),
+                  ),
+                DashboardVideoList(videos: videos),
+                const SliverToBoxAdapter(child: gapH48),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
-  void didChangeViewFocus(ViewFocusEvent event) {
-    // TODO: implement didChangeViewFocus
-  }
+  void didChangeTextScaleFactor() {}
 
   @override
-  void handleCancelBackGesture() {
-    // TODO: implement handleCancelBackGesture
-  }
+  void didChangeViewFocus(ViewFocusEvent event) {}
 
   @override
-  void handleCommitBackGesture() {
-    // TODO: implement handleCommitBackGesture
-  }
+  void handleCancelBackGesture() {}
+
+  @override
+  void handleCommitBackGesture() {}
 
   @override
   bool handleStartBackGesture(PredictiveBackEvent backEvent) {
-    // TODO: implement handleStartBackGesture
     throw UnimplementedError();
   }
 
   @override
-  void handleUpdateBackGestureProgress(PredictiveBackEvent backEvent) {
-    // TODO: implement handleUpdateBackGestureProgress
-  }
+  void handleUpdateBackGestureProgress(PredictiveBackEvent backEvent) {}
 }

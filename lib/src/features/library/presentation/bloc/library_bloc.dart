@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:skill_tube/src/features/library/domain/entities/video.dart';
 import 'package:skill_tube/src/features/library/domain/usecases/library_usecases.dart';
 import 'package:skill_tube/src/features/library/presentation/bloc/library_event.dart';
 import 'package:skill_tube/src/features/library/presentation/bloc/library_state.dart';
@@ -19,6 +20,10 @@ class LibraryBloc extends Bloc<LibraryEvent, LibraryState> {
     on<LibraryVideoSelectedEvent>(_onVideoSelected);
   }
 
+  /// Tracks the YouTube ID of the video explicitly chosen by the user.
+  /// When set, [_refreshLibrary] uses this instead of [getLastPlayedVideo].
+  String? _selectedHeroId;
+
   final GetAllVideos getAllVideos;
   final GetLastPlayedVideo getLastPlayedVideo;
   final AddVideo addVideo;
@@ -31,6 +36,7 @@ class LibraryBloc extends Bloc<LibraryEvent, LibraryState> {
   ) async {
     final state = this.state;
     if (state is LibraryLoadedState) {
+      _selectedHeroId = event.video.youtubeId;
       emit(LibraryLoadedState(videos: state.videos, heroVideo: event.video));
     }
   }
@@ -108,19 +114,13 @@ class LibraryBloc extends Bloc<LibraryEvent, LibraryState> {
     );
   }
 
-  /// Helper to fetch videos + hero and emit appropriate state
+  /// Helper to fetch videos + hero and emit appropriate state.
+  ///
+  /// If the user has explicitly selected a video ([_selectedHeroId] is set),
+  /// that video is kept as the hero so that progress-save callbacks don't
+  /// reset the player to whatever the DB considers "last played".
   Future<void> _refreshLibrary(Emitter<LibraryState> emit) async {
-    // Parallel fetch?
-    // Use UseCases.
     final videosResult = await getAllVideos();
-    final heroResult = await getLastPlayedVideo();
-
-    // Check failures
-    // If videos fail, it's a critical failure.
-    // If hero fails, we can probably tolerate it (null)?
-
-    // Simplest: Check both.
-    // We can use fpdart's TaskEither or just explicit checks.
 
     if (videosResult.isLeft()) {
       final failure = videosResult.getLeft().toNullable()!;
@@ -130,29 +130,24 @@ class LibraryBloc extends Bloc<LibraryEvent, LibraryState> {
 
     final videos = videosResult.getRight().toNullable()!;
     if (videos.isEmpty) {
+      _selectedHeroId = null;
       emit(const LibraryEmptyState());
       return;
     }
 
-    // Determine hero video
-    // GetLastPlayedVideo logic: lastPlayed ?? addedAt.
-    // If getLastPlayedVideo returns failure, we might fallback to first in list?
-    // Or just treat as "no hero".
-    // Let's assume repo handles logic (it does).
+    // If the user explicitly picked a video, keep it as the hero.
+    // Otherwise fall back to the DB's last-played video.
+    Video? heroVideo;
+    if (_selectedHeroId != null) {
+      heroVideo = videos.where((v) => v.youtubeId == _selectedHeroId).firstOrNull;
+    }
 
-    // We unwrap hero result slightly leniently?
-    // If failure, we just show list without hero? Or fail?
-    // Let's strict fail for now to surface bugs, or log.
-    // Repo shouldn't fail unless DB error.
-
-    final heroVideo = heroResult.fold(
-      (failure) => null, // Swallow error for hero?
-      (video) => video,
-    );
-
-    // Ensure hero is separate from list? Or highlight it?
-    // F8: "Sticky top widget... No floating mini-player".
-    // "Holds heroVideo state".
+    if (heroVideo == null) {
+      final heroResult = await getLastPlayedVideo();
+      heroVideo = heroResult.fold((failure) => null, (video) => video);
+      // Sync _selectedHeroId so future refreshes stay on this video.
+      _selectedHeroId = heroVideo?.youtubeId;
+    }
 
     emit(LibraryLoadedState(videos: videos, heroVideo: heroVideo));
   }

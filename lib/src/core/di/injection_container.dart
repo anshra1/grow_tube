@@ -3,10 +3,6 @@ import 'package:path_provider/path_provider.dart';
 import 'package:skill_tube/objectbox.g.dart'; // Generated
 import 'package:skill_tube/src/core/services/logging/app_logger.dart';
 import 'package:skill_tube/src/core/services/logging/talker_logging_service.dart';
-import 'package:skill_tube/src/features/auth/data/datasources/auth_remote_datasource.dart';
-import 'package:skill_tube/src/features/auth/data/repositories/auth_repository_impl.dart';
-import 'package:skill_tube/src/features/auth/domain/repositories/auth_repository.dart';
-import 'package:skill_tube/src/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:skill_tube/src/features/library/data/datasources/video_local_datasource.dart';
 import 'package:skill_tube/src/features/library/data/datasources/video_remote_datasource.dart';
 import 'package:skill_tube/src/features/library/data/repositories/video_repository_impl.dart';
@@ -23,7 +19,7 @@ Future<void> init() async {
   // External
   // ============================================================
   final docsDir = await getApplicationDocumentsDirectory();
-  final store = openStore(directory: '${docsDir.path}/objectbox');
+  final store = await openStore(directory: '${docsDir.path}/objectbox');
   sl.registerLazySingleton(() => store);
   sl.registerLazySingleton(YoutubeExplode.new);
 
@@ -40,9 +36,6 @@ Future<void> init() async {
   // ============================================================
   sl.registerLazySingleton<VideoLocalDataSource>(() => VideoLocalDataSourceImpl(sl()));
   sl.registerLazySingleton<VideoRemoteDataSource>(() => VideoRemoteDataSourceImpl(sl()));
-  sl.registerLazySingleton<AuthRemoteDataSource>(
-    () => AuthRemoteDataSourceImpl(logger: sl()),
-  );
 
   // ============================================================
   // Repositories
@@ -50,12 +43,12 @@ Future<void> init() async {
   sl.registerLazySingleton<VideoRepository>(
     () => VideoRepositoryImpl(localDataSource: sl(), remoteDataSource: sl()),
   );
-  sl.registerLazySingleton<AuthRepository>(() => AuthRepositoryImpl(sl()));
 
   // ============================================================
   // Use Cases
   // ============================================================
   sl.registerLazySingleton(() => GetAllVideos(sl()));
+  sl.registerLazySingleton(() => GetVideo(sl()));
   sl.registerLazySingleton(() => GetLastPlayedVideo(sl()));
   sl.registerLazySingleton(() => AddVideo(sl()));
   sl.registerLazySingleton(() => DeleteVideo(sl()));
