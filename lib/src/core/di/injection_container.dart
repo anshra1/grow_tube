@@ -1,12 +1,19 @@
 import 'package:get_it/get_it.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:skill_tube/objectbox.g.dart'; // Generated
+import 'package:skill_tube/src/core/services/logging/app_logger.dart';
+import 'package:skill_tube/src/core/services/logging/talker_logging_service.dart';
+import 'package:skill_tube/src/features/auth/data/datasources/auth_remote_datasource.dart';
+import 'package:skill_tube/src/features/auth/data/repositories/auth_repository_impl.dart';
+import 'package:skill_tube/src/features/auth/domain/repositories/auth_repository.dart';
+import 'package:skill_tube/src/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:skill_tube/src/features/library/data/datasources/video_local_datasource.dart';
 import 'package:skill_tube/src/features/library/data/datasources/video_remote_datasource.dart';
 import 'package:skill_tube/src/features/library/data/repositories/video_repository_impl.dart';
 import 'package:skill_tube/src/features/library/domain/repositories/video_repository.dart';
 import 'package:skill_tube/src/features/library/domain/usecases/library_usecases.dart';
 import 'package:skill_tube/src/features/library/presentation/bloc/library_bloc.dart';
+import 'package:talker_flutter/talker_flutter.dart';
 import 'package:youtube_explode_dart/youtube_explode_dart.dart';
 
 final GetIt sl = GetIt.instance;
@@ -20,11 +27,22 @@ Future<void> init() async {
   sl.registerLazySingleton(() => store);
   sl.registerLazySingleton(YoutubeExplode.new);
 
+  // Services
+  final talker = TalkerFlutter.init();
+  sl.registerSingleton<Talker>(talker);
+
+  sl.registerLazySingleton<AppLogger>(
+    () => AppLogger(services: [TalkerLoggingService(sl())]),
+  );
+
   // ============================================================
   // Data Sources
   // ============================================================
   sl.registerLazySingleton<VideoLocalDataSource>(() => VideoLocalDataSourceImpl(sl()));
   sl.registerLazySingleton<VideoRemoteDataSource>(() => VideoRemoteDataSourceImpl(sl()));
+  sl.registerLazySingleton<AuthRemoteDataSource>(
+    () => AuthRemoteDataSourceImpl(logger: sl()),
+  );
 
   // ============================================================
   // Repositories
@@ -32,6 +50,7 @@ Future<void> init() async {
   sl.registerLazySingleton<VideoRepository>(
     () => VideoRepositoryImpl(localDataSource: sl(), remoteDataSource: sl()),
   );
+  sl.registerLazySingleton<AuthRepository>(() => AuthRepositoryImpl(sl()));
 
   // ============================================================
   // Use Cases

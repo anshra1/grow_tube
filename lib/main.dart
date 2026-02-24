@@ -52,8 +52,12 @@ class SkillTubeApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => di.sl<LibraryBloc>()..add(const LibraryInitializedEvent()),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (context) => di.sl<LibraryBloc>()..add(const LibraryInitializedEvent()),
+        ),
+      ],
       child: MaterialApp.router(
         title: 'Skill Tube',
         debugShowCheckedModeBanner: false,

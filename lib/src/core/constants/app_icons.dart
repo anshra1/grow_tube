@@ -7,4 +7,6 @@ class AppIcons {
   static const IconData bug = Icons.bug_report_outlined;
   static const IconData play = Icons.play_arrow_rounded;
   static const IconData more = Icons.more_vert_rounded;
+  static const IconData logout = Icons.logout_rounded;
+  static const IconData login = Icons.login_rounded;
 }
