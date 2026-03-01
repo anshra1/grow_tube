@@ -1,0 +1,100 @@
+sequenceDiagram
+    autonumber
+    
+    actor User
+    participant App as Application / OS
+    participant UI as Dashboard UI
+    participant Bloc as Library Bloc
+    participant Usecase as Library Usecases
+    participant Repo as Video Repository (Local DB/Remote)
+
+    %% 1. Initialization Core Flow
+    rect rgb(20, 40, 60)
+    note right of User: 1. Library Initialization
+    User->>UI: Opens Dashboard
+    UI->>Bloc: add(LibraryInitializedEvent)
+    Bloc-->>UI: emit(LibraryLoadingState)
+    
+    Bloc->>Usecase: GetAllVideos()
+    Usecase->>Repo: getAllVideos()
+    Repo-->>Usecase: return List<Video>
+    Usecase-->>Bloc: Result.Right(List<Video>)
+    
+    alt User has a selected Hero Video
+        Bloc->>Bloc: Fetch _selectedHeroId from List
+    else No Explicitly Selected Hero
+        Bloc->>Usecase: GetLastPlayedVideo()
+        Usecase->>Repo: getLastPlayedVideo() (fallback: newest)
+        Repo-->>Usecase: return Video
+        Usecase-->>Bloc: Result.Right(Video)
+    end
+    
+    Bloc-->>UI: emit(LibraryLoadedState(videos, heroVideo))
+    UI-->>User: Renders Video List and Hero Header
+    end
+
+    %% 2. Smart Clipboard / Add Video Flow
+    rect rgb(60, 40, 60)
+    note right of User: 2. Adding a Video (Smart Clipboard / Manual Input)
+    
+    alt Smart Clipboard
+        User->>App: Copies YouTube URL to Clipboard
+        App->>UI: App Resumes / Triggers ClipboardService
+        UI->>User: Show Clipboard Bottom Sheet
+        User->>UI: Clicks "Add to Library"
+        UI->>Bloc: add(LibraryVideoAddedAndPlayRequested)
+    else Manual Input
+        User->>UI: Pastes URL in Add Video Modal
+        UI->>Bloc: add(LibraryVideoAddedEvent)
+    end
+    
+    Bloc-->>UI: emit(LibraryLoadingState)
+    Bloc->>Usecase: AddVideo(url)
+    Usecase->>Repo: addVideo(url)
+    note right of Repo: Fetch Metadata via YouTube Explode<br/>Persist to ObjectBox
+    Repo-->>Usecase: return new Video Object
+    Usecase-->>Bloc: Result.Right(Video)
+    
+    Bloc->>Bloc: Refresh Library (Fetch All + Update Hero)
+    Bloc-->>UI: emit(LibraryLoadedState)
+    UI-->>User: Show New Video in List/Hero
+    end
+
+    %% 3. Video Selection Flow
+    rect rgb(20, 60, 40)
+    note right of User: 3. Selecting a Video manually
+    User->>UI: Taps on a Video in List
+    UI->>Bloc: add(LibraryVideoSelectedEvent)
+    Bloc->>Bloc: Update _selectedHeroId
+    Bloc-->>UI: emit(LibraryLoadedState(updated heroVideo))
+    UI-->>User: Refresh Hero Header with Selected Video
+    end
+
+    %% 4. Progress Update Flow
+    rect rgb(60, 40, 20)
+    note right of User: 4. Watching Video & Updating Progress
+    User->>UI: Watches Video
+    UI->>UI: Triggers periodically / on pause
+    UI->>Bloc: add(LibraryVideoProgressUpdatedEvent)
+    Bloc->>Usecase: UpdateVideoProgress()
+    Usecase->>Repo: updateVideoProgress(id, position)
+    Repo-->>Usecase: Result
+    Usecase-->>Bloc: Result
+    Bloc->>Bloc: Refresh Library (Silent Update)
+    Bloc-->>UI: emit(LibraryLoadedState(updated videos/hero))
+    end
+
+    %% 5. Deletion Flow
+    rect rgb(60, 20, 20)
+    note right of User: 5. Deleting a Video
+    User->>UI: Taps Delete Icon
+    UI->>Bloc: add(LibraryVideoDeletedEvent)
+    Bloc-->>UI: emit(LibraryLoadingState)
+    Bloc->>Usecase: DeleteVideo(id)
+    Usecase->>Repo: deleteVideo(id)
+    Repo-->>Usecase: Result
+    Usecase-->>Bloc: Result
+    Bloc->>Bloc: Refresh Library
+    Bloc-->>UI: emit(LibraryLoadedState)
+    UI-->>User: Render updated List without Deleted Video
+    end
