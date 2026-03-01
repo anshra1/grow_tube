@@ -20,7 +20,7 @@ flowchart TD
     subgraph Repository Logic ["Repository (Brain)"]
         direction TB
         Step1_Read[Read Current Local State]:::step
-        Step2_Save[WRITE to Local DB (Always)]:::step
+        Step2_Save[WRITE to Local DB Always ]:::step
         Decision_Sync{Sync Rule Check?}:::decision
         
         Step1_Read --"Get oldPosition"--> Step2_Save
