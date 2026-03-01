@@ -3,8 +3,6 @@ class AppStrings {
 
   // Dashboard
   static const String dashboardGreeting = 'Good Evening,';
-  static const String dashboardUserName = 'Alex'; // Fallback
-  static const String dashboardMyVideos = 'My Videos';
   static const String dashboardSeeAll = 'See all';
   static const String dashboardResume = 'Resume';
   static const String dashboardAddVideo = 'Add Video';

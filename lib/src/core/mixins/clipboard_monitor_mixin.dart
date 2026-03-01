@@ -1,9 +1,8 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 import 'package:skill_tube/src/core/services/clipboard_service.dart';
 
-mixin ClipboardMonitorMixin<T extends StatefulWidget> on State<T> implements WidgetsBindingObserver {
+mixin ClipboardMonitorMixin<T extends StatefulWidget>
+    on State<T>, WidgetsBindingObserver {
   final ClipboardService _clipboardService = ClipboardService();
 
   @override
@@ -40,32 +39,4 @@ mixin ClipboardMonitorMixin<T extends StatefulWidget> on State<T> implements Wid
   /// Abstract method to be implemented by the widget using the mixin.
   /// This is called when a new, valid YouTube URL is detected.
   void onClipboardUrlDetected(String url, String videoId);
-
-  // Other WidgetsBindingObserver methods (empty implementations)
-  @override
-  void didChangeAccessibilityFeatures() {}
-
-  @override
-  void didChangeLocales(List<Locale>? locales) {}
-
-  @override
-  void didChangeMetrics() {}
-
-  @override
-  void didChangePlatformBrightness() {}
-
-  @override
-  void didHaveMemoryPressure() {}
-
-  @override
-  Future<bool> didPopRoute() => Future.value(false);
-
-  @override
-  Future<bool> didPushRoute(String route) => Future.value(false);
-  
-  @override
-  Future<bool> didPushRouteInformation(RouteInformation routeInformation) => Future.value(false);
-  
-  @override
-  Future<AppExitResponse> didRequestAppExit() => Future.value(AppExitResponse.cancel);
 }

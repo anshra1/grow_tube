@@ -10,18 +10,20 @@ class DashboardVideoList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SliverPadding(
-      padding: const EdgeInsets.symmetric(horizontal: AppSizes.p16),
-      sliver: SliverList(
-        delegate: SliverChildBuilderDelegate((context, index) {
-          final video = videos[index];
+    return ListView.builder(
+      physics: const BouncingScrollPhysics(),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSizes.p16,
+      ).copyWith(bottom: AppSizes.p48),
+      itemCount: videos.length,
+      itemBuilder: (context, index) {
+        final video = videos[index];
 
-          return Padding(
-            padding: const EdgeInsets.only(bottom: AppSizes.p16),
-            child: DashboardVideoCard(video: video),
-          );
-        }, childCount: videos.length),
-      ),
+        return Padding(
+          padding: const EdgeInsets.only(bottom: AppSizes.p16),
+          child: DashboardVideoCard(video: video),
+        );
+      },
     );
   }
 }

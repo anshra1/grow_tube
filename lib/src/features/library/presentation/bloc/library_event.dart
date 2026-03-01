@@ -37,6 +37,7 @@ final class LibraryVideoProgressUpdatedEvent extends LibraryEvent {
     required this.youtubeId,
     required this.positionSeconds,
   });
+  
   final String youtubeId;
   final int positionSeconds;
 

@@ -1,6 +1,8 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
+import 'package:shimmer/shimmer.dart';
 import 'package:skill_tube/src/core/design_system/app_radius.dart';
 import 'package:skill_tube/src/core/design_system/app_shadows.dart';
 import 'package:skill_tube/src/core/design_system/app_sizes.dart';
@@ -64,10 +66,15 @@ class DashboardVideoCard extends StatelessWidget {
                   child: SizedBox(
                     width: 120,
                     height: 70,
-                    child: Image.network(
-                      video.thumbnailUrl,
+                    child: CachedNetworkImage(
+                      imageUrl: video.thumbnailUrl,
                       fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) =>
+                      placeholder: (context, url) => Shimmer.fromColors(
+                        baseColor: context.colorScheme.surfaceContainerHighest,
+                        highlightColor: context.colorScheme.surface,
+                        child: Container(color: Colors.white),
+                      ),
+                      errorWidget: (context, url, error) =>
                           Container(color: context.colorScheme.surfaceContainerHighest),
                     ),
                   ),

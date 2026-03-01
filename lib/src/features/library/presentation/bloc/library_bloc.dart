@@ -12,11 +12,22 @@ class LibraryBloc extends Bloc<LibraryEvent, LibraryState> {
     required this.deleteVideo,
     required this.updateVideoProgress,
   }) : super(const LibraryInitialState()) {
+    // Fetches initial library data and determines the hero video
     on<LibraryInitializedEvent>(_onInitialized);
+
+    // Adds video to the library manually from a URL
     on<LibraryVideoAddedEvent>(_onVideoAdded);
+
+    // Removes a video from the local database
     on<LibraryVideoDeletedEvent>(_onVideoDeleted);
+
+    // Silently updates the progress and last played timestamp of a video
     on<LibraryVideoProgressUpdatedEvent>(_onProgressUpdated);
+
+    // Adds a video from the smart clipboard and prepares it to be played
     on<LibraryVideoAddedAndPlayRequested>(_onVideoAddedAndPlay);
+
+    // Selects a specific video to be displayed as the hero video
     on<LibraryVideoSelectedEvent>(_onVideoSelected);
   }
 
@@ -35,9 +46,14 @@ class LibraryBloc extends Bloc<LibraryEvent, LibraryState> {
     Emitter<LibraryState> emit,
   ) async {
     final state = this.state;
-    if (state is LibraryLoadedState) {
+    if (state is LibraryVideoLoadedState) {
       _selectedHeroId = event.video.youtubeId;
-      emit(LibraryLoadedState(videos: state.videos, heroVideo: event.video));
+      emit(
+        LibraryVideoLoadedState(
+          libraryVideos: state.libraryVideos,
+          lastPlayVideo: event.video,
+        ),
+      );
     }
   }
 
@@ -87,15 +103,15 @@ class LibraryBloc extends Bloc<LibraryEvent, LibraryState> {
     LibraryVideoAddedEvent event,
     Emitter<LibraryState> emit,
   ) async {
-    // Optimistic or waiting? "LibraryLoading -> LibraryLoaded / LibraryError" (F3 spec)
     emit(const LibraryLoadingState());
 
     final result = await addVideo(event.url);
 
-    await result.fold(
-      (failure) async => emit(LibraryFailureState(failure.message)),
-      (_) async => _refreshLibrary(emit),
-    );
+    await result.fold((failure) async {
+      emit(LibraryFailureState(failure.message));
+      // Recover the UI back to the loaded list so it doesn't stay deadlocked
+      await _refreshLibrary(emit);
+    }, (_) async => _refreshLibrary(emit));
   }
 
   Future<void> _onVideoDeleted(
@@ -103,15 +119,15 @@ class LibraryBloc extends Bloc<LibraryEvent, LibraryState> {
     Emitter<LibraryState> emit,
   ) async {
     // F5: "remove from DB -> re-emit video list".
-    // We could stay in LoadedState and emit modified list, but let's be safe.
     emit(const LibraryLoadingState());
 
     final result = await deleteVideo(event.id);
 
-    await result.fold(
-      (failure) async => emit(LibraryFailureState(failure.message)),
-      (_) async => _refreshLibrary(emit),
-    );
+    await result.fold((failure) async {
+      emit(LibraryFailureState(failure.message));
+      // Recover the UI back to the loaded list so it doesn't stay deadlocked
+      await _refreshLibrary(emit);
+    }, (_) async => _refreshLibrary(emit));
   }
 
   /// Helper to fetch videos + hero and emit appropriate state.
@@ -149,6 +165,6 @@ class LibraryBloc extends Bloc<LibraryEvent, LibraryState> {
       _selectedHeroId = heroVideo?.youtubeId;
     }
 
-    emit(LibraryLoadedState(videos: videos, heroVideo: heroVideo));
+    emit(LibraryVideoLoadedState(libraryVideos: videos, lastPlayVideo: heroVideo));
   }
 }
