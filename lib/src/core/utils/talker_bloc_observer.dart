@@ -1,11 +1,8 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:skill_tube/main.dart';
 import 'package:talker_flutter/talker_flutter.dart';
 
 class TalkerBlocObserver extends BlocObserver {
-  TalkerBlocObserver({
-    required this.talker,
-  });
+  TalkerBlocObserver({required this.talker});
 
   final Talker talker;
 
@@ -13,10 +10,7 @@ class TalkerBlocObserver extends BlocObserver {
   void onEvent(Bloc bloc, Object? event) {
     super.onEvent(bloc, event);
     talker.logCustom(
-      TalkerLog(
-        'EVENT: ${bloc.runtimeType} -> $event',
-        logLevel: LogLevel.debug,
-      ),
+      TalkerLog('EVENT: ${bloc.runtimeType} -> $event', logLevel: LogLevel.debug),
     );
   }
 
