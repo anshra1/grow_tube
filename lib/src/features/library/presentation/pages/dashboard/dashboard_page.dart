@@ -75,14 +75,22 @@ class _DashboardPageState extends State<DashboardPage> with ClipboardMonitorMixi
   bool _isFullScreen = false;
   final GlobalKey _playerKey = GlobalKey();
 
-  void _onFullScreenChanged(bool isFull) {
+  void _onFullScreenChanged(bool isFull) async {
     setState(() => _isFullScreen = isFull);
+    if (isFull) {
+      await SystemChrome.setPreferredOrientations([
+        DeviceOrientation.landscapeLeft,
+        DeviceOrientation.landscapeRight,
+      ]);
+      await SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
+    } else {
+      await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+      await SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+    }
   }
 
-  void _exitFullScreen() async {
-    setState(() => _isFullScreen = false);
-    await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
-    await SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+  void _exitFullScreen() {
+    _onFullScreenChanged(false);
   }
 
   @override

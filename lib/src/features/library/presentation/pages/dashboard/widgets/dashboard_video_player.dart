@@ -3,7 +3,6 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:skill_tube/main.dart';
 import 'package:skill_tube/src/core/design_system/app_radius.dart';
@@ -99,32 +98,10 @@ class _DashboardVideoPlayerState extends State<DashboardVideoPlayer> {
         );
       }
     });
-
-    // This fires when controller.enterFullScreen() / exitFullScreen()
-    // is called from Dart (via our button or vertical drag gesture).
-    _controller.setFullScreenListener((isFullScreen) async {
-      if (isFullScreen) {
-        await SystemChrome.setPreferredOrientations([
-          DeviceOrientation.landscapeLeft,
-          DeviceOrientation.landscapeRight,
-        ]);
-        await SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
-      } else {
-        await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
-        await SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
-      }
-
-      widget.onFullScreenChanged?.call(isFullScreen);
-      _saveProgress();
-    });
   }
 
   void _toggleFullScreen() {
-    if (widget.isFullScreen) {
-      _controller.exitFullScreen();
-    } else {
-      _controller.enterFullScreen();
-    }
+    widget.onFullScreenChanged?.call(!widget.isFullScreen);
   }
 
   void _startHeartbeat() {
@@ -168,7 +145,7 @@ class _DashboardVideoPlayerState extends State<DashboardVideoPlayer> {
       key: _youtubePlayerKey,
       controller: _controller,
       aspectRatio: 16 / 9,
-      enableFullScreenOnVerticalDrag: true,
+      enableFullScreenOnVerticalDrag: false,
     );
 
     if (widget.isFullScreen) {
