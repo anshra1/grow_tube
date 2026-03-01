@@ -1,0 +1,58 @@
+flowchart TD
+    %% Styling
+    classDef default fill:#1E2B3C,stroke:#4A5568,stroke-width:2px,color:#E2E8F0;
+    classDef event fill:#2D3748,stroke:#63B3ED,stroke-width:2px,color:#FFF;
+    classDef usecase fill:#2F855A,stroke:#9AE6B4,stroke-width:2px,color:#FFF;
+    classDef state fill:#97266D,stroke:#F687B3,stroke-width:2px,color:#FFF;
+    classDef db fill:#2B6CB0,stroke:#63B3ED,stroke-width:2px,color:#FFF;
+    
+    %% Start
+    Start([User Opens Dashboard]) --> Init[Dispatch LibraryInitializedEvent]:::event
+    
+    subgraph Initialization [1. Initialization]
+        Init --> FetchAll[GetAllVideos from Local DB]:::usecase
+        FetchAll --> CheckSelected{Is _selectedHeroId Set?}
+        CheckSelected -- Yes --> FindSelected[Find Video matching ID]
+        CheckSelected -- No --> FetchLastPlayed[GetLastPlayedVideo<br/>Fallback to newest]:::usecase
+        FindSelected --> EmitLoaded
+        FetchLastPlayed --> EmitLoaded[Emit LibraryLoadedState]:::state
+        EmitLoaded --> UI_Render[(Render Dashboard<br/>List & Hero)]
+    end
+
+    subgraph Actions [2. User Interactions]
+        UI_Render --> UserInput{User Action}
+        
+        %% Add Video Flow (via Clipboard or Manual)
+        UserInput -- "Copy URL outside app" --> SmartClip[ClipboardService Detects YouTube URL]
+        SmartClip --> PromptShow[Show 'Add to Library' Prompt]
+        PromptShow -- "Tap Add" --> AddEvent1[Dispatch LibraryVideoAddedAndPlayRequested]:::event
+        
+        UserInput -- "Paste URL manually" --> AddEvent2[Dispatch LibraryVideoAddedEvent]:::event
+        
+        AddEvent1 --> CommonAdd
+        AddEvent2 --> CommonAdd[Emit LibraryLoadingState]:::state
+        CommonAdd --> AddVideoUsecase[AddVideo Usecase<br/>Fetch YouTube Metadata]:::usecase
+        AddVideoUsecase --> SaveDB[(Save to ObjectBox DB)]:::db
+        SaveDB --> Refresh[Refresh Library Data]
+        
+        %% Explicit Video Selection Flow
+        UserInput -- "Tap Video in List" --> SelectEvent[Dispatch LibraryVideoSelectedEvent]:::event
+        SelectEvent --> UpdateHeroId[Set _selectedHeroId to tapped video]
+        UpdateHeroId --> EmitLoaded
+
+        %% Watch/Progress Update Flow
+        UserInput -- "Watch Video" --> WatchEvent[Timer / On Pause<br/>Dispatch LibraryVideoProgressUpdatedEvent]:::event
+        WatchEvent --> ProgressUsecase[UpdateVideoProgress Usecase]:::usecase
+        ProgressUsecase --> UpdateDB[(Update DB position<br/>& update last_played)]:::db
+        UpdateDB -. "Silent refresh" .-> Refresh
+        
+        %% Delete Flow
+        UserInput -- "Tap Delete" --> DeleteEvent[Dispatch LibraryVideoDeletedEvent]:::event
+        DeleteEvent --> EmitLoadingDelete[Emit LibraryLoadingState]:::state
+        EmitLoadingDelete --> DeleteUsecase[DeleteVideo Usecase]:::usecase
+        DeleteUsecase --> RemoveDB[(Remove from DB & Watch History)]:::db
+        RemoveDB --> Refresh
+        
+        %% Loop back to re-fetch and render
+        Refresh --> Init
+    end
