@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dart Class Modifiers — Interview Notes</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #1a1a2e;
+      --text-muted: #555;
+      --accent: #4361ee;
+      --accent-light: #eef1ff;
+      --green: #10b981;
+      --red: #ef4444;
+      --orange: #f59e0b;
+      --code-bg: #f4f4f8;
+      --border: #e2e2ea;
+      --card-shadow: 0 1px 4px rgba(0,0,0,0.06);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      color: var(--text);
+      background: var(--bg);
+      font-size: 11pt;
+      line-height: 1.6;
+      padding: 0;
+    }
+
+    .page {
+      max-width: 210mm;
+      margin: 0 auto;
+      padding: 15mm 18mm;
+    }
+
+    /* ── Title ── */
+    .main-title {
+      text-align: center;
+      font-size: 22pt;
+      font-weight: 800;
+      color: var(--accent);
+      margin-bottom: 4px;
+      letter-spacing: -0.5px;
+    }
+    .subtitle {
+      text-align: center;
+      font-size: 10pt;
+      color: var(--text-muted);
+      margin-bottom: 24px;
+      padding-bottom: 16px;
+      border-bottom: 2px solid var(--accent);
+    }
+
+    /* ── Section ── */
+    .section {
+      margin-bottom: 22px;
+      page-break-inside: avoid;
+    }
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    .section-number {
+      background: var(--accent);
+      color: #fff;
+      font-weight: 700;
+      font-size: 11pt;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .section-title {
+      font-size: 14pt;
+      font-weight: 700;
+      color: var(--text);
+    }
+    .section-title code {
+      color: var(--accent);
+      background: var(--accent-light);
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13pt;
+    }
+
+    /* ── Code Block ── */
+    pre {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 10px 14px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9pt;
+      line-height: 1.5;
+      overflow-x: auto;
+      margin-bottom: 10px;
+    }
+    pre .kw { color: #7c3aed; font-weight: 600; }
+    pre .fn { color: #2563eb; }
+    pre .str { color: #059669; }
+    pre .cm { color: #9ca3af; font-style: italic; }
+    pre .cls { color: #dc2626; }
+
+    /* ── Checklist ── */
+    .checklist {
+      list-style: none;
+      padding: 0;
+      margin-bottom: 10px;
+    }
+    .checklist li {
+      padding: 3px 0;
+      font-size: 10pt;
+      display: flex;
+      align-items: flex-start;
+      gap: 6px;
+    }
+    .checklist li .icon {
+      flex-shrink: 0;
+      font-size: 11pt;
+      width: 18px;
+      text-align: center;
+    }
+    .yes { color: var(--green); font-weight: 700; }
+    .no { color: var(--red); font-weight: 700; }
+
+    /* ── Callout ── */
+    .callout {
+      background: var(--accent-light);
+      border-left: 3px solid var(--accent);
+      padding: 8px 12px;
+      border-radius: 0 6px 6px 0;
+      font-size: 9.5pt;
+      margin-bottom: 10px;
+      color: var(--text);
+    }
+    .callout strong { color: var(--accent); }
+    .callout-orange {
+      background: #fff8ed;
+      border-left-color: var(--orange);
+    }
+    .callout-orange strong { color: #b45309; }
+
+    /* ── Table ── */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 9.5pt;
+      margin-bottom: 16px;
+    }
+    thead th {
+      background: var(--accent);
+      color: #fff;
+      font-weight: 600;
+      padding: 7px 10px;
+      text-align: center;
+    }
+    thead th:first-child { text-align: left; border-radius: 6px 0 0 0; }
+    thead th:last-child { border-radius: 0 6px 0 0; }
+    tbody td {
+      padding: 6px 10px;
+      border-bottom: 1px solid var(--border);
+      text-align: center;
+    }
+    tbody td:first-child {
+      text-align: left;
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 600;
+      font-size: 9pt;
+    }
+    tbody tr:nth-child(even) { background: #f9f9fc; }
+    tbody tr:last-child td:first-child { border-radius: 0 0 0 6px; }
+    tbody tr:last-child td:last-child { border-radius: 0 0 6px 0; }
+
+    /* ── QA ── */
+    .qa {
+      margin-bottom: 10px;
+      page-break-inside: avoid;
+    }
+    .qa-q {
+      font-weight: 700;
+      font-size: 10pt;
+      color: var(--accent);
+      margin-bottom: 2px;
+    }
+    .qa-a {
+      font-size: 9.5pt;
+      color: var(--text);
+      padding-left: 18px;
+    }
+
+    h2.group-title {
+      font-size: 16pt;
+      font-weight: 800;
+      color: var(--accent);
+      border-bottom: 2px solid var(--accent);
+      padding-bottom: 6px;
+      margin-top: 28px;
+      margin-bottom: 16px;
+    }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .combo-table td:first-child {
+      font-size: 8.5pt;
+    }
+
+    /* ── Print ── */
+    @media print {
+      body { font-size: 10pt; }
+      .page { padding: 10mm 14mm; }
+      .section { page-break-inside: avoid; }
+      h2.group-title { page-break-before: auto; }
+      pre { font-size: 8.5pt; }
+    }
+
+    .page-break {
+      page-break-before: always;
+    }
+
+    .footer {
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 8pt;
+      margin-top: 30px;
+      padding-top: 12px;
+      border-top: 1px solid var(--border);
+    }
+  </style>
+</head>
+<body>
+
+<div class="page">
+
+  <div class="main-title">Dart Class Modifiers</div>
+  <div class="subtitle">Comprehensive Interview Notes — All 8 Modifiers with Examples</div>
+
+  <!-- ════════════════ 1. class ════════════════ -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-number">1</div>
+      <div class="section-title"><code>class</code> — Standard Class</div>
+    </div>
+    <pre><span class="kw">class</span> <span class="cls">Animal</span> {
+  <span class="kw">String</span> name;
+  <span class="cls">Animal</span>(<span class="kw">this</span>.name);
+  <span class="kw">void</span> <span class="fn">speak</span>() => <span class="fn">print</span>(<span class="str">'...'</span>);
+}</pre>
+    <ul class="checklist">
+      <li><span class="icon yes">✔</span> Can be <strong>instantiated</strong> — <code>Animal('Dog')</code></li>
+      <li><span class="icon yes">✔</span> Can be <strong>extended</strong> — <code>class Dog extends Animal {}</code></li>
+      <li><span class="icon yes">✔</span> Can be <strong>implemented</strong> — <code>class Robot implements Animal {}</code></li>
+      <li><span class="icon no">✘</span> Cannot be used with <code>with</code> (it's not a mixin)</li>
+    </ul>
+    <div class="callout">No restrictions at all. This is the <strong>default</strong> class type in Dart.</div>
+  </div>
+
+  <!-- ════════════════ 2. abstract ════════════════ -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-number">2</div>
+      <div class="section-title"><code>abstract</code> — Blueprint Class</div>
+    </div>
+    <pre><span class="kw">abstract class</span> <span class="cls">Shape</span> {
+  <span class="kw">double</span> <span class="fn">area</span>();           <span class="cm">// No body → subclass MUST override</span>
+  <span class="kw">void</span> <span class="fn">describe</span>() =>
+    <span class="fn">print</span>(<span class="str">'I am a shape'</span>); <span class="cm">// Has body → optional to override</span>
+}</pre>
+    <ul class="checklist">
+      <li><span class="icon no">✘</span> <strong>Cannot</strong> be instantiated — <code>Shape()</code> is a compile-time error</li>
+      <li><span class="icon yes">✔</span> Can be <strong>extended</strong> — <code>class Circle extends Shape {}</code></li>
+      <li><span class="icon yes">✔</span> Can be <strong>implemented</strong> — <code>class Square implements Shape {}</code></li>
+    </ul>
+    <div class="callout"><strong>Key Interview Point:</strong> Unlike Java, Dart has NO separate <code>interface</code> keyword. Every class implicitly defines an interface. <code>abstract</code> just prevents direct instantiation.</div>
+  </div>
+
+  <!-- ════════════════ 3. base ════════════════ -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-number">3</div>
+      <div class="section-title"><code>base</code> — Extend Only (No Implement)</div>
+    </div>
+    <pre><span class="kw">base class</span> <span class="cls">Vehicle</span> {
+  <span class="kw">void</span> <span class="fn">start</span>() => <span class="fn">print</span>(<span class="str">'Starting...'</span>);
+}
+
+<span class="kw">base class</span> <span class="cls">Car</span> <span class="kw">extends</span> <span class="cls">Vehicle</span> {}   <span class="cm">// ✔ Allowed</span>
+<span class="kw">final class</span> <span class="cls">Bike</span> <span class="kw">extends</span> <span class="cls">Vehicle</span> {} <span class="cm">// ✔ Allowed</span>
+
+<span class="cm">// ✘ NOT Allowed:</span>
+<span class="cm">// class Truck implements Vehicle {}  → Cannot implement a 'base' class</span>
+<span class="cm">// class Van extends Vehicle {}       → Must also be base, sealed, or final</span></pre>
+    <ul class="checklist">
+      <li><span class="icon yes">✔</span> Can be <strong>instantiated</strong></li>
+      <li><span class="icon yes">✔</span> Can be <strong>extended</strong> — but only by <code>base</code>, <code>sealed</code>, or <code>final</code> classes</li>
+      <li><span class="icon no">✘</span> <strong>Cannot</strong> be implemented (outside its library)</li>
+    </ul>
+    <div class="callout"><strong>Why use base?</strong> If your class has important logic in its constructor (e.g., initialization, resource management), <code>base</code> <strong>forces</strong> consumers to use <code>extends</code> so that <code>super</code> logic is always executed. <code>implements</code> would skip all of that.</div>
+  </div>
+
+  <!-- ════════════════ 4. interface ════════════════ -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-number">4</div>
+      <div class="section-title"><code>interface</code> — Implement Only (No Extend)</div>
+    </div>
+    <pre><span class="kw">interface class</span> <span class="cls">Printable</span> {
+  <span class="kw">void</span> <span class="fn">printData</span>() => <span class="fn">print</span>(<span class="str">'Printing...'</span>);
+}
+
+<span class="cm">// ✔ Allowed:</span>
+<span class="kw">class</span> <span class="cls">Report</span> <span class="kw">implements</span> <span class="cls">Printable</span> {
+  <span class="kw">@override</span>
+  <span class="kw">void</span> <span class="fn">printData</span>() => <span class="fn">print</span>(<span class="str">'Report data'</span>);
+}
+
+<span class="cm">// ✘ NOT Allowed (outside library):</span>
+<span class="cm">// class Invoice extends Printable {}</span></pre>
+    <ul class="checklist">
+      <li><span class="icon yes">✔</span> Can be <strong>instantiated</strong> (unlike <code>abstract</code>)</li>
+      <li><span class="icon yes">✔</span> Can be <strong>implemented</strong></li>
+      <li><span class="icon no">✘</span> <strong>Cannot</strong> be extended (outside its library)</li>
+    </ul>
+    <div class="callout"><strong>The OPPOSITE of base.</strong> It says: "Use <code>implements</code> only. Don't inherit my implementation." Useful when your implementation details might change in the future.</div>
+  </div>
+
+  <!-- ════════════════ 5. final ════════════════ -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-number">5</div>
+      <div class="section-title"><code>final</code> — Fully Locked Down</div>
+    </div>
+    <pre><span class="kw">final class</span> <span class="cls">DatabaseConnection</span> {
+  <span class="kw">void</span> <span class="fn">connect</span>() => <span class="fn">print</span>(<span class="str">'Connected'</span>);
+}
+
+<span class="cm">// ✘ BOTH are NOT allowed (outside library):</span>
+<span class="cm">// class MyDb extends DatabaseConnection {}     → Error</span>
+<span class="cm">// class MockDb implements DatabaseConnection {} → Error</span></pre>
+    <ul class="checklist">
+      <li><span class="icon yes">✔</span> Can be <strong>instantiated</strong></li>
+      <li><span class="icon no">✘</span> <strong>Cannot</strong> be extended (outside its library)</li>
+      <li><span class="icon no">✘</span> <strong>Cannot</strong> be implemented (outside its library)</li>
+    </ul>
+    <div class="callout"><strong>Think of it as:</strong> <code>base</code> + <code>interface</code> locked together = <code>final</code>. Total control.</div>
+  </div>
+
+  <div class="page-break"></div>
+
+  <!-- ════════════════ 6. sealed ════════════════ -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-number">6</div>
+      <div class="section-title"><code>sealed</code> — Exhaustive Pattern Matching</div>
+    </div>
+    <pre><span class="kw">sealed class</span> <span class="cls">Result</span> {}
+
+<span class="kw">class</span> <span class="cls">Success</span> <span class="kw">extends</span> <span class="cls">Result</span> {
+  <span class="kw">final</span> <span class="kw">String</span> data;
+  <span class="cls">Success</span>(<span class="kw">this</span>.data);
+}
+<span class="kw">class</span> <span class="cls">Failure</span> <span class="kw">extends</span> <span class="cls">Result</span> {
+  <span class="kw">final</span> <span class="kw">String</span> error;
+  <span class="cls">Failure</span>(<span class="kw">this</span>.error);
+}
+
+<span class="cm">// Compiler knows ALL subtypes → exhaustive switch:</span>
+<span class="kw">String</span> <span class="fn">handle</span>(<span class="cls">Result</span> r) => <span class="kw">switch</span> (r) {
+  <span class="cls">Success</span> s => <span class="str">'Data: ${s.data}'</span>,
+  <span class="cls">Failure</span> f => <span class="str">'Error: ${f.error}'</span>,
+  <span class="cm">// No default needed!</span>
+};</pre>
+    <ul class="checklist">
+      <li><span class="icon no">✘</span> <strong>Cannot</strong> be instantiated (like <code>abstract</code>)</li>
+      <li><span class="icon yes">✔</span> Can be extended/implemented — but <strong>only inside the same library</strong></li>
+    </ul>
+    <div class="callout-orange callout"><strong>Key Difference from abstract:</strong> <code>sealed</code> restricts subtypes to the SAME library AND enables exhaustive checking. <code>abstract</code> has no such restriction.</div>
+  </div>
+
+  <!-- ════════════════ 7. mixin ════════════════ -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-number">7</div>
+      <div class="section-title"><code>mixin</code> — Reusable Behavior</div>
+    </div>
+    <pre><span class="kw">mixin</span> <span class="cls">Swimming</span> {
+  <span class="kw">void</span> <span class="fn">swim</span>() => <span class="fn">print</span>(<span class="str">'Swimming!'</span>);
+}
+<span class="kw">mixin</span> <span class="cls">Flying</span> {
+  <span class="kw">void</span> <span class="fn">fly</span>() => <span class="fn">print</span>(<span class="str">'Flying!'</span>);
+}
+<span class="kw">class</span> <span class="cls">Duck</span> <span class="kw">extends</span> <span class="cls">Animal</span> <span class="kw">with</span> <span class="cls">Swimming</span>, <span class="cls">Flying</span> {}
+
+<span class="cm">// Restrict with 'on':</span>
+<span class="kw">mixin</span> <span class="cls">Swimming</span> <span class="kw">on</span> <span class="cls">Animal</span> {}
+<span class="cm">// Only classes extending Animal can use this mixin</span></pre>
+    <ul class="checklist">
+      <li><span class="icon no">✘</span> <strong>Cannot</strong> be instantiated</li>
+      <li><span class="icon no">✘</span> <strong>Cannot</strong> be extended</li>
+      <li><span class="icon yes">✔</span> Applied using <code>with</code></li>
+      <li><span class="icon yes">✔</span> Can use <code>on</code> keyword to restrict to specific superclasses</li>
+    </ul>
+    <div class="callout-orange callout" style="margin-top:8px">
+      <strong>⚡ Mixin Linearization Order (MRO) — Very Important!</strong><br><br>
+      <code>class Impl extends Base with Mixin1, Mixin2</code><br><br>
+      The super chain is: <strong>Impl → Mixin2 → Mixin1 → Base</strong><br>
+      • <code>super</code> in Impl calls <strong>Mixin2</strong> (the last mixin applied)<br>
+      • <code>super</code> in Mixin2 calls <strong>Mixin1</strong><br>
+      • <code>super</code> in Mixin1 calls <strong>Base</strong><br><br>
+      <em>The RIGHTMOST mixin's method wins if multiple mixins define the same method.</em>
+    </div>
+  </div>
+
+  <!-- ════════════════ 8. mixin class ════════════════ -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-number">8</div>
+      <div class="section-title"><code>mixin class</code> — Class + Mixin Hybrid</div>
+    </div>
+    <pre><span class="kw">mixin class</span> <span class="cls">Logger</span> {
+  <span class="kw">void</span> <span class="fn">log</span>(<span class="kw">String</span> msg) => <span class="fn">print</span>(<span class="str">'[LOG] $msg'</span>);
+}
+
+<span class="kw">class</span> <span class="cls">Service</span> <span class="kw">with</span> <span class="cls">Logger</span> {}        <span class="cm">// ✔ Use as a mixin</span>
+<span class="kw">class</span> <span class="cls">FileLogger</span> <span class="kw">extends</span> <span class="cls">Logger</span> {}  <span class="cm">// ✔ Use as a class</span>
+<span class="kw">var</span> l = <span class="cls">Logger</span>();                   <span class="cm">// ✔ Instantiate directly</span></pre>
+    <ul class="checklist">
+      <li><span class="icon yes">✔</span> Can be <strong>instantiated</strong></li>
+      <li><span class="icon yes">✔</span> Can be <strong>extended</strong></li>
+      <li><span class="icon yes">✔</span> Can be used with <code>with</code></li>
+      <li><span class="icon no">✘</span> <strong>Cannot</strong> use <code>on</code> keyword (unlike a regular <code>mixin</code>)</li>
+    </ul>
+    <div class="callout"><strong>Maximum flexibility</strong> — acts as BOTH a class AND a mixin.</div>
+  </div>
+
+  <!-- ════════════════ COMPARISON TABLE ════════════════ -->
+  <h2 class="group-title">📊 Quick Comparison Table</h2>
+
+  <table>
+    <thead>
+      <tr>
+        <th style="width:22%">Modifier</th>
+        <th>Instantiate?</th>
+        <th>extends?</th>
+        <th>implements?</th>
+        <th>with?</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>class</td><td class="yes">✔</td><td class="yes">✔</td><td class="yes">✔</td><td class="no">✘</td></tr>
+      <tr><td>abstract</td><td class="no">✘</td><td class="yes">✔</td><td class="yes">✔</td><td class="no">✘</td></tr>
+      <tr><td>base</td><td class="yes">✔</td><td class="yes">✔ *</td><td class="no">✘</td><td class="no">✘</td></tr>
+      <tr><td>interface</td><td class="yes">✔</td><td class="no">✘ †</td><td class="yes">✔</td><td class="no">✘</td></tr>
+      <tr><td>final</td><td class="yes">✔</td><td class="no">✘ †</td><td class="no">✘ †</td><td class="no">✘</td></tr>
+      <tr><td>sealed</td><td class="no">✘</td><td class="yes">✔ ‡</td><td class="yes">✔ ‡</td><td class="no">✘</td></tr>
+      <tr><td>mixin</td><td class="no">✘</td><td class="no">✘</td><td class="no">✘</td><td class="yes">✔</td></tr>
+      <tr><td>mixin class</td><td class="yes">✔</td><td class="yes">✔</td><td class="yes">✔</td><td class="yes">✔</td></tr>
+    </tbody>
+  </table>
+  <p style="font-size:8.5pt;color:var(--text-muted);margin-top:-10px;margin-bottom:20px;">
+    * Only by base/final/sealed classes &nbsp;&nbsp; † Outside its library &nbsp;&nbsp; ‡ Same library only
+  </p>
+
+  <!-- ════════════════ COMBINABLE MODIFIERS ════════════════ -->
+  <h2 class="group-title">🔗 Combinable Modifiers</h2>
+  <table class="combo-table">
+    <thead>
+      <tr><th style="text-align:left">Combination</th><th style="text-align:left">Meaning</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>abstract class</td><td style="text-align:left">Blueprint, can't instantiate</td></tr>
+      <tr><td>abstract base class</td><td style="text-align:left">Blueprint + must extend (not implement)</td></tr>
+      <tr><td>abstract interface class</td><td style="text-align:left">Blueprint + must implement (not extend)</td></tr>
+      <tr><td>abstract final class</td><td style="text-align:left">Blueprint + no subclassing outside library (namespace for static methods)</td></tr>
+      <tr><td>base mixin</td><td style="text-align:left">Mixin only applied by base/sealed/final classes</td></tr>
+    </tbody>
+  </table>
+
+  <div class="page-break"></div>
+
+  <!-- ════════════════ INTERVIEW Q&A ════════════════ -->
+  <h2 class="group-title">🎯 Top Interview Questions & Answers</h2>
+
+  <div class="qa">
+    <div class="qa-q">Q1: What's the difference between <code>base</code> and <code>interface</code>?</div>
+    <div class="qa-a"><code>base</code> allows <code>extends</code> only (blocks <code>implements</code>). <code>interface</code> allows <code>implements</code> only (blocks <code>extends</code>). They are exact opposites.</div>
+  </div>
+  <div class="qa">
+    <div class="qa-q">Q2: Why would you use <code>sealed</code>?</div>
+    <div class="qa-a">For <strong>exhaustive pattern matching</strong> with <code>switch</code>. The compiler guarantees you've handled every possible subtype. No <code>default</code> case needed.</div>
+  </div>
+  <div class="qa">
+    <div class="qa-q">Q3: What is Mixin Linearization Order (MRO)?</div>
+    <div class="qa-a">Mixins are applied left-to-right, so the <code>super</code> chain goes right-to-left. In <code>with M1, M2</code>, <code>super</code> calls go: <strong>M2 → M1 → Base</strong>. The rightmost mixin wins.</div>
+  </div>
+  <div class="qa">
+    <div class="qa-q">Q4: Can you combine <code>base</code> and <code>interface</code>?</div>
+    <div class="qa-a">No, they are contradictory. If you want to block both <code>extends</code> AND <code>implements</code>, use <code>final</code> instead.</div>
+  </div>
+  <div class="qa">
+    <div class="qa-q">Q5: What's the difference between <code>abstract</code> and <code>sealed</code>?</div>
+    <div class="qa-a"><code>sealed</code> restricts subtypes to the <strong>same library</strong> AND enables exhaustive checking. <code>abstract</code> has no restriction on where subtypes can be created.</div>
+  </div>
+  <div class="qa">
+    <div class="qa-q">Q6: What's the difference between <code>mixin</code> and <code>mixin class</code>?</div>
+    <div class="qa-a"><code>mixin</code> can ONLY be used with <code>with</code>. <code>mixin class</code> can be used with <code>with</code>, <code>extends</code>, AND instantiated directly. <code>mixin</code> can use <code>on</code>; <code>mixin class</code> cannot.</div>
+  </div>
+  <div class="qa">
+    <div class="qa-q">Q7: Why can't a regular <code>class</code> be used as a mixin?</div>
+    <div class="qa-a">Dart separates the concept of classes and mixins. If you want both behaviors, use <code>mixin class</code>.</div>
+  </div>
+  <div class="qa">
+    <div class="qa-q">Q8: What happens when two mixins define the same method?</div>
+    <div class="qa-a">The <strong>last</strong> mixin in the <code>with</code> clause wins. Its method is called first in the <code>super</code> chain.</div>
+  </div>
+
+  <div class="footer">
+    Dart Class Modifiers — Interview Notes &nbsp;•&nbsp; Prepared March 2026
+  </div>
+
+</div>
+
+</body>
+</html>

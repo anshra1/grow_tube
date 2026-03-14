@@ -6,12 +6,17 @@ import 'package:skill_tube/src/features/library/presentation/bloc/library_state.
 
 class LibraryBloc extends Bloc<LibraryEvent, LibraryState> {
   LibraryBloc({
-    required this.getAllVideos,
-    required this.getLastPlayedVideo,
-    required this.addVideo,
-    required this.deleteVideo,
-    required this.updateVideoProgress,
-  }) : super(const LibraryInitialState()) {
+    required GetAllVideos getAllVideos,
+    required GetLastPlayedVideo getLastPlayedVideo,
+    required AddVideo addVideo,
+    required DeleteVideo deleteVideo,
+    required UpdateVideoProgress updateVideoProgress,
+  }) : _getAllVideos = getAllVideos,
+       _getLastPlayedVideo = getLastPlayedVideo,
+       _addVideo = addVideo,
+       _deleteVideo = deleteVideo,
+       _updateVideoProgress = updateVideoProgress,
+       super(const LibraryInitialState()) {
     // Fetches initial library data and determines the hero video
     on<LibraryInitializedEvent>(_onInitialized);
 
@@ -35,11 +40,11 @@ class LibraryBloc extends Bloc<LibraryEvent, LibraryState> {
   /// When set, [_refreshLibrary] uses this instead of [getLastPlayedVideo].
   String? _selectedHeroId;
 
-  final GetAllVideos getAllVideos;
-  final GetLastPlayedVideo getLastPlayedVideo;
-  final AddVideo addVideo;
-  final DeleteVideo deleteVideo;
-  final UpdateVideoProgress updateVideoProgress;
+  final GetAllVideos _getAllVideos;
+  final GetLastPlayedVideo _getLastPlayedVideo;
+  final AddVideo _addVideo;
+  final DeleteVideo _deleteVideo;
+  final UpdateVideoProgress _updateVideoProgress;
 
   Future<void> _onVideoSelected(
     LibraryVideoSelectedEvent event,
@@ -61,7 +66,7 @@ class LibraryBloc extends Bloc<LibraryEvent, LibraryState> {
     LibraryVideoAddedAndPlayRequested event,
     Emitter<LibraryState> emit,
   ) async {
-    final result = await addVideo(event.url);
+    final result = await _addVideo(event.url);
 
     await result.fold((failure) async => emit(LibraryFailureState(failure.message)), (
       video,
@@ -86,7 +91,7 @@ class LibraryBloc extends Bloc<LibraryEvent, LibraryState> {
     LibraryVideoProgressUpdatedEvent event,
     Emitter<LibraryState> emit,
   ) async {
-    final result = await updateVideoProgress(
+    final result = await _updateVideoProgress(
       UpdateVideoProgressParams(
         youtubeId: event.youtubeId,
         positionSeconds: event.positionSeconds,
@@ -105,7 +110,7 @@ class LibraryBloc extends Bloc<LibraryEvent, LibraryState> {
   ) async {
     emit(const LibraryLoadingState());
 
-    final result = await addVideo(event.url);
+    final result = await _addVideo(event.url);
 
     await result.fold((failure) async {
       emit(LibraryFailureState(failure.message));
@@ -121,7 +126,7 @@ class LibraryBloc extends Bloc<LibraryEvent, LibraryState> {
     // F5: "remove from DB -> re-emit video list".
     emit(const LibraryLoadingState());
 
-    final result = await deleteVideo(event.id);
+    final result = await _deleteVideo(event.id);
 
     await result.fold((failure) async {
       emit(LibraryFailureState(failure.message));
@@ -136,7 +141,7 @@ class LibraryBloc extends Bloc<LibraryEvent, LibraryState> {
   /// that video is kept as the hero so that progress-save callbacks don't
   /// reset the player to whatever the DB considers "last played".
   Future<void> _refreshLibrary(Emitter<LibraryState> emit) async {
-    final videosResult = await getAllVideos();
+    final videosResult = await _getAllVideos();
 
     if (videosResult.isLeft()) {
       final failure = videosResult.getLeft().toNullable()!;
@@ -159,7 +164,7 @@ class LibraryBloc extends Bloc<LibraryEvent, LibraryState> {
     }
 
     if (heroVideo == null) {
-      final heroResult = await getLastPlayedVideo();
+      final heroResult = await _getLastPlayedVideo();
       heroVideo = heroResult.fold((failure) => null, (video) => video);
       // Sync _selectedHeroId so future refreshes stay on this video.
       _selectedHeroId = heroVideo?.youtubeId;

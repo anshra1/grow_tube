@@ -1,0 +1,292 @@
+================================================================================
+             DART CLASS MODIFIERS — INTERVIEW NOTES
+================================================================================
+
+
+1. class (Standard Class)
+================================================================================
+
+    class Animal {
+      String name;
+      Animal(this.name);
+      void speak() => print('...');
+    }
+
+  - Can be instantiated       → Animal('Dog')                    ✅
+  - Can be extended            → class Dog extends Animal {}      ✅
+  - Can be implemented         → class Robot implements Animal {} ✅
+  - Can be used with 'with'?   → No (it's not a mixin)           ❌
+  - No restrictions at all. This is the default.
+
+
+2. abstract
+================================================================================
+
+    abstract class Shape {
+      double area();                                // No body → subclass MUST override
+      void describe() => print('I am a shape');     // Has body → optional to override
+    }
+
+  - Cannot be instantiated     → Shape()                         ❌ compile-time error
+  - Can be extended            → class Circle extends Shape {}    ✅
+  - Can be implemented         → class Square implements Shape {} ✅
+
+  Purpose:
+    Define a blueprint/contract. Forces subclasses to provide implementations
+    for abstract methods.
+
+  Key Interview Point:
+    Unlike Java, Dart does NOT have a separate 'interface' keyword.
+    Every class implicitly defines an interface.
+    'abstract' just prevents direct instantiation.
+
+
+3. base
+================================================================================
+
+    base class Vehicle {
+      void start() => print('Starting...');
+    }
+
+  - Can be instantiated        → Vehicle()                       ✅
+  - Can be extended            → Only by base, sealed, or final  ✅ (restricted)
+  - Can be implemented         → No (outside its library)        ❌
+
+  Allowed:
+    base class Car extends Vehicle {}       ✅
+    final class Bike extends Vehicle {}     ✅
+
+  NOT Allowed:
+    class Truck implements Vehicle {}       ❌ Cannot implement a 'base' class
+    class Van extends Vehicle {}            ❌ Must also be base, sealed, or final
+
+  Why use base?
+    If your class has important logic in its constructor or methods
+    (e.g., initialization, resource management), you want to FORCE
+    consumers to use 'extends' so that 'super' logic is always executed.
+    'implements' would skip all of that.
+
+  Rule: base forces inheritance → guarantees super calls are valid.
+
+
+4. interface
+================================================================================
+
+    interface class Printable {
+      void printData() => print('Printing...');
+    }
+
+  - Can be instantiated        → Printable()                     ✅ (unlike abstract)
+  - Can be implemented         → class Report implements Printable {} ✅
+  - Can be extended            → No (outside its library)        ❌
+
+  Allowed:
+    class Report implements Printable {
+      @override
+      void printData() => print('Report data');
+    }                                                              ✅
+
+  NOT Allowed (outside the library):
+    class Invoice extends Printable {}                             ❌
+
+  Why use interface?
+    The OPPOSITE of 'base'. It says:
+    "Use 'implements' only. Don't inherit my implementation."
+    Useful when your implementation details might change in the future.
+
+
+5. final
+================================================================================
+
+    final class DatabaseConnection {
+      void connect() => print('Connected');
+    }
+
+  - Can be instantiated        → DatabaseConnection()            ✅
+  - Can be extended            → No (outside its library)        ❌
+  - Can be implemented         → No (outside its library)        ❌
+
+  NOT Allowed (outside the library):
+    class MyDb extends DatabaseConnection {}                      ❌
+    class MockDb implements DatabaseConnection {}                 ❌
+
+  Why use final?
+    Total control. No one can override your methods or create alternative
+    implementations. Useful for security-critical or core infrastructure classes.
+
+  Think of it as: base + interface locked together = final
+
+
+6. sealed
+================================================================================
+
+    sealed class Result {}
+
+    class Success extends Result {
+      final String data;
+      Success(this.data);
+    }
+
+    class Failure extends Result {
+      final String error;
+      Failure(this.error);
+    }
+
+  - Cannot be instantiated     → Result()                        ❌ (like abstract)
+  - Can be extended/implemented → Only inside the SAME library   ✅ (restricted)
+
+  The compiler knows ALL possible subtypes, enabling exhaustive switch:
+
+    String handle(Result r) => switch (r) {
+      Success s => 'Data: ${s.data}',
+      Failure f => 'Error: ${f.error}',
+      // No default needed! Compiler knows this is exhaustive.
+    };
+
+  Why use sealed?
+    Perfect for STATE MANAGEMENT (Loading, Success, Error), event types,
+    or any scenario where the compiler must guarantee every case is handled.
+
+  Key Difference from abstract:
+    - sealed restricts subtypes to the SAME library AND enables exhaustive checking.
+    - abstract has NO such restriction.
+
+
+7. mixin
+================================================================================
+
+    mixin Swimming {
+      void swim() => print('Swimming!');
+    }
+
+    mixin Flying {
+      void fly() => print('Flying!');
+    }
+
+    class Duck extends Animal with Swimming, Flying {}
+
+  - Cannot be instantiated     → Swimming()                      ❌
+  - Cannot be extended         →                                 ❌
+  - Applied using 'with'       →                                 ✅
+  - Can use 'on' to restrict   → mixin Swimming on Animal {}
+    (means only classes extending Animal can use this mixin)
+
+  Purpose:
+    Code reuse WITHOUT inheritance. Dart is single-inheritance,
+    so mixins solve the problem by providing a linearized
+    method resolution order (MRO).
+
+
+  MIXIN LINEARIZATION ORDER (MRO) — IMPORTANT FOR INTERVIEWS
+  -----------------------------------------------------------
+
+    class Impl extends Base with Mixin1, Mixin2 {
+      void dispose() {
+        print('Impl');
+        super.dispose(); // calls Mixin2.dispose()
+      }
+    }
+
+    The linearization order is:  Impl → Mixin2 → Mixin1 → Base
+
+    - super in Impl   → calls Mixin2 (the LAST mixin applied)
+    - super in Mixin2  → calls Mixin1
+    - super in Mixin1  → calls Base
+
+    The order of mixins in the 'with' clause MATTERS!
+    The RIGHTMOST mixin's method wins if multiple mixins define the same method.
+
+
+8. mixin class
+================================================================================
+
+    mixin class Logger {
+      void log(String msg) => print('[LOG] $msg');
+    }
+
+    // Use as a mixin:
+    class Service with Logger {}
+
+    // Use as a class:
+    class FileLogger extends Logger {}
+
+    // Instantiate directly:
+    var l = Logger();
+
+  - Can be instantiated        →                                 ✅
+  - Can be extended            →                                 ✅
+  - Can be used with 'with'    →                                 ✅
+  - Cannot use 'on' keyword    →                                 ❌ (unlike a regular mixin)
+
+  Purpose:
+    Maximum flexibility — acts as BOTH a class AND a mixin.
+
+
+================================================================================
+             QUICK COMPARISON TABLE
+================================================================================
+
+  Modifier      | Instantiate? | extends? | implements? | with? |
+  --------------|:---:|:---:|:---:|:---:|
+  class         |  ✅  |  ✅  |  ✅  |  ❌  |
+  abstract      |  ❌  |  ✅  |  ✅  |  ❌  |
+  base          |  ✅  |  ✅ (base/final/sealed only) |  ❌  |  ❌  |
+  interface     |  ✅  |  ❌ (outside lib) |  ✅  |  ❌  |
+  final         |  ✅  |  ❌ (outside lib) |  ❌ (outside lib) |  ❌  |
+  sealed        |  ❌  |  ✅ (same lib only) |  ✅ (same lib only) |  ❌  |
+  mixin         |  ❌  |  ❌  |  ❌  |  ✅  |
+  mixin class   |  ✅  |  ✅  |  ✅  |  ✅  |
+
+
+================================================================================
+             COMBINABLE MODIFIERS
+================================================================================
+
+  Combination                  | Meaning
+  -----------------------------|------------------------------------------------
+  abstract class               | Blueprint, can't instantiate
+  abstract base class          | Blueprint + must extend (not implement)
+  abstract interface class     | Blueprint + must implement (not extend)
+  abstract final class         | Blueprint + no subclassing outside library
+                               |   (rare, like a namespace for static methods)
+  base mixin                   | Mixin that can only be applied by
+                               |   base/sealed/final classes
+
+
+================================================================================
+             TOP INTERVIEW QUESTIONS
+================================================================================
+
+  Q1: What's the difference between 'base' and 'interface'?
+  A:  'base' allows 'extends' only, 'interface' allows 'implements' only.
+
+  Q2: Why would you use 'sealed'?
+  A:  Exhaustive pattern matching with 'switch'. The compiler guarantees
+      you've handled every possible subtype.
+
+  Q3: What is Mixin Linearization Order (MRO)?
+  A:  Right-to-left in the 'with' clause.
+      'super' calls go up the chain from right to left.
+      e.g., with Mixin1, Mixin2  →  super chain: Mixin2 → Mixin1 → Base
+
+  Q4: Can you combine 'base' and 'interface'?
+  A:  No, they are contradictory. Use 'final' if you want to block both
+      extends AND implements.
+
+  Q5: What's the difference between 'abstract' and 'sealed'?
+  A:  - sealed restricts subtypes to the same library AND enables
+        exhaustive checking in switch expressions.
+      - abstract has no such restriction on where subtypes can be created.
+
+  Q6: What's the difference between 'mixin' and 'mixin class'?
+  A:  - 'mixin' can ONLY be used with 'with'. Cannot be instantiated or extended.
+      - 'mixin class' can be used with 'with', extended, AND instantiated.
+      - 'mixin' can use 'on' keyword. 'mixin class' cannot.
+
+  Q7: Why can't a regular 'class' be used as a mixin?
+  A:  Because Dart separates the concept of classes and mixins.
+      If you want both behaviors, use 'mixin class'.
+
+  Q8: What happens when two mixins define the same method?
+  A:  The LAST mixin in the 'with' clause wins. Its method will be the
+      one that is called first in the super chain.
