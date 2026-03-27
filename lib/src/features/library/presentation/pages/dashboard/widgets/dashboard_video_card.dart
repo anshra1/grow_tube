@@ -2,10 +2,14 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
+import 'package:flutter/services.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:levelup_tube/src/core/design_system/app_radius.dart';
 import 'package:levelup_tube/src/core/design_system/app_shadows.dart';
 import 'package:levelup_tube/src/core/design_system/app_sizes.dart';
+import 'package:levelup_tube/src/core/connectivity/connectivity_cubit.dart';
+import 'package:levelup_tube/src/core/connectivity/connectivity_toast_controller.dart';
+import 'package:levelup_tube/src/core/di/injection_container.dart' as di;
 import 'package:levelup_tube/src/core/utils/extensions/context_extensions.dart';
 import 'package:levelup_tube/src/features/library/domain/entities/video.dart';
 import 'package:levelup_tube/src/features/library/presentation/bloc/library_bloc.dart';
@@ -16,6 +20,8 @@ class DashboardVideoCard extends StatelessWidget {
   const DashboardVideoCard({required this.video, super.key});
 
   final Video video;
+  static final ConnectivityToastController _toastController =
+      di.sl<ConnectivityToastController>();
 
   String _formatDuration(int totalSeconds) {
     final minutes = totalSeconds ~/ 60;
@@ -31,22 +37,9 @@ class DashboardVideoCard extends StatelessWidget {
 
     final percentage = (progress * 100).toInt();
 
-    return GestureDetector(
-      onTap: () {
-        context.read<LibraryBloc>().add(LibraryVideoSelectedEvent(video));
-      },
-      onLongPress: () {
-        showDialog(
-          context: context,
-          builder: (dialogContext) => DeleteVideoDialog(
-            videoTitle: video.title,
-            onDelete: () {
-              context.read<LibraryBloc>().add(LibraryVideoDeletedEvent(video.id));
-            },
-          ),
-        );
-      },
-      child: Container(
+    return Material(
+      color: Colors.transparent,
+      child: Ink(
         decoration: BoxDecoration(
           color: context.colorScheme.surface,
           borderRadius: AppRadius.roundedL,
@@ -55,118 +48,151 @@ class DashboardVideoCard extends StatelessWidget {
           ),
           boxShadow: AppShadows.card,
         ),
-        padding: const EdgeInsets.all(AppSizes.p12),
-        child: Row(
-          children: [
-            // Thumbnail with Duration Overlay
-            Stack(
+        child: InkWell(
+          borderRadius: AppRadius.roundedL,
+          onTap: () {
+            Feedback.forTap(context);
+            HapticFeedback.heavyImpact();
+            HapticFeedback.vibrate();
+            if (context.read<ConnectivityCubit>().state ==
+                ConnectivityStatus.offline) {
+              _toastController.nudgeOffline();
+              return;
+            }
+            context.read<LibraryBloc>().add(LibraryVideoSelectedEvent(video));
+          },
+          onLongPress: () {
+            showDialog(
+              context: context,
+              builder: (dialogContext) => DeleteVideoDialog(
+                videoTitle: video.title,
+                onDelete: () {
+                  context.read<LibraryBloc>().add(
+                    LibraryVideoDeletedEvent(video.id),
+                  );
+                },
+              ),
+            );
+          },
+          child: Padding(
+            padding: const EdgeInsets.all(AppSizes.p12),
+            child: Row(
               children: [
-                ClipRRect(
-                  borderRadius: AppRadius.roundedM,
-                  child: SizedBox(
-                    width: 120,
-                    height: 70,
-                    child: CachedNetworkImage(
-                      imageUrl: video.thumbnailUrl,
-                      fit: BoxFit.cover,
-                      placeholder: (context, url) => Shimmer.fromColors(
-                        baseColor: context.colorScheme.surfaceContainerHighest,
-                        highlightColor: context.colorScheme.surface,
-                        child: Container(color: Colors.white),
-                      ),
-                      errorWidget: (context, url, error) =>
-                          Container(color: context.colorScheme.surfaceContainerHighest),
-                    ),
-                  ),
-                ),
-                Positioned(
-                  bottom: 4,
-                  right: 4,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-                    decoration: BoxDecoration(
-                      color: Colors.black.withValues(alpha: 0.8),
-                      borderRadius: AppRadius.roundedS,
-                    ),
-                    child: Text(
-                      _formatDuration(video.durationSeconds),
-                      style: context.textTheme.labelSmall?.copyWith(
-                        color: Colors.white,
-                        fontSize: 10,
+                // Thumbnail with Duration Overlay
+                Stack(
+                  children: [
+                    ClipRRect(
+                      borderRadius: AppRadius.roundedM,
+                      child: SizedBox(
+                        width: 120,
+                        height: 70,
+                        child: CachedNetworkImage(
+                          imageUrl: video.thumbnailUrl,
+                          fit: BoxFit.cover,
+                          placeholder: (context, url) => Shimmer.fromColors(
+                            baseColor: context.colorScheme.surfaceContainerHighest,
+                            highlightColor: context.colorScheme.surface,
+                            child: Container(color: Colors.white),
+                          ),
+                          errorWidget: (context, url, error) => Container(
+                            color: context.colorScheme.surfaceContainerHighest,
+                          ),
+                        ),
                       ),
                     ),
-                  ),
+                    Positioned(
+                      bottom: 4,
+                      right: 4,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 4,
+                          vertical: 2,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.black.withValues(alpha: 0.8),
+                          borderRadius: AppRadius.roundedS,
+                        ),
+                        child: Text(
+                          _formatDuration(video.durationSeconds),
+                          style: context.textTheme.labelSmall?.copyWith(
+                            color: Colors.white,
+                            fontSize: 10,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
-            gapW16,
-            // content
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    video.title,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: context.textTheme.bodyMedium?.copyWith(
-                      fontWeight: FontWeight.w600,
-                      color: context.colorScheme.onSurface,
-                    ),
-                  ),
-
-                  Gap(2),
-                  Text(
-                    video.channelName,
-                    style: context.textTheme.labelSmall?.copyWith(
-                      color: context.colorScheme.onSurfaceVariant,
-                    ),
-                  ),
-                  gapH8,
-                  // Progress Bar & Percentage
-                  Column(
+                gapW16,
+                // content
+                Expanded(
+                  child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      Text(
+                        video.title,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: context.textTheme.bodyMedium?.copyWith(
+                          fontWeight: FontWeight.w600,
+                          color: context.colorScheme.onSurface,
+                        ),
+                      ),
+                      const Gap(2),
+                      Text(
+                        video.channelName,
+                        style: context.textTheme.labelSmall?.copyWith(
+                          color: context.colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                      gapH8,
+                      // Progress Bar & Percentage
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Expanded(
-                            child: ClipRRect(
-                              borderRadius: AppRadius.roundedS,
-                              child: LinearProgressIndicator(
-                                value: progress,
-                                minHeight: 4,
-                                backgroundColor: context.colorScheme.primary.withValues(
-                                  alpha: 0.1,
-                                ),
-                                valueColor: AlwaysStoppedAnimation<Color>(
-                                  context.colorScheme.primary,
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Expanded(
+                                child: ClipRRect(
+                                  borderRadius: AppRadius.roundedS,
+                                  child: LinearProgressIndicator(
+                                    value: progress,
+                                    minHeight: 4,
+                                    backgroundColor: context
+                                        .colorScheme
+                                        .primary
+                                        .withValues(alpha: 0.1),
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                      context.colorScheme.primary,
+                                    ),
+                                  ),
                                 ),
                               ),
+                            ],
+                          ),
+                          gapH4,
+                          Text(
+                            '$percentage% watched',
+                            style: context.textTheme.labelSmall?.copyWith(
+                              color: percentage > 0
+                                  ? context.colorScheme.primary
+                                  : context.colorScheme.onSurfaceVariant,
+                              fontWeight: percentage > 0
+                                  ? FontWeight.bold
+                                  : FontWeight.normal,
+                              fontSize: 10,
                             ),
                           ),
                         ],
                       ),
-                      gapH4,
-                      Text(
-                        '$percentage% watched',
-                        style: context.textTheme.labelSmall?.copyWith(
-                          color: percentage > 0
-                              ? context.colorScheme.primary
-                              : context.colorScheme.onSurfaceVariant,
-                          fontWeight: percentage > 0
-                              ? FontWeight.bold
-                              : FontWeight.normal,
-                          fontSize: 10,
-                        ),
-                      ),
                     ],
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );

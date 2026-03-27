@@ -2,6 +2,7 @@ import 'package:get_it/get_it.dart';
 import 'package:internet_connection_checker_plus/internet_connection_checker_plus.dart';
 import 'package:levelup_tube/objectbox.g.dart'; // Generated
 import 'package:levelup_tube/src/core/connectivity/connectivity_cubit.dart';
+import 'package:levelup_tube/src/core/connectivity/connectivity_toast_controller.dart';
 import 'package:levelup_tube/src/core/services/logging/app_logger.dart';
 import 'package:levelup_tube/src/core/services/logging/talker_logging_service.dart';
 import 'package:levelup_tube/src/core/services/connectivity/internet_connection_service.dart';
@@ -51,6 +52,7 @@ Future<void> init() async {
     () => AppLogger(services: [TalkerLoggingService(sl())]),
   );
 
+  sl.registerLazySingleton(() => ConnectivityToastController());
   sl.registerLazySingleton(
     () => InternetConnection.createInstance(
       checkInterval: const Duration(seconds: 3),

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:levelup_tube/src/core/connectivity/connectivity_cubit.dart';
-import 'package:levelup_tube/src/core/constants/app_strings.dart';
-import 'package:toastification/toastification.dart';
+import 'package:levelup_tube/src/core/connectivity/connectivity_toast_controller.dart';
+import 'package:levelup_tube/src/core/di/injection_container.dart' as di;
 
 class ConnectivityToastListener extends StatefulWidget {
   const ConnectivityToastListener({required this.child, super.key});
@@ -16,6 +16,8 @@ class ConnectivityToastListener extends StatefulWidget {
 
 class _ConnectivityToastListenerState extends State<ConnectivityToastListener> {
   ConnectivityStatus _previous = ConnectivityStatus.unknown;
+  final ConnectivityToastController _toastController =
+      di.sl<ConnectivityToastController>();
 
   @override
   Widget build(BuildContext context) {
@@ -31,26 +33,13 @@ class _ConnectivityToastListenerState extends State<ConnectivityToastListener> {
         }
 
         if (state == ConnectivityStatus.offline) {
-          toastification.show(
-            type: ToastificationType.error,
-            style: ToastificationStyle.fillColored,
-            title: const Text(AppStrings.networkOfflineTitle),
-            description: const Text(AppStrings.networkOfflineMessage),
-            autoCloseDuration: const Duration(seconds: 4),
-            alignment: Alignment.bottomCenter,
-          );
+          _toastController.showOfflinePersistent();
           return;
         }
 
         if (state == ConnectivityStatus.online) {
-          toastification.show(
-            type: ToastificationType.success,
-            style: ToastificationStyle.fillColored,
-            title: const Text(AppStrings.networkOnlineTitle),
-            description: const Text(AppStrings.networkOnlineMessage),
-            autoCloseDuration: const Duration(seconds: 4),
-            alignment: Alignment.bottomCenter,
-          );
+          _toastController.dismissOffline();
+          _toastController.showOnlineToast();
         }
       },
       child: widget.child,
