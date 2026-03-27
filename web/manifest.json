@@ -1,6 +1,6 @@
 {
-    "name": "grow_tube",
-    "short_name": "grow_tube",
+    "name": "LevelUp Tube",
+    "short_name": "LevelUp Tube",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

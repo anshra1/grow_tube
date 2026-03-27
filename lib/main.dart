@@ -1,11 +1,9 @@
 import 'dart:async';
 
-// import 'package:firebase_core/firebase_core.dart';
-// import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-// import 'package:levelup_tube/firebase_options.dart';
+import 'package:levelup_tube/src/core/config/app_config.dart';
 import 'package:levelup_tube/src/core/connectivity/connectivity_cubit.dart';
 import 'package:levelup_tube/src/core/design_system/app_theme.dart';
 import 'package:levelup_tube/src/core/di/injection_container.dart' as di;
@@ -13,6 +11,7 @@ import 'package:levelup_tube/src/core/router/app_router.dart';
 import 'package:levelup_tube/src/core/theme/theme_cubit.dart';
 import 'package:levelup_tube/src/core/utils/talker_bloc_observer.dart';
 import 'package:levelup_tube/src/core/widgets/connectivity_toast_listener.dart';
+import 'package:levelup_tube/src/core/widgets/startup_error_app.dart';
 import 'package:talker_flutter/talker_flutter.dart';
 import 'package:toastification/toastification.dart';
 
@@ -24,18 +23,12 @@ late final Talker talker;
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // await Firebase.initializeApp(
-  //   options: DefaultFirebaseOptions.currentPlatform,
-  // );
-
   // Pass all uncaught "fatal" errors from the framework to Crashlytics
   FlutterError.onError = (errorDetails) {
-  //  FirebaseCrashlytics.instance.recordFlutterFatalError(errorDetails);
   };
 
   // Pass all uncaught asynchronous errors that aren't handled by the Flutter framework to Crashlytics
   PlatformDispatcher.instance.onError = (error, stack) {
- //   FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
     return true;
   };
 
@@ -46,7 +39,18 @@ Future<void> main() async {
   Bloc.observer = TalkerBlocObserver(talker: talker);
 
   // Initialize DI
-  await di.init();
+  try {
+    await di.init();
+  } on AppConfigurationException catch (e) {
+    runApp(
+      StartupErrorApp(
+        title: 'Configuration Error',
+        message: e.userMessage,
+        debugDetails: e.debugMessage,
+      ),
+    );
+    return;
+  }
 
   runApp(const GrowTubeApp());
 }
@@ -72,17 +76,12 @@ class GrowTubeApp extends StatelessWidget {
         ],
         child: BlocBuilder<ThemeCubit, ThemeState>(
           builder: (context, themeState) {
-            final effectiveMode = themeState.mode == ThemeMode.system
-                ? (themeState.platformBrightness == Brightness.dark
-                    ? ThemeMode.dark
-                    : ThemeMode.light)
-                : themeState.mode;
             return MaterialApp.router(
-              title: 'Grow Tube',
+              title: 'LevelUp Tube',
               debugShowCheckedModeBanner: false,
               theme: AppTheme.light(),
               darkTheme: AppTheme.dark(),
-              themeMode: effectiveMode,
+              themeMode: themeState.mode,
               routerConfig: AppRouter.router,
               builder: (context, child) {
                 return ConnectivityToastListener(

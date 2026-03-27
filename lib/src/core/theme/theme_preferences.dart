@@ -8,13 +8,12 @@ class ThemePreferences {
 
   final SharedPreferences _prefs;
 
-  Future<ThemeMode> readThemeMode() async {
+  Future<ThemeMode?> readThemeMode() async {
     final value = _prefs.getString(_key);
     return switch (value) {
       'light' => ThemeMode.light,
       'dark' => ThemeMode.dark,
-      'system' => ThemeMode.system,
-      _ => ThemeMode.system,
+      _ => null,
     };
   }
 
@@ -22,8 +21,14 @@ class ThemePreferences {
     final value = switch (mode) {
       ThemeMode.light => 'light',
       ThemeMode.dark => 'dark',
-      ThemeMode.system => 'system',
+      ThemeMode.system => null,
     };
+
+    if (value == null) {
+      await _prefs.remove(_key);
+      return;
+    }
+
     await _prefs.setString(_key, value);
   }
 }

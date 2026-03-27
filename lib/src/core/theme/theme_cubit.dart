@@ -37,7 +37,9 @@ class ThemeCubit extends Cubit<ThemeState> with WidgetsBindingObserver {
   ThemeCubit(this._preferences)
       : super(
           ThemeState(
-            mode: ThemeMode.system,
+            mode: ThemeMode.values.byName(
+              WidgetsBinding.instance.platformDispatcher.platformBrightness.name,
+            ),
             platformBrightness:
                 WidgetsBinding.instance.platformDispatcher.platformBrightness,
           ),
@@ -48,9 +50,14 @@ class ThemeCubit extends Cubit<ThemeState> with WidgetsBindingObserver {
   final ThemePreferences _preferences;
 
   Future<void> load() async {
-    final mode = await _preferences.readThemeMode();
+    final storedMode = await _preferences.readThemeMode();
     final brightness = WidgetsBinding.instance.platformDispatcher.platformBrightness;
-    emit(state.copyWith(mode: mode, platformBrightness: brightness));
+    emit(
+      state.copyWith(
+        mode: storedMode ?? ThemeMode.values.byName(brightness.name),
+        platformBrightness: brightness,
+      ),
+    );
   }
 
   Future<void> setThemeMode(ThemeMode mode) async {
@@ -60,18 +67,22 @@ class ThemeCubit extends Cubit<ThemeState> with WidgetsBindingObserver {
 
   Future<void> cycleThemeMode() async {
     final next = switch (state.mode) {
-      ThemeMode.system => ThemeMode.light,
       ThemeMode.light => ThemeMode.dark,
-      ThemeMode.dark => ThemeMode.system,
+      ThemeMode.dark => ThemeMode.light,
+      ThemeMode.system => ThemeMode.light,
     };
     await setThemeMode(next);
   }
 
   @override
   void didChangePlatformBrightness() {
-    if (state.mode != ThemeMode.system) return;
     final brightness = WidgetsBinding.instance.platformDispatcher.platformBrightness;
-    emit(state.copyWith(platformBrightness: brightness));
+    emit(
+      state.copyWith(
+        platformBrightness: brightness,
+        mode: ThemeMode.values.byName(brightness.name),
+      ),
+    );
   }
 
   @override

@@ -1,6 +1,7 @@
 import 'package:get_it/get_it.dart';
 import 'package:internet_connection_checker_plus/internet_connection_checker_plus.dart';
 import 'package:levelup_tube/objectbox.g.dart'; // Generated
+import 'package:levelup_tube/src/core/config/app_config.dart';
 import 'package:levelup_tube/src/core/connectivity/connectivity_cubit.dart';
 import 'package:levelup_tube/src/core/connectivity/connectivity_toast_controller.dart';
 import 'package:levelup_tube/src/core/services/logging/app_logger.dart';
@@ -29,13 +30,7 @@ Future<void> init() async {
   final store = await openStore(directory: '${docsDir.path}/objectbox');
   sl.registerLazySingleton(() => store);
 
-  // YouTube Data API v3 — key passed via --dart-define=YOUTUBE_API_KEY=...
-  const apiKey = String.fromEnvironment('YOUTUBE_API_KEY');
-  if (apiKey.isEmpty) {
-    throw StateError(
-      'Missing YOUTUBE_API_KEY. Run: flutter run --dart-define=YOUTUBE_API_KEY=YOUR_KEY',
-    );
-  }
+  final apiKey = AppConfig.requireYoutubeApiKey();
   sl.registerLazySingleton(() => YoutubeApiService(apiKey: apiKey));
 
   // SharedPreferences

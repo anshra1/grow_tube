@@ -37,19 +37,26 @@ class DashboardVideoCard extends StatelessWidget {
 
     final percentage = (progress * 100).toInt();
 
-    return Material(
-      color: Colors.transparent,
-      child: Ink(
-        decoration: BoxDecoration(
-          color: context.colorScheme.surface,
-          borderRadius: AppRadius.roundedL,
-          border: Border.all(
-            color: context.colorScheme.outlineVariant.withValues(alpha: 0.5),
-          ),
-          boxShadow: AppShadows.card,
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: AppRadius.roundedL,
+        border: Border.all(
+          color: context.colorScheme.outlineVariant.withValues(alpha: 0.5),
         ),
+        boxShadow: AppShadows.card,
+      ),
+      child: Material(
+        color: context.colorScheme.surface,
+        borderRadius: AppRadius.roundedL,
+        clipBehavior: Clip.antiAlias,
         child: InkWell(
           borderRadius: AppRadius.roundedL,
+          overlayColor: MaterialStateProperty.resolveWith((states) {
+            if (states.contains(MaterialState.pressed)) {
+              return context.colorScheme.primary.withValues(alpha: 0.12);
+            }
+            return null;
+          }),
           onTap: () {
             Feedback.forTap(context);
             HapticFeedback.heavyImpact();

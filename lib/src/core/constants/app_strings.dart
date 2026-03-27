@@ -18,7 +18,7 @@ class AppStrings {
   // Network
   static const String networkOfflineTitle = 'Network issue';
   static const String networkOfflineMessage =
-      'YouTube is offline. Check your internet and try again.';
+      'Check your internet and try again.';
   static const String networkOnlineTitle = 'Back online';
   static const String networkOnlineMessage =
       'Connection restored. YouTube should work now.';

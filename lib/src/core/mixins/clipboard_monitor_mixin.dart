@@ -9,6 +9,9 @@ mixin ClipboardMonitorMixin<T extends StatefulWidget>
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _checkClipboard();
+    });
   }
 
   @override

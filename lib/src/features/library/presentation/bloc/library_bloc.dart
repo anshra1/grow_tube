@@ -1,4 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:levelup_tube/src/core/constants/app_strings.dart';
+import 'package:levelup_tube/src/core/error/failure.dart';
 import 'package:levelup_tube/src/features/library/domain/entities/video.dart';
 import 'package:levelup_tube/src/features/library/domain/usecases/library_usecases.dart';
 import 'package:levelup_tube/src/features/library/presentation/bloc/library_event.dart';
@@ -68,7 +70,7 @@ class LibraryBloc extends Bloc<LibraryEvent, LibraryState> {
   ) async {
     final result = await _addVideo(event.url);
 
-    await result.fold((failure) async => emit(LibraryFailureState(failure.message)), (
+    await result.fold((failure) async => emit(LibraryFailureState(_mapFailureMessage(failure))), (
       video,
     ) async {
       // Refresh library to get updated list/hero.
@@ -99,7 +101,7 @@ class LibraryBloc extends Bloc<LibraryEvent, LibraryState> {
     );
 
     await result.fold(
-      (failure) async => emit(LibraryFailureState(failure.message)),
+      (failure) async => emit(LibraryFailureState(_mapFailureMessage(failure))),
       (_) async => _refreshLibrary(emit),
     );
   }
@@ -113,7 +115,7 @@ class LibraryBloc extends Bloc<LibraryEvent, LibraryState> {
     final result = await _addVideo(event.url);
 
     await result.fold((failure) async {
-      emit(LibraryFailureState(failure.message));
+      emit(LibraryFailureState(_mapFailureMessage(failure)));
       // Recover the UI back to the loaded list so it doesn't stay deadlocked
       await _refreshLibrary(emit);
     }, (_) async => _refreshLibrary(emit));
@@ -129,7 +131,7 @@ class LibraryBloc extends Bloc<LibraryEvent, LibraryState> {
     final result = await _deleteVideo(event.id);
 
     await result.fold((failure) async {
-      emit(LibraryFailureState(failure.message));
+      emit(LibraryFailureState(_mapFailureMessage(failure)));
       // Recover the UI back to the loaded list so it doesn't stay deadlocked
       await _refreshLibrary(emit);
     }, (_) async => _refreshLibrary(emit));
@@ -145,7 +147,7 @@ class LibraryBloc extends Bloc<LibraryEvent, LibraryState> {
 
     if (videosResult.isLeft()) {
       final failure = videosResult.getLeft().toNullable()!;
-      emit(LibraryFailureState(failure.message));
+      emit(LibraryFailureState(_mapFailureMessage(failure)));
       return;
     }
 
@@ -171,5 +173,50 @@ class LibraryBloc extends Bloc<LibraryEvent, LibraryState> {
     }
 
     emit(LibraryVideoLoadedState(libraryVideos: videos, lastPlayVideo: heroVideo));
+  }
+
+  String _mapFailureMessage(Failure failure) {
+    if (failure is VideoFailure) {
+      switch (failure.code) {
+        case 'invalidUrl':
+          return 'Please enter a valid YouTube URL.';
+        case 'videoUnavailable':
+          return 'Video not found. It may be private or deleted.';
+        case 'duplicate':
+          return 'This video is already in your library.';
+        case 'offline':
+          return AppStrings.networkOfflineMessage;
+        case 'rateLimited':
+          return 'YouTube API limit reached. Try again later.';
+        case 'forbidden':
+          return 'Access denied. Check your YouTube API key.';
+        case 'serverError':
+          return 'YouTube is having trouble. Please try again.';
+      }
+      if (failure.message.isNotEmpty) {
+        return failure.message;
+      }
+    }
+
+    if (failure is ConnectionFailure) {
+      return AppStrings.networkOfflineMessage;
+    }
+    if (failure is ValidationFailure) {
+      return failure.message;
+    }
+    if (failure is AuthFailure) {
+      return 'Authentication failed. Please sign in again.';
+    }
+    if (failure is CacheFailure) {
+      return 'Could not access local storage. Please try again.';
+    }
+    if (failure is ServerFailure) {
+      return 'Server error. Please try again later.';
+    }
+    if (failure is UnknownFailure) {
+      return 'Something went wrong. Please try again.';
+    }
+
+    return 'Something went wrong. Please try again.';
   }
 }

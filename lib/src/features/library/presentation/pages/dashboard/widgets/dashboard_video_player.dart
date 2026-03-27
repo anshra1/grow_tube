@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:levelup_tube/main.dart';
+import 'package:levelup_tube/src/core/connectivity/connectivity_cubit.dart';
 import 'package:levelup_tube/src/core/design_system/app_radius.dart';
 import 'package:levelup_tube/src/features/library/domain/entities/video.dart';
 import 'package:levelup_tube/src/features/library/presentation/bloc/library_bloc.dart';
@@ -24,11 +25,12 @@ class DashboardVideoPlayer extends StatefulWidget {
 
 class _DashboardVideoPlayerState extends State<DashboardVideoPlayer>
     with SingleTickerProviderStateMixin {
-  late YoutubePlayerController _controller;
+  YoutubePlayerController? _controller;
   StreamSubscription<YoutubePlayerValue>? _errorSubscription;
   Timer? _heartbeatTimer;
   final OverlayPortalController _overlayController = OverlayPortalController();
   final _youtubePlayerKey = GlobalKey();
+  StreamSubscription<ConnectivityStatus>? _connectivitySubscription;
 
   late final AnimationController _animController;
   late final Animation<double> _fadeAnimation;
@@ -41,13 +43,15 @@ class _DashboardVideoPlayerState extends State<DashboardVideoPlayer>
       duration: const Duration(milliseconds: 300),
     );
     _fadeAnimation = CurvedAnimation(parent: _animController, curve: Curves.easeInOut);
-    _initializeController();
+    _maybeInitializeController();
+    _listenConnectivity();
     _startHeartbeat();
   }
 
   @override
   void didUpdateWidget(covariant DashboardVideoPlayer oldWidget) {
     super.didUpdateWidget(oldWidget);
+    if (_controller == null) return;
     if (widget.video.youtubeId != oldWidget.video.youtubeId) {
       _saveProgress(youtubeId: oldWidget.video.youtubeId);
 
@@ -62,7 +66,40 @@ class _DashboardVideoPlayerState extends State<DashboardVideoPlayer>
       );
 
       // User explicitly tapped a video → auto-play it.
-      _controller.loadVideoById(videoId: widget.video.youtubeId, startSeconds: startPos);
+      _controller?.loadVideoById(
+        videoId: widget.video.youtubeId,
+        startSeconds: startPos,
+      );
+    }
+  }
+
+  void _listenConnectivity() {
+    _connectivitySubscription?.cancel();
+    _connectivitySubscription = context
+        .read<ConnectivityCubit>()
+        .stream
+        .distinct()
+        .listen((status) {
+          if (status == ConnectivityStatus.online && _controller == null) {
+            _reinitializeController();
+          }
+        });
+  }
+
+  void _maybeInitializeController() {
+    if (context.read<ConnectivityCubit>().state != ConnectivityStatus.online) {
+      return;
+    }
+    _initializeController();
+  }
+
+  void _reinitializeController() {
+    _errorSubscription?.cancel();
+    _controller?.close();
+    _controller = null;
+    _initializeController();
+    if (mounted) {
+      setState(() {});
     }
   }
 
@@ -77,7 +114,7 @@ class _DashboardVideoPlayerState extends State<DashboardVideoPlayer>
       logLevel: LogLevel.info,
     );
 
-    _controller = YoutubePlayerController(
+    final controller = YoutubePlayerController(
       params: const YoutubePlayerParams(
         mute: false,
         showControls: true,
@@ -89,11 +126,16 @@ class _DashboardVideoPlayerState extends State<DashboardVideoPlayer>
       ),
     );
 
+    _controller = controller;
+
     // On app launch: cue the video (shows thumbnail/controls, does NOT auto-play).
     // Auto-play only happens when the user explicitly taps a video (see didUpdateWidget).
-    _controller.cueVideoById(videoId: widget.video.youtubeId, startSeconds: startPos);
+    controller.cueVideoById(
+      videoId: widget.video.youtubeId,
+      startSeconds: startPos,
+    );
 
-    _errorSubscription = _controller.listen((value) {
+    _errorSubscription = controller.listen((value) {
       if (value.error != YoutubeError.none) {
         talker.error(
           'VideoPlayer: YouTube error ${value.error.code} '
@@ -153,7 +195,9 @@ class _DashboardVideoPlayerState extends State<DashboardVideoPlayer>
 
   Future<void> _saveProgress({String? youtubeId}) async {
     try {
-      final positionTime = await _controller.currentTime;
+      final controller = _controller;
+      if (controller == null) return;
+      final positionTime = await controller.currentTime;
       final position = positionTime.toInt();
       final targetId = youtubeId ?? widget.video.youtubeId;
 
@@ -174,7 +218,8 @@ class _DashboardVideoPlayerState extends State<DashboardVideoPlayer>
     _heartbeatTimer?.cancel();
     _errorSubscription?.cancel();
     _saveProgress();
-    _controller.close();
+    _connectivitySubscription?.cancel();
+    _controller?.close();
     super.dispose();
   }
 
@@ -182,12 +227,15 @@ class _DashboardVideoPlayerState extends State<DashboardVideoPlayer>
   Widget build(BuildContext context) {
     // A stable GlobalKey prevents the Youtube WebView from being fully destroyed
     // when it moves from the inline Column to the Positioned Overlay.
-    final player = YoutubePlayer(
-      key: _youtubePlayerKey,
-      controller: _controller,
-      aspectRatio: 16 / 9,
-      enableFullScreenOnVerticalDrag: false,
-    );
+    final controller = _controller;
+    final player = controller == null
+        ? null
+        : YoutubePlayer(
+            key: _youtubePlayerKey,
+            controller: controller,
+            aspectRatio: 16 / 9,
+            enableFullScreenOnVerticalDrag: false,
+          );
 
     return PopScope(
       canPop: !_overlayController.isShowing,
@@ -207,7 +255,10 @@ class _DashboardVideoPlayerState extends State<DashboardVideoPlayer>
                 children: [
                   AspectRatio(
                     aspectRatio: 16 / 9,
-                    child: ClipRRect(borderRadius: AppRadius.roundedXL, child: player),
+                    child: ClipRRect(
+                      borderRadius: AppRadius.roundedXL,
+                      child: player ?? Container(color: Colors.black),
+                    ),
                   ),
                   const SizedBox(height: 8),
                   Align(
@@ -246,7 +297,10 @@ class _DashboardVideoPlayerState extends State<DashboardVideoPlayer>
               children: [
                 // The underlying player, which might stretch during rotation
                 Positioned.fill(
-                  child: Container(color: Colors.black, child: player),
+                  child: Container(
+                    color: Colors.black,
+                    child: player ?? const SizedBox.shrink(),
+                  ),
                 ),
                 // The blackout box that covers the player during transitions
                 Positioned.fill(

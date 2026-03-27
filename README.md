@@ -1,4 +1,4 @@
-# 🎓 GrowTube
+# 🎓 LevelUp Tube
 
 A **distraction-free YouTube learning app** built with Flutter. Save videos, track watch progress, and resume where you left off — without ads, recommendations, or comments.
 
