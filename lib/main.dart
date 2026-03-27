@@ -9,6 +9,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:levelup_tube/src/core/design_system/app_theme.dart';
 import 'package:levelup_tube/src/core/di/injection_container.dart' as di;
 import 'package:levelup_tube/src/core/router/app_router.dart';
+import 'package:levelup_tube/src/core/theme/theme_cubit.dart';
 import 'package:levelup_tube/src/core/utils/talker_bloc_observer.dart';
 import 'package:talker_flutter/talker_flutter.dart';
 
@@ -55,22 +56,28 @@ class GrowTubeApp extends StatelessWidget {
     return MultiBlocProvider(
       providers: [
         BlocProvider(
+          create: (context) => di.sl<ThemeCubit>()..load(),
+        ),
+        BlocProvider(
           create: (context) => di.sl<LibraryBloc>()..add(const LibraryInitializedEvent()),
         ),
       ],
-      child: MaterialApp.router(
-        title: 'Grow Tube',
-        debugShowCheckedModeBanner: false,
-        theme: ThemeData(
-          
-          colorScheme: ColorScheme.fromSeed(
-            seedColor: const Color(0xFF137FEC), // Primary
-            brightness: Brightness.dark,
-          ),
-          useMaterial3: true,
-          extensions: [AppColorsExtension.light],
-        ),
-        routerConfig: AppRouter.router,
+      child: BlocBuilder<ThemeCubit, ThemeState>(
+        builder: (context, themeState) {
+          final effectiveMode = themeState.mode == ThemeMode.system
+              ? (themeState.platformBrightness == Brightness.dark
+                  ? ThemeMode.dark
+                  : ThemeMode.light)
+              : themeState.mode;
+          return MaterialApp.router(
+            title: 'Grow Tube',
+            debugShowCheckedModeBanner: false,
+            theme: AppTheme.light(),
+            darkTheme: AppTheme.dark(),
+            themeMode: effectiveMode,
+            routerConfig: AppRouter.router,
+          );
+        },
       ),
     );
   }

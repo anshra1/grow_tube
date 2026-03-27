@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:levelup_tube/src/core/design_system/app_colors.dart';
+import 'package:levelup_tube/src/core/design_system/app_typography.dart';
 
 @immutable
 class AppColorsExtension extends ThemeExtension<AppColorsExtension> {
@@ -54,4 +55,43 @@ class AppColorsExtension extends ThemeExtension<AppColorsExtension> {
     textPrimary: AppColors.textPrimary,
     textSecondary: AppColors.textSecondary,
   );
+
+  static const dark = AppColorsExtension(
+    success: AppColors.success,
+    warning: AppColors.warning,
+    textPrimary: Color(0xFFF5F5F5),
+    textSecondary: Color(0xFFB0B8C4),
+  );
+}
+
+class AppTheme {
+  const AppTheme._();
+
+  static ThemeData light() {
+    final scheme = ColorScheme.fromSeed(
+      seedColor: AppColors.primary,
+      brightness: Brightness.light,
+    );
+
+    return ThemeData(
+      useMaterial3: true,
+      colorScheme: scheme,
+      textTheme: AppTypography.main,
+      extensions: const [AppColorsExtension.light],
+    );
+  }
+
+  static ThemeData dark() {
+    final scheme = ColorScheme.fromSeed(
+      seedColor: AppColors.primary,
+      brightness: Brightness.dark,
+    );
+
+    return ThemeData(
+      useMaterial3: true,
+      colorScheme: scheme,
+      textTheme: AppTypography.main,
+      extensions: const [AppColorsExtension.dark],
+    );
+  }
 }

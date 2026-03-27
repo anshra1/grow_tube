@@ -20,7 +20,10 @@ extension ContextExtensions on BuildContext {
 
   /// Access the AppColorsExtension
   AppColorsExtension get appColors =>
-      Theme.of(this).extension<AppColorsExtension>() ?? AppColorsExtension.light;
+      Theme.of(this).extension<AppColorsExtension>() ??
+      (Theme.of(this).brightness == Brightness.dark
+          ? AppColorsExtension.dark
+          : AppColorsExtension.light);
 
   /// Check if current theme is dark mode
   bool get isDarkMode => Theme.of(this).brightness == Brightness.dark;

@@ -144,15 +144,15 @@ class _DashboardContent extends StatelessWidget {
                     aspectRatio: 16 / 9,
                     child: Shimmer.fromColors(
                       baseColor: context.colorScheme.surfaceContainerHighest,
-                      highlightColor: context.colorScheme.surface,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: AppRadius.roundedXL,
+                        highlightColor: context.colorScheme.surface,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: context.colorScheme.surface,
+                            borderRadius: AppRadius.roundedXL,
+                          ),
                         ),
                       ),
                     ),
-                  ),
                   LibraryVideoLoadedState() when state.lastPlayVideo != null =>
                     DashboardVideoPlayer(video: state.lastPlayVideo!),
                   _ => const SizedBox.shrink(),

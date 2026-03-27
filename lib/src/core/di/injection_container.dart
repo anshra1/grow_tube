@@ -2,6 +2,8 @@ import 'package:get_it/get_it.dart';
 import 'package:levelup_tube/objectbox.g.dart'; // Generated
 import 'package:levelup_tube/src/core/services/logging/app_logger.dart';
 import 'package:levelup_tube/src/core/services/logging/talker_logging_service.dart';
+import 'package:levelup_tube/src/core/theme/theme_cubit.dart';
+import 'package:levelup_tube/src/core/theme/theme_preferences.dart';
 import 'package:levelup_tube/src/features/library/data/datasources/video_local_datasource.dart';
 import 'package:levelup_tube/src/features/library/data/datasources/video_remote_datasource.dart';
 import 'package:levelup_tube/src/features/library/data/datasources/youtube_api_service.dart';
@@ -10,6 +12,7 @@ import 'package:levelup_tube/src/features/library/domain/repositories/video_repo
 import 'package:levelup_tube/src/features/library/domain/usecases/library_usecases.dart';
 import 'package:levelup_tube/src/features/library/presentation/bloc/library_bloc.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:talker_flutter/talker_flutter.dart';
 
 final GetIt sl = GetIt.instance;
@@ -30,6 +33,12 @@ Future<void> init() async {
     );
   }
   sl.registerLazySingleton(() => YoutubeApiService(apiKey: apiKey));
+
+  // SharedPreferences
+  final prefs = await SharedPreferences.getInstance();
+  sl.registerSingleton<SharedPreferences>(prefs);
+  sl.registerLazySingleton(() => ThemePreferences(sl()));
+  sl.registerLazySingleton(() => ThemeCubit(sl()));
 
   // Services
   final talker = TalkerFlutter.init();

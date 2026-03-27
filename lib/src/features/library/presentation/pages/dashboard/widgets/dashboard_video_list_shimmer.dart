@@ -39,7 +39,7 @@ class DashboardVideoListShimmer extends StatelessWidget {
                     width: 120,
                     height: 70,
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: context.colorScheme.surface,
                       borderRadius: AppRadius.roundedM,
                     ),
                   ),
@@ -55,15 +55,23 @@ class DashboardVideoListShimmer extends StatelessWidget {
                         Container(
                           width: double.infinity,
                           height: 14,
-                          color: Colors.white,
+                          color: context.colorScheme.surface,
                         ),
                         const SizedBox(height: AppSizes.p4),
                         // Title line 2
-                        Container(width: 140, height: 14, color: Colors.white),
+                        Container(
+                          width: 140,
+                          height: 14,
+                          color: context.colorScheme.surface,
+                        ),
                         const SizedBox(height: AppSizes.p8),
 
                         // Channel name
-                        Container(width: 80, height: 10, color: Colors.white),
+                        Container(
+                          width: 80,
+                          height: 10,
+                          color: context.colorScheme.surface,
+                        ),
                         const SizedBox(height: AppSizes.p12),
 
                         // Progress Bar & Percentage
@@ -73,10 +81,14 @@ class DashboardVideoListShimmer extends StatelessWidget {
                             Container(
                               width: double.infinity,
                               height: 4,
-                              color: Colors.white,
+                              color: context.colorScheme.surface,
                             ),
                             const SizedBox(height: AppSizes.p4),
-                            Container(width: 60, height: 10, color: Colors.white),
+                            Container(
+                              width: 60,
+                              height: 10,
+                              color: context.colorScheme.surface,
+                            ),
                           ],
                         ),
                       ],
