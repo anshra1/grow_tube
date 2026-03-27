@@ -9,9 +9,12 @@ class AppStrings {
   static const String dashboardYoutubeUrl = 'YouTube URL';
   static const String dashboardYoutubeUrlHint = 'paste youtube url here';
   static const String dashboardAddToLibrary = 'Add to Library';
+  static const String dashboardPrivacyPolicy = 'Privacy Policy';
   static const String dashboardViewLogs = 'View Logs';
   static const String dashboardNoVideos = 'No videos yet. Add one!';
   static const String dashboardError = 'Error';
+  static const String dashboardUnableToOpenPrivacyPolicy =
+      'Unable to open privacy policy.';
   static const String dashboardDeleteTitle = 'Delete Video';
   static const String dashboardDeleteConfirm = 'Are you sure you want to delete';
 

@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LevelUp Tube Privacy Policy</title>
+  <meta
+    name="description"
+    content="Privacy Policy for LevelUp Tube, a distraction-free video learning app."
+  >
+  <style>
+    :root {
+      --bg: #f4f6f5;
+      --paper: #ffffff;
+      --ink: #151a18;
+      --muted: #5c6863;
+      --line: #d7ddd9;
+      --accent: #11c7a1;
+      --accent-deep: #0a7f68;
+      --shadow: 0 18px 45px rgba(18, 30, 26, 0.12);
+      --radius: 24px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at top left, rgba(17, 199, 161, 0.14), transparent 28%),
+        radial-gradient(circle at top right, rgba(10, 127, 104, 0.1), transparent 24%),
+        linear-gradient(180deg, #f8faf9 0%, var(--bg) 100%);
+    }
+
+    .shell {
+      width: min(960px, calc(100% - 32px));
+      margin: 40px auto;
+    }
+
+    .hero {
+      padding: 40px 32px 28px;
+      background: linear-gradient(135deg, #0f1312 0%, #1b2320 100%);
+      color: #f8fffc;
+      border-radius: 32px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      inset: auto -60px -70px auto;
+      width: 220px;
+      height: 220px;
+      background: radial-gradient(circle, rgba(17, 199, 161, 0.38) 0%, rgba(17, 199, 161, 0) 70%);
+      pointer-events: none;
+    }
+
+    .eyebrow {
+      display: inline-block;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(17, 199, 161, 0.14);
+      color: #8ff3dc;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 18px 0 12px;
+      font-size: clamp(32px, 5vw, 54px);
+      line-height: 1;
+      letter-spacing: -0.04em;
+    }
+
+    .subtitle {
+      margin: 0;
+      max-width: 680px;
+      color: rgba(248, 255, 252, 0.82);
+      font-size: 17px;
+      line-height: 1.65;
+    }
+
+    .meta {
+      margin-top: 24px;
+      color: rgba(248, 255, 252, 0.68);
+      font-size: 14px;
+    }
+
+    .card {
+      margin-top: 22px;
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 28px 24px;
+    }
+
+    h2 {
+      margin: 0 0 12px;
+      font-size: 22px;
+      letter-spacing: -0.03em;
+    }
+
+    p, li {
+      font-size: 16px;
+      line-height: 1.72;
+      color: #24302b;
+    }
+
+    p {
+      margin: 0 0 14px;
+    }
+
+    ul {
+      margin: 0;
+      padding-left: 20px;
+    }
+
+    li + li {
+      margin-top: 10px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 22px;
+    }
+
+    .note {
+      padding: 16px 18px;
+      border-radius: 18px;
+      background: #eefaf7;
+      border: 1px solid #cfeee5;
+      color: var(--accent-deep);
+      font-size: 15px;
+      line-height: 1.6;
+    }
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 0.95em;
+      background: #f1f5f3;
+      padding: 2px 6px;
+      border-radius: 6px;
+    }
+
+    .footer {
+      margin: 24px 0 40px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    @media (max-width: 720px) {
+      .shell {
+        width: min(100% - 20px, 960px);
+        margin: 20px auto;
+      }
+
+      .hero {
+        padding: 28px 22px 24px;
+        border-radius: 24px;
+      }
+
+      .card {
+        padding: 22px 18px;
+      }
+
+      .grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <section class="hero">
+      <div class="eyebrow">Privacy Policy</div>
+      <h1>LevelUp Tube</h1>
+      <p class="subtitle">
+        LevelUp Tube is a distraction-free learning app for saving YouTube videos,
+        tracking watch progress, and resuming where you left off. This page explains
+        what data the app uses and how that data is handled.
+      </p>
+      <div class="meta">Effective date: March 27, 2026</div>
+    </section>
+
+    <section class="card">
+      <h2>1. Information We Use</h2>
+      <p>LevelUp Tube is designed to use as little data as possible. The app may process the following information:</p>
+      <ul>
+        <li><strong>YouTube links you provide</strong> to add videos to your library.</li>
+        <li><strong>Clipboard text</strong> when the app checks whether you recently copied a YouTube link.</li>
+        <li><strong>Video metadata</strong> such as title, thumbnail, channel name, and duration, fetched from the YouTube Data API.</li>
+        <li><strong>Playback progress</strong> so the app can resume videos where you left off.</li>
+        <li><strong>Theme preference and basic local settings</strong> stored on your device.</li>
+      </ul>
+    </section>
+
+    <section class="grid">
+      <section class="card">
+        <h2>2. What We Store on Your Device</h2>
+        <p>The following data is stored locally on your device:</p>
+        <ul>
+          <li>Your saved video library.</li>
+          <li>Your watch progress and last played position.</li>
+          <li>Your app theme preference.</li>
+        </ul>
+        <p>This local data is used only to make the app function for you.</p>
+      </section>
+
+      <section class="card">
+        <h2>3. Clipboard Access</h2>
+        <p>
+          The app may read clipboard text to detect copied YouTube links and offer a quick
+          “Add” or “Watch Now” prompt.
+        </p>
+        <p>
+          Clipboard text is processed locally on your device. It is not stored remotely and
+          is not sent to our servers.
+        </p>
+      </section>
+    </section>
+
+    <section class="card">
+      <h2>4. Network Requests and Third-Party Services</h2>
+      <p>LevelUp Tube connects to third-party services only as needed to provide app functionality:</p>
+      <ul>
+        <li><strong>YouTube Data API v3</strong> to fetch video details for links you add.</li>
+        <li><strong>YouTube embedded player services</strong> to play videos inside the app.</li>
+        <li><strong>Network connectivity checks</strong> to detect when your device is offline or back online.</li>
+      </ul>
+      <p>
+        These services may receive technical request data such as your device IP address as part
+        of normal internet communication.
+      </p>
+      <div class="note">
+        LevelUp Tube does not provide its own account system, does not require login, and does not include ads,
+        analytics, or crash reporting in the current release.
+      </div>
+    </section>
+
+    <section class="grid">
+      <section class="card">
+        <h2>5. Data Sharing</h2>
+        <p>We do not sell your personal data.</p>
+        <p>
+          Data is only shared with third-party services when needed to deliver the app’s core
+          features, such as fetching video metadata or playing embedded YouTube content.
+        </p>
+      </section>
+
+      <section class="card">
+        <h2>6. Data Retention</h2>
+        <p>
+          Local app data remains on your device until you remove it by clearing app data or
+          uninstalling the app.
+        </p>
+      </section>
+    </section>
+
+    <section class="card">
+      <h2>7. Children’s Privacy</h2>
+      <p>
+        LevelUp Tube is not specifically directed to children. If you are a parent or guardian
+        and believe a child has provided personal information through the app, contact the app
+        publisher using the support details listed on the app store page.
+      </p>
+    </section>
+
+    <section class="card">
+      <h2>8. Changes to This Policy</h2>
+      <p>
+        This Privacy Policy may be updated from time to time. The latest version will be made
+        available on this page with an updated effective date.
+      </p>
+    </section>
+
+    <section class="card">
+      <h2>9. Contact</h2>
+      <p>
+        For privacy questions about LevelUp Tube, contact:
+        <a href="mailto:020ansh@gmail.com">020ansh@gmail.com</a>
+      </p>
+    </section>
+
+    <p class="footer">
+      This policy applies to the Android application published as <code>LevelUp</code> and branded as <code>LevelUp Tube</code>.
+    </p>
+  </main>
+</body>
+</html>

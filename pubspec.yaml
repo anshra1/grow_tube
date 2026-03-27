@@ -33,6 +33,7 @@ dependencies:
   talker_bloc_logger: ^5.1.13
   talker_flutter: ^5.1.13
   toastification: ^3.0.3
+  url_launcher: ^6.3.2
   uuid: ^4.4.0
   http: ^1.2.0
   youtube_player_iframe: ^5.2.2
