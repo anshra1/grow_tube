@@ -1,12 +1,12 @@
 import 'package:fpdart/fpdart.dart';
-import 'package:skill_tube/main.dart';
-import 'package:skill_tube/src/core/common/typedef.dart';
-import 'package:skill_tube/src/core/error/exception.dart';
-import 'package:skill_tube/src/core/error/failure.dart';
-import 'package:skill_tube/src/features/library/data/datasources/video_local_datasource.dart';
-import 'package:skill_tube/src/features/library/data/datasources/video_remote_datasource.dart';
-import 'package:skill_tube/src/features/library/domain/entities/video.dart';
-import 'package:skill_tube/src/features/library/domain/repositories/video_repository.dart';
+import 'package:levelup_tube/main.dart';
+import 'package:levelup_tube/src/core/common/typedef.dart';
+import 'package:levelup_tube/src/core/error/exception.dart';
+import 'package:levelup_tube/src/core/error/failure.dart';
+import 'package:levelup_tube/src/features/library/data/datasources/video_local_datasource.dart';
+import 'package:levelup_tube/src/features/library/data/datasources/video_remote_datasource.dart';
+import 'package:levelup_tube/src/features/library/domain/entities/video.dart';
+import 'package:levelup_tube/src/features/library/domain/repositories/video_repository.dart';
 import 'package:talker_flutter/talker_flutter.dart';
 
 class VideoRepositoryImpl implements VideoRepository {

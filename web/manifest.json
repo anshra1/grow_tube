@@ -1,6 +1,6 @@
 {
-    "name": "skill_tube",
-    "short_name": "skill_tube",
+    "name": "grow_tube",
+    "short_name": "grow_tube",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

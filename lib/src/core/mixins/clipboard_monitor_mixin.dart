@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:skill_tube/src/core/services/clipboard_service.dart';
+import 'package:levelup_tube/src/core/services/clipboard_service.dart';
 
 mixin ClipboardMonitorMixin<T extends StatefulWidget>
     on State<T>, WidgetsBindingObserver {

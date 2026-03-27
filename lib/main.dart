@@ -1,37 +1,37 @@
 import 'dart:async';
 
-import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+// import 'package:firebase_core/firebase_core.dart';
+// import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:skill_tube/firebase_options.dart';
-import 'package:skill_tube/src/core/design_system/app_theme.dart';
-import 'package:skill_tube/src/core/di/injection_container.dart' as di;
-import 'package:skill_tube/src/core/router/app_router.dart';
-import 'package:skill_tube/src/core/utils/talker_bloc_observer.dart';
+// import 'package:levelup_tube/firebase_options.dart';
+import 'package:levelup_tube/src/core/design_system/app_theme.dart';
+import 'package:levelup_tube/src/core/di/injection_container.dart' as di;
+import 'package:levelup_tube/src/core/router/app_router.dart';
+import 'package:levelup_tube/src/core/utils/talker_bloc_observer.dart';
 import 'package:talker_flutter/talker_flutter.dart';
 
-import 'package:skill_tube/src/features/library/presentation/bloc/library_bloc.dart';
-import 'package:skill_tube/src/features/library/presentation/bloc/library_event.dart';
+import 'package:levelup_tube/src/features/library/presentation/bloc/library_bloc.dart';
+import 'package:levelup_tube/src/features/library/presentation/bloc/library_event.dart';
 
 late final Talker talker;
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  // await Firebase.initializeApp(
+  //   options: DefaultFirebaseOptions.currentPlatform,
+  // );
 
   // Pass all uncaught "fatal" errors from the framework to Crashlytics
   FlutterError.onError = (errorDetails) {
-    FirebaseCrashlytics.instance.recordFlutterFatalError(errorDetails);
+  //  FirebaseCrashlytics.instance.recordFlutterFatalError(errorDetails);
   };
 
   // Pass all uncaught asynchronous errors that aren't handled by the Flutter framework to Crashlytics
   PlatformDispatcher.instance.onError = (error, stack) {
-    FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
+ //   FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
     return true;
   };
 
@@ -44,11 +44,11 @@ Future<void> main() async {
   // Initialize DI
   await di.init();
 
-  runApp(const SkillTubeApp());
+  runApp(const GrowTubeApp());
 }
 
-class SkillTubeApp extends StatelessWidget {
-  const SkillTubeApp({super.key});
+class GrowTubeApp extends StatelessWidget {
+  const GrowTubeApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -59,9 +59,10 @@ class SkillTubeApp extends StatelessWidget {
         ),
       ],
       child: MaterialApp.router(
-        title: 'Skill Tube',
+        title: 'Grow Tube',
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
+          
           colorScheme: ColorScheme.fromSeed(
             seedColor: const Color(0xFF137FEC), // Primary
             brightness: Brightness.dark,

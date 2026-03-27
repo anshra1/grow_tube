@@ -1,4 +1,4 @@
-import 'package:skill_tube/src/core/services/logging/logging_service.dart';
+import 'package:levelup_tube/src/core/services/logging/logging_service.dart';
 import 'package:talker/talker.dart' hide LogLevel;
 
 /// Talker-based implementation of [LoggingService].

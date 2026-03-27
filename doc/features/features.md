@@ -1,4 +1,4 @@
-# SkillTube — Feature Specifications (Clean Architecture)
+# GrowTube — Feature Specifications (Clean Architecture)
 
 > **Source of Truth:** [app_and_features.md](../app/app_and_features.md) (PRD v3.0)
 > **Architecture:** [clean_architecture_guide.md](../architecture/clean_architecture_guide.md)

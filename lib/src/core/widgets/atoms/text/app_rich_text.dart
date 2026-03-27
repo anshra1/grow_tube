@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:skill_tube/src/core/utils/extensions/context_extensions.dart';
+import 'package:levelup_tube/src/core/utils/extensions/context_extensions.dart';
 
 /// A widget that displays text where specific target substrings are highlighted
 /// with a different color.

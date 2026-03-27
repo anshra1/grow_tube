@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:skill_tube/src/core/widgets/atoms/buttons/app_base_button.dart';
-import 'package:skill_tube/src/core/widgets/atoms/buttons/app_button_shape.dart';
-import 'package:skill_tube/src/core/widgets/atoms/buttons/app_button_state.dart';
+import 'package:levelup_tube/src/core/widgets/atoms/buttons/app_base_button.dart';
+import 'package:levelup_tube/src/core/widgets/atoms/buttons/app_button_shape.dart';
+import 'package:levelup_tube/src/core/widgets/atoms/buttons/app_button_state.dart';
 
 /// A primary button used for the main action on a screen.
 /// Typically has a solid background color (primary theme color) and contrasting text.

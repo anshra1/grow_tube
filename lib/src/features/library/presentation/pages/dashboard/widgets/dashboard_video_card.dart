@@ -3,14 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
 import 'package:shimmer/shimmer.dart';
-import 'package:skill_tube/src/core/design_system/app_radius.dart';
-import 'package:skill_tube/src/core/design_system/app_shadows.dart';
-import 'package:skill_tube/src/core/design_system/app_sizes.dart';
-import 'package:skill_tube/src/core/utils/extensions/context_extensions.dart';
-import 'package:skill_tube/src/features/library/domain/entities/video.dart';
-import 'package:skill_tube/src/features/library/presentation/bloc/library_bloc.dart';
-import 'package:skill_tube/src/features/library/presentation/bloc/library_event.dart';
-import 'package:skill_tube/src/features/library/presentation/pages/dashboard/widgets/delete_video_dialog.dart';
+import 'package:levelup_tube/src/core/design_system/app_radius.dart';
+import 'package:levelup_tube/src/core/design_system/app_shadows.dart';
+import 'package:levelup_tube/src/core/design_system/app_sizes.dart';
+import 'package:levelup_tube/src/core/utils/extensions/context_extensions.dart';
+import 'package:levelup_tube/src/features/library/domain/entities/video.dart';
+import 'package:levelup_tube/src/features/library/presentation/bloc/library_bloc.dart';
+import 'package:levelup_tube/src/features/library/presentation/bloc/library_event.dart';
+import 'package:levelup_tube/src/features/library/presentation/pages/dashboard/widgets/delete_video_dialog.dart';
 
 class DashboardVideoCard extends StatelessWidget {
   const DashboardVideoCard({required this.video, super.key});

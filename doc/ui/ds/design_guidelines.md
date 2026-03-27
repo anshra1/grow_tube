@@ -2,7 +2,7 @@
 
 > **⚠️ STRICT RULE:** Adherence to this design system is mandatory. All UI code must follow these guidelines. PRs with hardcoded values will be rejected.
 
-This document outlines the standards for implementing UI in the `skill_tube` project. We follow the **Material Design 3** system, adapted for our specific brand needs.
+This document outlines the standards for implementing UI in the `grow_tube` project. We follow the **Material Design 3** system, adapted for our specific brand needs.
 
 ---
 
@@ -37,7 +37,7 @@ We use the standard Material 3 `ColorScheme` plus a custom extension `AppColorsE
 Use the `context` extensions provided in `context_extensions.dart`.
 
 ```dart
-import 'package:skill_tube/src/core/utils/extensions/context_extensions.dart';
+import 'package:grow_tube/src/core/utils/extensions/context_extensions.dart';
 
 // ✅ GOOD
 Container(
@@ -114,7 +114,7 @@ All padding, margins, and gaps must use `AppSpacing`.
 
 ### Imports
 ```dart
-import 'package:skill_tube/src/core/design_system/app_spacing.dart';
+import 'package:grow_tube/src/core/design_system/app_spacing.dart';
 ```
 
 ### Usage
@@ -152,7 +152,7 @@ SizedBox(height: 10)
 Use `AppRadius` for all border radii.
 
 ```dart
-import 'package:skill_tube/src/core/design_system/app_radius.dart';
+import 'package:grow_tube/src/core/design_system/app_radius.dart';
 
 // ✅ GOOD
 Container(
@@ -181,7 +181,7 @@ borderRadius: BorderRadius.circular(10)
 Use `AppSizes` for standard component heights and widths.
 
 ```dart
-import 'package:skill_tube/src/core/design_system/app_sizes.dart';
+import 'package:grow_tube/src/core/design_system/app_sizes.dart';
 
 // ✅ GOOD
 SizedBox(
@@ -222,7 +222,7 @@ height: 45
 Use `AppShadows` for consistent depth and elevation.
 
 ```dart
-import 'package:skill_tube/src/core/design_system/app_shadows.dart';
+import 'package:grow_tube/src/core/design_system/app_shadows.dart';
 
 // ✅ GOOD
 Container(
@@ -252,7 +252,7 @@ boxShadow: [BoxShadow(blurRadius: 10, color: Colors.black)]
 Use `AppDurations` for consistent motion.
 
 ```dart
-import 'package:skill_tube/src/core/design_system/app_durations.dart';
+import 'package:grow_tube/src/core/design_system/app_durations.dart';
 
 // ✅ GOOD
 AnimatedOpacity(
@@ -282,7 +282,7 @@ AnimatedOpacity(
 
 ### Usage
 ```dart
-import 'package:skill_tube/src/core/constants/app_strings.dart';
+import 'package:grow_tube/src/core/constants/app_strings.dart';
 
 // ✅ GOOD
 Text(AppStrings.loginTitle)
@@ -302,7 +302,7 @@ Text('Welcome Back')
 
 ### Usage
 ```dart
-import 'package:skill_tube/src/core/constants/app_icons.dart';
+import 'package:grow_tube/src/core/constants/app_icons.dart';
 
 // ✅ GOOD
 Icon(AppIcons.back)

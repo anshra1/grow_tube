@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:skill_tube/main.dart';
-import 'package:skill_tube/src/core/constants/app_icons.dart';
-import 'package:skill_tube/src/core/constants/app_strings.dart';
-import 'package:skill_tube/src/core/design_system/app_sizes.dart';
-import 'package:skill_tube/src/core/utils/extensions/context_extensions.dart';
+import 'package:levelup_tube/main.dart';
+import 'package:levelup_tube/src/core/constants/app_icons.dart';
+import 'package:levelup_tube/src/core/constants/app_strings.dart';
+import 'package:levelup_tube/src/core/design_system/app_sizes.dart';
+import 'package:levelup_tube/src/core/utils/extensions/context_extensions.dart';
 import 'package:talker_flutter/talker_flutter.dart';
 
 class DashboardHeader extends StatelessWidget {
@@ -18,7 +18,7 @@ class DashboardHeader extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(
-            'GrowTube',
+            'LevelUp Tube',
             style: GoogleFonts.oswald(
               fontSize: 26,
               fontWeight: FontWeight.bold,

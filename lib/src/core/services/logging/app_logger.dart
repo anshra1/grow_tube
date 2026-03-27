@@ -1,4 +1,4 @@
-import 'package:skill_tube/src/core/services/logging/logging_service.dart';
+import 'package:levelup_tube/src/core/services/logging/logging_service.dart';
 
 /// Unified logging facade that routes logs to multiple backends.
 ///

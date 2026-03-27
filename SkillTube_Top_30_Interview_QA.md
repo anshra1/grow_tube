@@ -1,4 +1,4 @@
-# SkillTube — Top 30 Interview Questions & Answers
+# GrowTube — Top 30 Interview Questions & Answers
 
 ---
 
@@ -8,7 +8,7 @@
 
 ### Q1. Tell me about your project. What problem does it solve?
 
-**A:** SkillTube is a distraction-free YouTube learning app built with Flutter. The problem it solves is simple — YouTube is full of distractions. Ads, recommendations, comments, and shorts pull you away from focused learning. SkillTube lets you paste a YouTube URL, fetch video metadata automatically, save it to a personal library, and watch it in a clean player with no distractions. It also tracks your watch progress and resumes exactly where you left off.
+**A:** GrowTube is a distraction-free YouTube learning app built with Flutter. The problem it solves is simple — YouTube is full of distractions. Ads, recommendations, comments, and shorts pull you away from focused learning. GrowTube lets you paste a YouTube URL, fetch video metadata automatically, save it to a personal library, and watch it in a clean player with no distractions. It also tracks your watch progress and resumes exactly where you left off.
 
 ---
 

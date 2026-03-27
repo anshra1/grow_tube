@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:skill_tube/src/core/design_system/app_sizes.dart';
-import 'package:skill_tube/src/features/library/domain/entities/video.dart';
-import 'package:skill_tube/src/features/library/presentation/pages/dashboard/widgets/dashboard_video_card.dart';
+import 'package:levelup_tube/src/core/design_system/app_sizes.dart';
+import 'package:levelup_tube/src/features/library/domain/entities/video.dart';
+import 'package:levelup_tube/src/features/library/presentation/pages/dashboard/widgets/dashboard_video_card.dart';
 
 class DashboardVideoList extends StatelessWidget {
   const DashboardVideoList({required this.videos, super.key});

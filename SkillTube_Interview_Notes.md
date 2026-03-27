@@ -1,8 +1,8 @@
-# SkillTube — Interview Preparation Notes
+# GrowTube — Interview Preparation Notes
 
 ## 1. Elevator Pitch (30 seconds)
 
-> **SkillTube** is a **distraction-free YouTube learning app** built with Flutter. Users paste a YouTube URL, the app fetches metadata (title, thumbnail, duration) using `youtube_explode_dart`, saves it to a local **ObjectBox** database, and plays the video inline using `youtube_player_iframe` — all without ads, recommendations, or comments. It tracks watch progress automatically and resumes where you left off.
+> **GrowTube** is a **distraction-free YouTube learning app** built with Flutter. Users paste a YouTube URL, the app fetches metadata (title, thumbnail, duration) using `youtube_explode_dart`, saves it to a local **ObjectBox** database, and plays the video inline using `youtube_player_iframe` — all without ads, recommendations, or comments. It tracks watch progress automatically and resumes where you left off.
 
 ---
 

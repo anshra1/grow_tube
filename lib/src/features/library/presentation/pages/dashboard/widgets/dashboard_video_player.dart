@@ -5,11 +5,11 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:skill_tube/main.dart';
-import 'package:skill_tube/src/core/design_system/app_radius.dart';
-import 'package:skill_tube/src/features/library/domain/entities/video.dart';
-import 'package:skill_tube/src/features/library/presentation/bloc/library_bloc.dart';
-import 'package:skill_tube/src/features/library/presentation/bloc/library_event.dart';
+import 'package:levelup_tube/main.dart';
+import 'package:levelup_tube/src/core/design_system/app_radius.dart';
+import 'package:levelup_tube/src/features/library/domain/entities/video.dart';
+import 'package:levelup_tube/src/features/library/presentation/bloc/library_bloc.dart';
+import 'package:levelup_tube/src/features/library/presentation/bloc/library_event.dart';
 import 'package:talker_flutter/talker_flutter.dart';
 import 'package:youtube_player_iframe/youtube_player_iframe.dart';
 

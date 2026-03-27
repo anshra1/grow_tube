@@ -1,0 +1,13 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "grow_tube",
+            "request": "launch",
+            "type": "dart",
+            "toolArgs": [
+                "--dart-define=YOUTUBE_API_KEY=AIzaSyDuMfvPDlZRIDMRYPrtzfB--Mxd3Y7gQTg"
+            ]
+        }
+    ]
+}

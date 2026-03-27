@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:skill_tube/src/features/library/domain/entities/video.dart';
+import 'package:levelup_tube/src/features/library/domain/entities/video.dart';
 
 sealed class LibraryEvent extends Equatable {
   const LibraryEvent();

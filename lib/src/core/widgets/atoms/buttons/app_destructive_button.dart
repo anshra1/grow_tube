@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:skill_tube/src/core/widgets/atoms/buttons/app_base_button.dart';
-import 'package:skill_tube/src/core/widgets/atoms/buttons/app_button_shape.dart';
-import 'package:skill_tube/src/core/widgets/atoms/buttons/app_button_state.dart';
+import 'package:levelup_tube/src/core/widgets/atoms/buttons/app_base_button.dart';
+import 'package:levelup_tube/src/core/widgets/atoms/buttons/app_button_shape.dart';
+import 'package:levelup_tube/src/core/widgets/atoms/buttons/app_button_state.dart';
 
 /// A button used for destructive actions like delete, remove, or sign out.
 /// Typically uses the error color from the theme.

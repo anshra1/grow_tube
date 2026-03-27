@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:skill_tube/src/core/constants/app_strings.dart';
-import 'package:skill_tube/src/core/design_system/app_radius.dart';
-import 'package:skill_tube/src/core/design_system/app_sizes.dart';
-import 'package:skill_tube/src/core/utils/extensions/context_extensions.dart';
+import 'package:levelup_tube/src/core/constants/app_strings.dart';
+import 'package:levelup_tube/src/core/design_system/app_radius.dart';
+import 'package:levelup_tube/src/core/design_system/app_sizes.dart';
+import 'package:levelup_tube/src/core/utils/extensions/context_extensions.dart';
 
 class DeleteVideoDialog extends StatelessWidget {
   const DeleteVideoDialog({

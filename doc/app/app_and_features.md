@@ -1,14 +1,14 @@
-# SkillTube — Product Requirements Document
+# GrowTube — Product Requirements Document
 
 > **Audience:** Interns, new developers, and AI assistants.
-> This is the **single source of truth** for what SkillTube does and how it should behave.
+> This is the **single source of truth** for what GrowTube does and how it should behave.
 > **Version:** 3.1 · **Updated:** 2026-02-19
 
 ---
 
 ## 1. Core Mission
 
-SkillTube is a **distraction-free learning app** that layers professional video controls over YouTube educational content. It strips away entertainment noise (comments, recommendations, Shorts) and adds MX Player–style gestures plus automatic progress tracking — turning passive watching into intentional, trackable learning.
+GrowTube is a **distraction-free learning app** that layers professional video controls over YouTube educational content. It strips away entertainment noise (comments, recommendations, Shorts) and adds MX Player–style gestures plus automatic progress tracking — turning passive watching into intentional, trackable learning.
 
 ---
 

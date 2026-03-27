@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:skill_tube/src/core/widgets/atoms/buttons/app_button_state.dart';
+import 'package:levelup_tube/src/core/widgets/atoms/buttons/app_button_state.dart';
 
 /// A button that looks like a hyperlink.
 /// Used for inline actions or "Forgot Password" type links.

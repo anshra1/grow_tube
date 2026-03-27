@@ -1,7 +1,7 @@
-import 'package:skill_tube/src/core/common/typedef.dart';
-import 'package:skill_tube/src/core/common/usecase.dart';
-import 'package:skill_tube/src/features/library/domain/entities/video.dart';
-import 'package:skill_tube/src/features/library/domain/repositories/video_repository.dart';
+import 'package:levelup_tube/src/core/common/typedef.dart';
+import 'package:levelup_tube/src/core/common/usecase.dart';
+import 'package:levelup_tube/src/features/library/domain/entities/video.dart';
+import 'package:levelup_tube/src/features/library/domain/repositories/video_repository.dart';
 
 // ══════════════════════════════════════════════════════════════════════════════
 // GET ALL VIDEOS
@@ -46,7 +46,7 @@ class GetLastPlayedVideo extends FutureUseCaseWithoutParams<Video?> {
 
 /// Adds a new video to the library from a YouTube URL.
 ///
-/// Fetches metadata via `youtube_explode_dart` and persists to ObjectBox.
+/// Fetches metadata via YouTube Data API v3 and persists to ObjectBox.
 class AddVideo extends FutureUseCaseWithParams<Video, String> {
   const AddVideo(this._repository);
   final VideoRepository _repository;
@@ -82,7 +82,8 @@ class UpdateVideoProgressParams {
 }
 
 /// Updates the watch progress and last played timestamp of a video.
-class UpdateVideoProgress extends FutureUseCaseWithParams<void, UpdateVideoProgressParams> {
+class UpdateVideoProgress
+    extends FutureUseCaseWithParams<void, UpdateVideoProgressParams> {
   const UpdateVideoProgress(this._repository);
   final VideoRepository _repository;
 

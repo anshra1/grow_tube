@@ -1,4 +1,4 @@
-import 'package:skill_tube/src/core/common/typedef.dart';
+import 'package:levelup_tube/src/core/common/typedef.dart';
 
 abstract class FutureUseCaseWithParams<T, Params> {
   const FutureUseCaseWithParams();

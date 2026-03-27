@@ -48,3 +48,6 @@ firebase_options.dart
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# App Configuration
+config.json

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:skill_tube/src/core/widgets/atoms/buttons/app_base_button.dart';
-import 'package:skill_tube/src/core/widgets/atoms/buttons/app_button_shape.dart';
-import 'package:skill_tube/src/core/widgets/atoms/buttons/app_button_state.dart';
+import 'package:levelup_tube/src/core/widgets/atoms/buttons/app_base_button.dart';
+import 'package:levelup_tube/src/core/widgets/atoms/buttons/app_button_shape.dart';
+import 'package:levelup_tube/src/core/widgets/atoms/buttons/app_button_state.dart';
 
 enum SocialBrand { google, apple, facebook, github }
 

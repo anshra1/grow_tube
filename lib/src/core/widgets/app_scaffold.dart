@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:skill_tube/src/core/utils/extensions/context_extensions.dart';
-import 'package:skill_tube/src/core/widgets/app_keyboard_dismiss.dart';
+import 'package:levelup_tube/src/core/utils/extensions/context_extensions.dart';
+import 'package:levelup_tube/src/core/widgets/app_keyboard_dismiss.dart';
 
 class AppScaffold extends StatelessWidget {
   const AppScaffold({

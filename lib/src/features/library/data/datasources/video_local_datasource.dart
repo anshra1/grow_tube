@@ -1,7 +1,7 @@
-import 'package:skill_tube/main.dart';
-import 'package:skill_tube/objectbox.g.dart'; // Generated bindings
-import 'package:skill_tube/src/core/error/exception.dart';
-import 'package:skill_tube/src/features/library/data/models/video_model.dart';
+import 'package:levelup_tube/main.dart';
+import 'package:levelup_tube/objectbox.g.dart'; // Generated bindings
+import 'package:levelup_tube/src/core/error/exception.dart';
+import 'package:levelup_tube/src/features/library/data/models/video_model.dart';
 import 'package:talker_flutter/talker_flutter.dart';
 
 abstract class VideoLocalDataSource {

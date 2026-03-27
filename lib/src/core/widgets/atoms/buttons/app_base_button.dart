@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:skill_tube/src/core/widgets/atoms/buttons/app_button_shape.dart';
-import 'package:skill_tube/src/core/widgets/atoms/buttons/app_button_state.dart';
+import 'package:levelup_tube/src/core/widgets/atoms/buttons/app_button_shape.dart';
+import 'package:levelup_tube/src/core/widgets/atoms/buttons/app_button_state.dart';
 
 /// A customizable base button that serves as the foundation for other button types.
 /// Uses [ElevatedButton] internally to leverage Material Design's built-in

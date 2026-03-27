@@ -1,5 +1,5 @@
-import 'package:skill_tube/src/core/common/typedef.dart';
-import 'package:skill_tube/src/features/library/domain/entities/video.dart';
+import 'package:levelup_tube/src/core/common/typedef.dart';
+import 'package:levelup_tube/src/features/library/domain/entities/video.dart';
 
 /// Contract for video library data operations.
 ///
@@ -18,7 +18,7 @@ abstract class VideoRepository {
   /// Adds a new video to the library from a YouTube URL.
   ///
   /// Fetches metadata (title, thumbnail, channel, duration) via
-  /// `youtube_explode_dart` and saves to ObjectBox.
+  /// YouTube Data API v3 and saves to ObjectBox.
   ///
   // ignore: comment_references
   /// Returns a [VideoFailure] if:

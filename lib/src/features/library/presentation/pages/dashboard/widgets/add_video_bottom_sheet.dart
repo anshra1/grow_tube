@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:skill_tube/src/core/constants/app_strings.dart';
-import 'package:skill_tube/src/core/design_system/app_sizes.dart';
-import 'package:skill_tube/src/core/utils/extensions/context_extensions.dart';
+import 'package:levelup_tube/src/core/constants/app_strings.dart';
+import 'package:levelup_tube/src/core/design_system/app_sizes.dart';
+import 'package:levelup_tube/src/core/utils/extensions/context_extensions.dart';
 
 class AddVideoBottomSheet extends StatefulWidget {
   const AddVideoBottomSheet({required this.onAdd, super.key});

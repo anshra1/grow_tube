@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:skill_tube/src/core/design_system/app_theme.dart';
+import 'package:levelup_tube/src/core/design_system/app_theme.dart';
 
 extension ContextExtensions on BuildContext {
   // ============================================================

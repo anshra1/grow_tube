@@ -90,12 +90,12 @@ BEGIN
         BLOCK "040904e4"
         BEGIN
             VALUE "CompanyName", "com.example" "\0"
-            VALUE "FileDescription", "skill_tube" "\0"
+            VALUE "FileDescription", "grow_tube" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
-            VALUE "InternalName", "skill_tube" "\0"
+            VALUE "InternalName", "grow_tube" "\0"
             VALUE "LegalCopyright", "Copyright (C) 2026 com.example. All rights reserved." "\0"
-            VALUE "OriginalFilename", "skill_tube.exe" "\0"
-            VALUE "ProductName", "skill_tube" "\0"
+            VALUE "OriginalFilename", "grow_tube.exe" "\0"
+            VALUE "ProductName", "grow_tube" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END

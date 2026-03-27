@@ -1,4 +1,4 @@
-# 🎓 SkillTube
+# 🎓 GrowTube
 
 A **distraction-free YouTube learning app** built with Flutter. Save videos, track watch progress, and resume where you left off — without ads, recommendations, or comments.
 
@@ -108,8 +108,8 @@ flutter pub get
 # Generate ObjectBox & Freezed code
 dart run build_runner build --delete-conflicting-outputs
 
-# Run the app
-flutter run
+# Run the app (YouTube API key required)
+flutter run --dart-define=YOUTUBE_API_KEY=YOUR_KEY
 ```
 
 ### Firebase Setup

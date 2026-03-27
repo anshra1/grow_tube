@@ -1,8 +1,8 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:skill_tube/src/features/library/domain/entities/video.dart';
-import 'package:skill_tube/src/features/library/domain/usecases/library_usecases.dart';
-import 'package:skill_tube/src/features/library/presentation/bloc/library_event.dart';
-import 'package:skill_tube/src/features/library/presentation/bloc/library_state.dart';
+import 'package:levelup_tube/src/features/library/domain/entities/video.dart';
+import 'package:levelup_tube/src/features/library/domain/usecases/library_usecases.dart';
+import 'package:levelup_tube/src/features/library/presentation/bloc/library_event.dart';
+import 'package:levelup_tube/src/features/library/presentation/bloc/library_state.dart';
 
 class LibraryBloc extends Bloc<LibraryEvent, LibraryState> {
   LibraryBloc({

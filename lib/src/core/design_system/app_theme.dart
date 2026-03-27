@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:skill_tube/src/core/design_system/app_colors.dart';
+import 'package:levelup_tube/src/core/design_system/app_colors.dart';
 
 @immutable
 class AppColorsExtension extends ThemeExtension<AppColorsExtension> {
