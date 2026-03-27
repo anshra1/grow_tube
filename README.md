@@ -8,12 +8,14 @@ A **distraction-free YouTube learning app** built with Flutter. Save videos, tra
 
 | Feature | Description |
 |---|---|
-| 📥 **Save Videos** | Paste any YouTube URL → metadata (title, thumbnail, duration, channel) is fetched automatically |
+| 📥 **Save Videos** | Paste any YouTube URL → metadata is fetched via YouTube Data API v3 |
 | ▶️ **Inline Player** | Distraction-free YouTube player — no ads, no recommendations, no comments |
 | 📊 **Progress Tracking** | Auto-saves watch position every 60 seconds. Resume exactly where you left off |
 | 🔄 **Smart Resume** | Videos watched >95% restart from the beginning; others resume from saved position |
 | 📋 **Clipboard Detection** | Copy a YouTube URL anywhere → open the app → instant "Add / Watch Now" prompt |
 | 📱 **Fullscreen Mode** | Custom landscape fullscreen with smooth fade transition |
+| 🌗 **Theme Toggle** | Switch between light, dark, and system theme |
+| 📶 **Offline Alerts** | Toasts when internet drops or reconnects, so you know why YouTube buffers |
 | 🗑️ **Library Management** | Long-press to delete. Tap to play. Hero video player shows your last watched video |
 
 ---
@@ -41,10 +43,11 @@ Built with **Clean Architecture** — 3 layers with strict dependency rules:
 lib/src/
 ├── core/
 │   ├── common/        # ResultFuture typedef, UseCase base classes
+│   ├── connectivity/  # ConnectivityCubit (online/offline state)
 │   ├── di/            # GetIt dependency injection
 │   ├── error/         # Exception & Failure hierarchy
 │   ├── router/        # GoRouter setup
-│   ├── services/      # ClipboardService, Logging (AppLogger facade)
+│   ├── services/      # ClipboardService, Connectivity, Logging (AppLogger facade)
 │   ├── mixins/        # ClipboardMonitorMixin
 │   ├── design_system/ # Design tokens (sizes, radius, shadows, colors, theme)
 │   └── widgets/       # Reusable UI components (Atomic Design buttons)
@@ -68,8 +71,10 @@ lib/src/
 | **Equality** | `equatable` | Value equality for BLoC states & Failure classes |
 | **DI** | `get_it` | Service locator with lazy singletons |
 | **Routing** | `go_router` | Declarative navigation with route observer |
-| **Video Metadata** | `youtube_explode_dart` | Fetches metadata without API keys |
+| **Networking** | `http` | YouTube Data API v3 requests |
+| **Video Metadata** | YouTube Data API v3 | Stable metadata via REST (API key required) |
 | **Video Player** | `youtube_player_iframe` | Distraction-free embedded player |
+| **Connectivity** | `internet_connection_checker_plus` | Online/offline detection for toasts |
 | **Logging** | `talker` | Structured logging with in-app log viewer |
 | **Crash Reporting** | `firebase_crashlytics` | Production error tracking |
 | **Image Caching** | `cached_network_image` | Thumbnail caching with shimmer |
@@ -108,7 +113,7 @@ flutter pub get
 # Generate ObjectBox & Freezed code
 dart run build_runner build --delete-conflicting-outputs
 
-# Run the app (YouTube API key required)
+# Run the app (YouTube Data API v3 key required)
 flutter run --dart-define=YOUTUBE_API_KEY=YOUR_KEY
 ```
 

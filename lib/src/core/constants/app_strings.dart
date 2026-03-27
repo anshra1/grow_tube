@@ -15,6 +15,14 @@ class AppStrings {
   static const String dashboardDeleteTitle = 'Delete Video';
   static const String dashboardDeleteConfirm = 'Are you sure you want to delete';
 
+  // Network
+  static const String networkOfflineTitle = 'Network issue';
+  static const String networkOfflineMessage =
+      'YouTube is offline. Check your internet and try again.';
+  static const String networkOnlineTitle = 'Back online';
+  static const String networkOnlineMessage =
+      'Connection restored. YouTube should work now.';
+
   // Common
   static const String commonCancel = 'Cancel';
   static const String commonDelete = 'Delete';
