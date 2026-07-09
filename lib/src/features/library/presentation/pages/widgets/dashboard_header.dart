@@ -8,7 +8,7 @@ import 'package:levelup_tube/src/core/constants/app_links.dart';
 import 'package:levelup_tube/src/core/constants/app_strings.dart';
 import 'package:levelup_tube/src/core/design_system/app_sizes.dart';
 import 'package:levelup_tube/src/core/theme/theme_cubit.dart';
-import 'package:levelup_tube/src/core/utils/extensions/context_extensions.dart';
+import 'package:levelup_tube/src/core/extensions/context_extensions.dart';
 import 'package:talker_flutter/talker_flutter.dart';
 import 'package:toastification/toastification.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -79,7 +79,7 @@ class _DashboardHeaderState extends State<DashboardHeader> {
             onTap: _handleTitleTap,
             child: Text(
               'LevelUp',
-              style: GoogleFonts.oswald(
+              style: GoogleFonts.poppins(
                 fontSize: 26,
                 fontWeight: FontWeight.bold,
                 color: context.colorScheme.onSurface,
@@ -114,7 +114,6 @@ class _DashboardHeaderState extends State<DashboardHeader> {
                   ),
                 ],
               ),
-             
             ],
           ),
         ],
@@ -132,5 +131,3 @@ class _DashboardHeaderState extends State<DashboardHeader> {
 }
 
 enum _HeaderMenuAction { privacyPolicy }
-
-

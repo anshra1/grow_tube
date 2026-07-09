@@ -7,14 +7,14 @@ import 'package:shimmer/shimmer.dart';
 import 'package:levelup_tube/src/core/design_system/app_radius.dart';
 import 'package:levelup_tube/src/core/design_system/app_shadows.dart';
 import 'package:levelup_tube/src/core/design_system/app_sizes.dart';
-import 'package:levelup_tube/src/core/connectivity/connectivity_cubit.dart';
-import 'package:levelup_tube/src/core/connectivity/connectivity_toast_controller.dart';
+import 'package:levelup_tube/src/features/connectivity/presentation/bloc/connectivity_cubit.dart';
+import 'package:levelup_tube/src/features/connectivity/presentation/widgets/connectivity_toast_controller.dart';
 import 'package:levelup_tube/src/core/di/injection_container.dart' as di;
-import 'package:levelup_tube/src/core/utils/extensions/context_extensions.dart';
+import 'package:levelup_tube/src/core/extensions/context_extensions.dart';
 import 'package:levelup_tube/src/features/library/domain/entities/video.dart';
 import 'package:levelup_tube/src/features/library/presentation/bloc/library_bloc.dart';
 import 'package:levelup_tube/src/features/library/presentation/bloc/library_event.dart';
-import 'package:levelup_tube/src/features/library/presentation/pages/dashboard/widgets/delete_video_dialog.dart';
+import 'package:levelup_tube/src/features/library/presentation/pages/widgets/delete_video_dialog.dart';
 
 class DashboardVideoCard extends StatelessWidget {
   const DashboardVideoCard({required this.video, super.key});

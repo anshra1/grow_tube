@@ -6,12 +6,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:levelup_tube/main.dart';
-import 'package:levelup_tube/src/core/connectivity/connectivity_cubit.dart';
+import 'package:levelup_tube/src/features/connectivity/presentation/bloc/connectivity_cubit.dart';
 import 'package:levelup_tube/src/core/design_system/app_radius.dart';
 import 'package:levelup_tube/src/features/library/domain/entities/video.dart';
 import 'package:levelup_tube/src/features/library/presentation/bloc/library_bloc.dart';
 import 'package:levelup_tube/src/features/library/presentation/bloc/library_event.dart';
 import 'package:talker_flutter/talker_flutter.dart';
+import 'package:toastification/toastification.dart';
 import 'package:youtube_player_iframe/youtube_player_iframe.dart';
 import 'package:toastification/toastification.dart';
 
@@ -181,6 +182,7 @@ class _DashboardVideoPlayerState extends State<DashboardVideoPlayer>
         enableJavaScript: true,
         strictRelatedVideos: false,
         playsInline: true,
+        enableCaption: false,
         origin: 'https://www.youtube-nocookie.com',
       ),
     );
@@ -365,7 +367,7 @@ class _DashboardVideoPlayerState extends State<DashboardVideoPlayer>
                     builder: (context, child) {
                       return IgnorePointer(
                         child: Container(
-                          color: Colors.black.withOpacity(_fadeAnimation.value),
+                          color: Colors.black.withValues(alpha: _fadeAnimation.value),
                         ),
                       );
                     },

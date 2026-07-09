@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:levelup_tube/src/core/constants/app_icons.dart';
 import 'package:levelup_tube/src/core/design_system/app_radius.dart';
 import 'package:levelup_tube/src/core/design_system/app_sizes.dart';
-import 'package:levelup_tube/src/core/utils/extensions/context_extensions.dart';
+import 'package:levelup_tube/src/core/extensions/context_extensions.dart';
 
 class ClipboardVideoPrompt extends StatelessWidget {
   const ClipboardVideoPrompt({

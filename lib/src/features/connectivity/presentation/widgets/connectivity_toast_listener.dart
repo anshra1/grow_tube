@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:levelup_tube/src/core/connectivity/connectivity_cubit.dart';
-import 'package:levelup_tube/src/core/connectivity/connectivity_toast_controller.dart';
+import 'package:levelup_tube/src/features/connectivity/presentation/bloc/connectivity_cubit.dart';
+import 'package:levelup_tube/src/features/connectivity/presentation/widgets/connectivity_toast_controller.dart';
 import 'package:levelup_tube/src/core/di/injection_container.dart' as di;
 
 class ConnectivityToastListener extends StatefulWidget {

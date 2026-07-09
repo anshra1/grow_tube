@@ -5,18 +5,18 @@ import 'package:levelup_tube/src/core/constants/app_strings.dart';
 import 'package:levelup_tube/src/core/design_system/app_radius.dart';
 import 'package:levelup_tube/src/core/design_system/app_sizes.dart';
 import 'package:levelup_tube/src/core/mixins/clipboard_monitor_mixin.dart';
-import 'package:levelup_tube/src/core/utils/extensions/context_extensions.dart';
-import 'package:levelup_tube/src/core/widgets/app_scaffold.dart';
+import 'package:levelup_tube/src/core/extensions/context_extensions.dart';
+import 'package:levelup_tube/src/core/widgets/pages/app_scaffold.dart';
 import 'package:levelup_tube/src/features/library/presentation/bloc/library_bloc.dart';
 import 'package:levelup_tube/src/features/library/presentation/bloc/library_event.dart';
 import 'package:levelup_tube/src/features/library/presentation/bloc/library_state.dart';
-import 'package:levelup_tube/src/features/library/presentation/pages/dashboard/widgets/add_video_bottom_sheet.dart';
-import 'package:levelup_tube/src/features/library/presentation/pages/dashboard/widgets/clipboard_video_prompt.dart';
-import 'package:levelup_tube/src/features/library/presentation/pages/dashboard/widgets/dashboard_empty_state.dart';
-import 'package:levelup_tube/src/features/library/presentation/pages/dashboard/widgets/dashboard_header.dart';
-import 'package:levelup_tube/src/features/library/presentation/pages/dashboard/widgets/dashboard_video_list.dart';
-import 'package:levelup_tube/src/features/library/presentation/pages/dashboard/widgets/dashboard_video_list_shimmer.dart';
-import 'package:levelup_tube/src/features/library/presentation/pages/dashboard/widgets/dashboard_video_player.dart';
+import 'package:levelup_tube/src/features/library/presentation/pages/widgets/add_video_bottom_sheet.dart';
+import 'package:levelup_tube/src/features/library/presentation/pages/widgets/clipboard_video_prompt.dart';
+import 'package:levelup_tube/src/features/library/presentation/pages/widgets/dashboard_empty_state.dart';
+import 'package:levelup_tube/src/features/library/presentation/pages/widgets/dashboard_header.dart';
+import 'package:levelup_tube/src/features/library/presentation/pages/widgets/dashboard_video_list.dart';
+import 'package:levelup_tube/src/features/library/presentation/pages/widgets/dashboard_video_list_shimmer.dart';
+import 'package:levelup_tube/src/features/library/presentation/pages/widgets/dashboard_video_player.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:toastification/toastification.dart';
 
@@ -29,7 +29,6 @@ class DashboardPage extends StatefulWidget {
 
 class _DashboardPageState extends State<DashboardPage>
     with WidgetsBindingObserver, ClipboardMonitorMixin {
-
   @override
   void onClipboardUrlDetected(String url, String videoId) {
     toastification.showCustom(
@@ -123,7 +122,7 @@ class _DashboardContent extends StatelessWidget {
       child: Column(
         children: [
           const DashboardHeader(),
-          const SizedBox(height: AppSizes.p16),
+          const SizedBox(height: AppSizes.p8),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: AppSizes.p16),
             // Smart Player Component

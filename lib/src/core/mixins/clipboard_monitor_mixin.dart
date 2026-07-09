@@ -34,32 +34,38 @@ mixin ClipboardMonitorMixin<T extends StatefulWidget>
     final text = await _clipboardService.getClipboardText();
     if (text == null) return;
 
-    if (_clipboardService.isNewUrl(text)) {
-      final videoId = _clipboardService.extractYouTubeId(text);
-      talker.debug('ClipboardMonitorMixin: New clipboard text detected: $text');
-      talker.debug('ClipboardMonitorMixin: Extracted videoId: $videoId');
+    final videoId = _clipboardService.extractYouTubeId(text);
+    if (videoId == null) return;
 
-      if (videoId != null) {
-        // Query the database to ensure we don't prompt for an already added video
-        final getVideoResult = await sl<GetVideo>()(videoId);
-        final isAlreadyAdded = getVideoResult.fold(
-          (failure) {
-            talker.error('ClipboardMonitorMixin: DB Error checking videoId: $failure');
-            return false;
-          },
-          (video) {
-            talker.debug('ClipboardMonitorMixin: DB result for $videoId: ${video?.title}');
-            return video != null;
-          },
-        );
+    talker.debug('ClipboardMonitorMixin: Clipboard text: $text, videoId: $videoId');
 
-        talker.debug('ClipboardMonitorMixin: isAlreadyAdded = $isAlreadyAdded');
+    // DB is the authoritative source — always check it first
+    final getVideoResult = await sl<GetVideo>()(videoId);
+    final isAlreadyAdded = getVideoResult.fold(
+      (failure) {
+        talker.error('ClipboardMonitorMixin: DB Error checking videoId: $failure');
+        return true; // On error, assume already added (safe default)
+      },
+      (video) {
+        talker.debug('ClipboardMonitorMixin: DB result for $videoId: ${video?.title}');
+        return video != null;
+      },
+    );
 
-        if (!isAlreadyAdded && mounted) {
-          talker.debug('ClipboardMonitorMixin: Showing popup for $videoId');
-          onClipboardUrlDetected(text, videoId);
-        }
-      }
+    if (isAlreadyAdded) {
+      talker.debug('ClipboardMonitorMixin: Video $videoId already in library, skipping');
+      return;
+    }
+
+    // Same-session dedup: don't show popup for same URL twice in one session
+    if (!_clipboardService.isNewUrl(text)) {
+      talker.debug('ClipboardMonitorMixin: Already prompted for $videoId this session');
+      return;
+    }
+
+    if (mounted) {
+      talker.debug('ClipboardMonitorMixin: Showing popup for $videoId');
+      onClipboardUrlDetected(text, videoId);
     }
   }
 

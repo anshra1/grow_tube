@@ -4,14 +4,14 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:levelup_tube/src/core/config/app_config.dart';
-import 'package:levelup_tube/src/core/connectivity/connectivity_cubit.dart';
+import 'package:levelup_tube/src/features/connectivity/presentation/bloc/connectivity_cubit.dart';
 import 'package:levelup_tube/src/core/design_system/app_theme.dart';
 import 'package:levelup_tube/src/core/di/injection_container.dart' as di;
 import 'package:levelup_tube/src/core/router/app_router.dart';
 import 'package:levelup_tube/src/core/theme/theme_cubit.dart';
 import 'package:levelup_tube/src/core/utils/talker_bloc_observer.dart';
-import 'package:levelup_tube/src/core/widgets/connectivity_toast_listener.dart';
-import 'package:levelup_tube/src/core/widgets/startup_error_app.dart';
+import 'package:levelup_tube/src/features/connectivity/presentation/widgets/connectivity_toast_listener.dart';
+import 'package:levelup_tube/src/core/widgets/pages/startup_error_app.dart';
 import 'package:talker_flutter/talker_flutter.dart';
 import 'package:toastification/toastification.dart';
 

@@ -2,11 +2,11 @@ import 'package:get_it/get_it.dart';
 import 'package:internet_connection_checker_plus/internet_connection_checker_plus.dart';
 import 'package:levelup_tube/objectbox.g.dart'; // Generated
 import 'package:levelup_tube/src/core/config/app_config.dart';
-import 'package:levelup_tube/src/core/connectivity/connectivity_cubit.dart';
-import 'package:levelup_tube/src/core/connectivity/connectivity_toast_controller.dart';
+import 'package:levelup_tube/src/features/connectivity/presentation/bloc/connectivity_cubit.dart';
+import 'package:levelup_tube/src/features/connectivity/presentation/widgets/connectivity_toast_controller.dart';
 import 'package:levelup_tube/src/core/services/logging/app_logger.dart';
 import 'package:levelup_tube/src/core/services/logging/talker_logging_service.dart';
-import 'package:levelup_tube/src/core/services/connectivity/internet_connection_service.dart';
+import 'package:levelup_tube/src/features/connectivity/data/services/internet_connection_service.dart';
 import 'package:levelup_tube/src/core/theme/theme_cubit.dart';
 import 'package:levelup_tube/src/core/theme/theme_preferences.dart';
 import 'package:levelup_tube/src/features/library/data/datasources/video_local_datasource.dart';

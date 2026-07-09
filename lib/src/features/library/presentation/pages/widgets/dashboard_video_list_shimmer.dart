@@ -3,7 +3,7 @@ import 'package:shimmer/shimmer.dart';
 import 'package:levelup_tube/src/core/design_system/app_radius.dart';
 import 'package:levelup_tube/src/core/design_system/app_shadows.dart';
 import 'package:levelup_tube/src/core/design_system/app_sizes.dart';
-import 'package:levelup_tube/src/core/utils/extensions/context_extensions.dart';
+import 'package:levelup_tube/src/core/extensions/context_extensions.dart';
 
 class DashboardVideoListShimmer extends StatelessWidget {
   const DashboardVideoListShimmer({super.key});
