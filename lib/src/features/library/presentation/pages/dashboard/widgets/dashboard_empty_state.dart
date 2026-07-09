@@ -217,7 +217,7 @@ class _DashboardEmptyStateState extends State<DashboardEmptyState>
   }
 
   // ════════════════════════════════════════════════════════════════
-  //  Illustration: Blob Character + Clapperboard
+  //  Illustration: Blob Character + YouTube badge
   // ════════════════════════════════════════════════════════════════
   Widget _buildIllustrationSection(ColorScheme colors) {
     return SizedBox(
@@ -284,13 +284,13 @@ class _DashboardEmptyStateState extends State<DashboardEmptyState>
                   child: Center(child: _buildHappyFace(colors)),
                 ),
 
-                // ── Movie Clapperboard ──
+                // ── Floating YouTube badge ──
                 Positioned(
                   bottom: -16,
                   right: -16,
                   child: Transform.rotate(
                     angle: 12 * math.pi / 180,
-                    child: _buildClapperboard(colors),
+                    child: _buildYouTubeBadge(colors),
                   ),
                 ),
               ],
@@ -347,62 +347,42 @@ class _DashboardEmptyStateState extends State<DashboardEmptyState>
     );
   }
 
-  /// Clapperboard widget
-  Widget _buildClapperboard(ColorScheme colors) {
+  /// Official-style YouTube badge widget
+  Widget _buildYouTubeBadge(ColorScheme colors) {
     return Container(
-      padding: const EdgeInsets.all(AppSizes.p12),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSizes.p12,
+        vertical: AppSizes.p8,
+      ),
       decoration: BoxDecoration(
-        color: colors.onSurface,
+        color: colors.surface,
         borderRadius: AppRadius.roundedL,
         boxShadow: [
           BoxShadow(
-            color: colors.onSurface.withValues(alpha: 0.3),
+            color: colors.shadow.withValues(alpha: 0.14),
             blurRadius: 16,
             offset: const Offset(0, 6),
           ),
         ],
       ),
       child: SizedBox(
-        width: 56,
+        width: 64,
         height: 44,
-        child: Container(
+        child: Center(
+          child: Container(
+            width: 48,
+            height: 32,
           decoration: BoxDecoration(
-            border: Border.all(color: colors.surface, width: 1.5),
-            borderRadius: AppRadius.roundedS,
+            color: const Color(0xFFFF0000),
+            borderRadius: BorderRadius.circular(12),
           ),
-          child: Column(
-            children: [
-              // Top stripe bar of the clapperboard
-              Container(
-                height: 12,
-                decoration: BoxDecoration(
-                  color: colors.surface.withValues(alpha: 0.15),
-                  borderRadius: const BorderRadius.only(
-                    topLeft: AppRadius.radiusS,
-                    topRight: AppRadius.radiusS,
-                  ),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: List.generate(
-                    3,
-                    (_) => Transform(
-                      alignment: Alignment.center,
-                      transform: Matrix4.skewX(-0.3),
-                      child: Container(width: 10, color: colors.surface),
-                    ),
-                  ),
-                ),
+            child: const Center(
+              child: Icon(
+                Icons.play_arrow_rounded,
+                color: Colors.white,
+                size: AppIconSizes.md,
               ),
-              // Play icon area
-              Expanded(
-                child: Icon(
-                  Icons.play_arrow_rounded,
-                  color: colors.surface,
-                  size: AppIconSizes.sm,
-                ),
-              ),
-            ],
+            ),
           ),
         ),
       ),
@@ -417,7 +397,8 @@ class _DashboardEmptyStateState extends State<DashboardEmptyState>
       children: [
         // Playful handwritten-style text
         Text(
-          'Please add a video',
+          'Paste The Youtube Video Link Below',
+          textAlign: TextAlign.center,
           style: context.textTheme.headlineMedium?.copyWith(
             color: colors.tertiary,
             fontWeight: FontWeight.w400,
@@ -426,19 +407,7 @@ class _DashboardEmptyStateState extends State<DashboardEmptyState>
           ),
         ),
 
-        gapH16,
-        // Descriptive paragraph
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: AppSizes.p16),
-          child: Text(
-            'Paste a Youtube video link below to start learning',
-            textAlign: TextAlign.center,
-            style: context.textTheme.bodyMedium?.copyWith(
-              color: colors.onSurfaceVariant,
-              height: 1.5,
-            ),
-          ),
-        ),
+       
       ],
     );
   }
@@ -455,11 +424,14 @@ class _DashboardEmptyStateState extends State<DashboardEmptyState>
           decoration: BoxDecoration(
             color: colors.surface,
             borderRadius: AppRadius.roundedL,
+            border: Border.all(
+              color: colors.outlineVariant.withValues(alpha: 0.7),
+            ),
             boxShadow: [
               BoxShadow(
-                color: colors.onSurface.withValues(alpha: 0.04),
-                blurRadius: 12,
-                offset: const Offset(0, 2),
+                color: colors.shadow.withValues(alpha: 0.08),
+                blurRadius: 20,
+                offset: const Offset(0, 8),
               ),
             ],
           ),
@@ -468,22 +440,42 @@ class _DashboardEmptyStateState extends State<DashboardEmptyState>
             focusNode: _focusNode,
             decoration: InputDecoration(
               hintText: 'https://youtube-video-url.com/...',
-              hintStyle: TextStyle(color: colors.outlineVariant),
+              hintStyle: TextStyle(
+                color: colors.onSurfaceVariant.withValues(alpha: 0.85),
+              ),
               suffixIcon: IconButton(
                 onPressed: _pasteFromClipboard,
-                icon: Icon(Icons.content_paste_rounded, color: colors.outlineVariant),
+                icon: Icon(
+                  Icons.content_paste_rounded,
+                  color: colors.primary,
+                ),
                 tooltip: 'Paste from clipboard',
               ),
               border: OutlineInputBorder(
                 borderRadius: AppRadius.roundedL,
                 borderSide: BorderSide.none,
               ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: AppRadius.roundedL,
+                borderSide: BorderSide(
+                  color: colors.outlineVariant.withValues(alpha: 0.7),
+                  width: 1.2,
+                ),
+              ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: AppRadius.roundedL,
                 borderSide: BorderSide(color: colors.primary, width: 2),
               ),
+              errorBorder: OutlineInputBorder(
+                borderRadius: AppRadius.roundedL,
+                borderSide: BorderSide(color: colors.error, width: 1.4),
+              ),
+              focusedErrorBorder: OutlineInputBorder(
+                borderRadius: AppRadius.roundedL,
+                borderSide: BorderSide(color: colors.error, width: 2),
+              ),
               filled: true,
-              fillColor: colors.surface,
+              fillColor: colors.surfaceContainerHighest.withValues(alpha: 0.35),
               contentPadding: const EdgeInsets.symmetric(
                 horizontal: AppSizes.p24,
                 vertical: AppSizes.p20,

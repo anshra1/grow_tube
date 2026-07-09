@@ -52,11 +52,11 @@ Future<void> main() async {
     return;
   }
 
-  runApp(const GrowTubeApp());
+  runApp(const LevelUpTube());
 }
 
-class GrowTubeApp extends StatelessWidget {
-  const GrowTubeApp({super.key});
+class LevelUpTube extends StatelessWidget {
+  const LevelUpTube({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -84,14 +84,31 @@ class GrowTubeApp extends StatelessWidget {
               themeMode: themeState.mode,
               routerConfig: AppRouter.router,
               builder: (context, child) {
-                return ConnectivityToastListener(
-                  child: child ?? const SizedBox.shrink(),
+                return _DismissKeyboardOnTap(
+                  child: ConnectivityToastListener(
+                    child: child ?? const SizedBox.shrink(),
+                  ),
                 );
               },
             );
           },
         ),
       ),
+    );
+  }
+}
+
+class _DismissKeyboardOnTap extends StatelessWidget {
+  const _DismissKeyboardOnTap({required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      behavior: HitTestBehavior.translucent,
+      onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+      child: child,
     );
   }
 }

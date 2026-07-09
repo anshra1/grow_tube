@@ -135,8 +135,13 @@ class VideoLocalDataSourceImpl implements VideoLocalDataSource {
         _box.put(video);
         talker.log('LocalDataSource: Progress updated successfully to $positionSeconds', logLevel: LogLevel.debug);
       } else {
-        talker.error('LocalDataSource: Video not found for progress update: $youtubeId');
-        throw const DatabaseException('Video not found');
+        // This can happen if the player disposes just after the user deletes a video.
+        // Treat it as a benign stale callback instead of surfacing an error toast.
+        talker.log(
+          'LocalDataSource: Ignoring stale progress update for deleted video: $youtubeId',
+          logLevel: LogLevel.warning,
+        );
+        return;
       }
     } catch (e, st) {
       talker.handle(e, st, 'LocalDataSource: Error updating video progress');

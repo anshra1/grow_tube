@@ -16,7 +16,7 @@ class VideoRemoteDataSourceImpl implements VideoRemoteDataSource {
 
   /// Regex to extract video ID from various YouTube URL formats.
   static final _videoIdRegex = RegExp(
-    r'(?:youtube\.com\/(?:watch\?v=|embed\/|v\/|shorts\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})',
+    r'(?:youtube\.com\/(?:watch\?v=|embed\/|v\/|shorts\/|live\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})',
   );
 
   @override

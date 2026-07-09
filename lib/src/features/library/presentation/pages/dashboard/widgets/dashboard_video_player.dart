@@ -66,10 +66,7 @@ class _DashboardVideoPlayerState extends State<DashboardVideoPlayer>
       );
 
       // User explicitly tapped a video → auto-play it.
-      _controller?.loadVideoById(
-        videoId: widget.video.youtubeId,
-        startSeconds: startPos,
-      );
+      _controller?.loadVideoById(videoId: widget.video.youtubeId, startSeconds: startPos);
     }
   }
 
@@ -130,10 +127,7 @@ class _DashboardVideoPlayerState extends State<DashboardVideoPlayer>
 
     // On app launch: cue the video (shows thumbnail/controls, does NOT auto-play).
     // Auto-play only happens when the user explicitly taps a video (see didUpdateWidget).
-    controller.cueVideoById(
-      videoId: widget.video.youtubeId,
-      startSeconds: startPos,
-    );
+    controller.cueVideoById(videoId: widget.video.youtubeId, startSeconds: startPos);
 
     _errorSubscription = controller.listen((value) {
       if (value.error != YoutubeError.none) {

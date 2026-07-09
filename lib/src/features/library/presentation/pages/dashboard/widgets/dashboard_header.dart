@@ -31,9 +31,9 @@ class _DashboardHeaderState extends State<DashboardHeader> {
 
     if (_titleTapCount >= 3) {
       _titleTapCount = 0;
-      Navigator.of(context).push(
-        MaterialPageRoute(builder: (context) => TalkerScreen(talker: talker)),
-      );
+      Navigator.of(
+        context,
+      ).push(MaterialPageRoute(builder: (context) => TalkerScreen(talker: talker)));
       return;
     }
 
@@ -60,9 +60,7 @@ class _DashboardHeaderState extends State<DashboardHeader> {
         type: ToastificationType.error,
         style: ToastificationStyle.fillColored,
         title: const Text(AppStrings.dashboardError),
-        description: const Text(
-          AppStrings.dashboardUnableToOpenPrivacyPolicy,
-        ),
+        description: const Text(AppStrings.dashboardUnableToOpenPrivacyPolicy),
         autoCloseDuration: const Duration(seconds: 4),
         alignment: Alignment.bottomCenter,
       );
@@ -134,3 +132,5 @@ class _DashboardHeaderState extends State<DashboardHeader> {
 }
 
 enum _HeaderMenuAction { privacyPolicy }
+
+

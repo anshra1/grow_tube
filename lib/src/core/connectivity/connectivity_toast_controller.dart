@@ -87,10 +87,7 @@ class ConnectivityToastController {
     return AnimatedBuilder(
       animation: shake,
       builder: (context, _) {
-        return Transform.translate(
-          offset: Offset(shake.value, 0),
-          child: child,
-        );
+        return Transform.translate(offset: Offset(shake.value, 0), child: child);
       },
     );
   }

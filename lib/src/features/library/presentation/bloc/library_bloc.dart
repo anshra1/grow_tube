@@ -70,15 +70,16 @@ class LibraryBloc extends Bloc<LibraryEvent, LibraryState> {
   ) async {
     final result = await _addVideo(event.url);
 
-    await result.fold((failure) async => emit(LibraryFailureState(_mapFailureMessage(failure))), (
-      video,
-    ) async {
-      // Refresh library to get updated list/hero.
-      // The repo's getLastPlayedVideo logic (lastPlayed ?? addedAt)
-      // should pick up this new video as the hero automatically
-      // because it's the most recently added/interacted with.
-      await _refreshLibrary(emit);
-    });
+    await result.fold(
+      (failure) async => emit(LibraryFailureState(_mapFailureMessage(failure))),
+      (video) async {
+        // Refresh library to get updated list/hero.
+        // The repo's getLastPlayedVideo logic (lastPlayed ?? addedAt)
+        // should pick up this new video as the hero automatically
+        // because it's the most recently added/interacted with.
+        await _refreshLibrary(emit);
+      },
+    );
   }
 
   Future<void> _onInitialized(
@@ -100,10 +101,10 @@ class LibraryBloc extends Bloc<LibraryEvent, LibraryState> {
       ),
     );
 
-    await result.fold(
-      (failure) async => emit(LibraryFailureState(_mapFailureMessage(failure))),
-      (_) async => _refreshLibrary(emit),
-    );
+    await result.fold((failure) async {
+      // Progress save runs in the background and should not interrupt the UI
+      // or show user-facing error toasts for stale callbacks.
+    }, (_) async => _refreshLibrary(emit));
   }
 
   Future<void> _onVideoAdded(
