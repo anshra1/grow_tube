@@ -16,7 +16,14 @@ class VideoRemoteDataSourceImpl implements VideoRemoteDataSource {
 
   /// Regex to extract video ID from various YouTube URL formats.
   static final _videoIdRegex = RegExp(
-    r'(?:youtube\.com\/(?:watch\?v=|embed\/|v\/|shorts\/|live\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})',
+    r'(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})',
+  );
+
+  /// Regex to extract playlist ID from YouTube playlist URLs.
+  /// Matches: youtube.com/playlist?list=PLxxxxxx
+  ///          youtube.com/watch?v=xxx&list=PLxxxxxx
+  static final _playlistIdRegex = RegExp(
+    r'(?:youtube\.com\/(?:playlist\?|watch\?.*&)list=)([a-zA-Z0-9_-]+)',
   );
 
   @override
@@ -53,6 +60,19 @@ class VideoRemoteDataSourceImpl implements VideoRemoteDataSource {
     );
   }
 
+  /// Extracts the YouTube video ID from a URL.
+  static String? extractVideoId(String url) {
+    final match = _videoIdRegex.firstMatch(url);
+    return match?.group(1);
+  }
+
+  /// Extracts a YouTube playlist ID from a URL.
+  /// Returns null if the URL does not contain a playlist ID.
+  static String? extractPlaylistId(String url) {
+    final match = _playlistIdRegex.firstMatch(url);
+    return match?.group(1);
+  }
+
   /// Extracts an 11-char YouTube video ID from various URL formats.
   /// Throws [VideoException] if the URL is invalid.
   String _extractVideoId(String url) {
@@ -61,11 +81,11 @@ class VideoRemoteDataSourceImpl implements VideoRemoteDataSource {
       return url.trim();
     }
 
-    final match = _videoIdRegex.firstMatch(url);
-    if (match == null || match.group(1) == null) {
+    final id = extractVideoId(url);
+    if (id == null) {
       talker.error('RemoteDataSource: Invalid URL: $url');
       throw const VideoException('Invalid YouTube URL', code: 'invalidUrl');
     }
-    return match.group(1)!;
+    return id;
   }
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:levelup_tube/src/core/constants/app_icons.dart';
 import 'package:levelup_tube/src/core/constants/app_strings.dart';
 import 'package:levelup_tube/src/core/design_system/app_radius.dart';
@@ -77,22 +78,36 @@ class _DashboardPageState extends State<DashboardPage>
           if (state is LibraryEmptyState) {
             return const SizedBox.shrink();
           }
-          return FloatingActionButton(
-            onPressed: () {
-              showModalBottomSheet(
-                context: context,
-                isScrollControlled: true,
-                useSafeArea: true,
-                builder: (_) => AddVideoBottomSheet(
-                  onAdd: (url) {
-                    context.read<LibraryBloc>().add(LibraryVideoAddedEvent(url));
-                  },
-                ),
-              );
-            },
-            backgroundColor: context.colorScheme.primary,
-            foregroundColor: context.colorScheme.onPrimary,
-            child: const Icon(AppIcons.add),
+          return Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              FloatingActionButton.small(
+                heroTag: 'playlist_fab',
+                onPressed: () => context.push('/playlists'),
+                backgroundColor: context.colorScheme.secondaryContainer,
+                foregroundColor: context.colorScheme.onSecondaryContainer,
+                child: const Icon(Icons.playlist_play_rounded),
+              ),
+              const SizedBox(height: 12),
+              FloatingActionButton(
+                heroTag: 'add_video_fab',
+                onPressed: () {
+                  showModalBottomSheet(
+                    context: context,
+                    isScrollControlled: true,
+                    useSafeArea: true,
+                    builder: (_) => AddVideoBottomSheet(
+                      onAdd: (url) {
+                        context.read<LibraryBloc>().add(LibraryVideoAddedEvent(url));
+                      },
+                    ),
+                  );
+                },
+                backgroundColor: context.colorScheme.primary,
+                foregroundColor: context.colorScheme.onPrimary,
+                child: const Icon(AppIcons.add),
+              ),
+            ],
           );
         },
       ),

@@ -5,7 +5,6 @@ import 'package:gap/gap.dart';
 import 'package:flutter/services.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:levelup_tube/src/core/design_system/app_radius.dart';
-import 'package:levelup_tube/src/core/design_system/app_shadows.dart';
 import 'package:levelup_tube/src/core/design_system/app_sizes.dart';
 import 'package:levelup_tube/src/features/connectivity/presentation/bloc/connectivity_cubit.dart';
 import 'package:levelup_tube/src/features/connectivity/presentation/widgets/connectivity_toast_controller.dart';
@@ -17,9 +16,20 @@ import 'package:levelup_tube/src/features/library/presentation/bloc/library_even
 import 'package:levelup_tube/src/features/library/presentation/pages/widgets/delete_video_dialog.dart';
 
 class DashboardVideoCard extends StatelessWidget {
-  const DashboardVideoCard({required this.video, super.key});
+  const DashboardVideoCard({
+    required this.video,
+    this.onTap,
+    this.onLongPress,
+    super.key,
+  });
 
   final Video video;
+  /// Optional override for tap behavior.
+  /// If null, defaults to LibraryVideoSelectedEvent dispatch.
+  final VoidCallback? onTap;
+  /// Optional override for long-press behavior.
+  /// If null, defaults to showing the delete video dialog.
+  final VoidCallback? onLongPress;
   static final ConnectivityToastController _toastController =
       di.sl<ConnectivityToastController>();
 
@@ -37,169 +47,172 @@ class DashboardVideoCard extends StatelessWidget {
 
     final percentage = (progress * 100).toInt();
 
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: AppRadius.roundedL,
-        border: Border.all(
-          color: context.colorScheme.outlineVariant.withValues(alpha: 0.5),
-        ),
-        boxShadow: AppShadows.card,
-      ),
-      child: Material(
-        color: context.colorScheme.surface,
-        borderRadius: AppRadius.roundedL,
-        clipBehavior: Clip.antiAlias,
-        child: InkWell(
-          borderRadius: AppRadius.roundedL,
-          overlayColor: MaterialStateProperty.resolveWith((states) {
-            if (states.contains(MaterialState.pressed)) {
-              return context.colorScheme.primary.withValues(alpha: 0.12);
-            }
-            return null;
-          }),
-          onTap: () {
-            Feedback.forTap(context);
-            HapticFeedback.heavyImpact();
-            HapticFeedback.vibrate();
-            if (context.read<ConnectivityCubit>().state ==
-                ConnectivityStatus.offline) {
-              _toastController.nudgeOffline();
-              return;
-            }
-            context.read<LibraryBloc>().add(LibraryVideoSelectedEvent(video));
-          },
-          onLongPress: () {
-            showDialog(
-              context: context,
-              builder: (dialogContext) => DeleteVideoDialog(
-                videoTitle: video.title,
-                onDelete: () {
-                  context.read<LibraryBloc>().add(
-                    LibraryVideoDeletedEvent(video.id),
-                  );
-                },
-              ),
+    final handleOptions = onLongPress ?? () {
+      showDialog(
+        context: context,
+        builder: (dialogContext) => DeleteVideoDialog(
+          videoTitle: video.title,
+          onDelete: () {
+            context.read<LibraryBloc>().add(
+              LibraryVideoDeletedEvent(video.id),
             );
           },
-          child: Padding(
-            padding: const EdgeInsets.all(AppSizes.p12),
-            child: Row(
+        ),
+      );
+    };
+
+    return InkWell(
+      overlayColor: WidgetStateProperty.resolveWith((states) {
+        if (states.contains(WidgetState.pressed)) {
+          return context.colorScheme.primary.withValues(alpha: 0.12);
+        }
+        return null;
+      }),
+      onTap: () {
+        Feedback.forTap(context);
+        HapticFeedback.heavyImpact();
+        HapticFeedback.vibrate();
+        if (onTap != null) {
+          onTap!();
+          return;
+        }
+        if (context.read<ConnectivityCubit>().state ==
+            ConnectivityStatus.offline) {
+          _toastController.nudgeOffline();
+          return;
+        }
+        context.read<LibraryBloc>().add(LibraryVideoSelectedEvent(video));
+      },
+      onLongPress: handleOptions,
+      child: Padding(
+        padding: const EdgeInsets.only(left: 0, right: 0, top: 4, bottom: 4),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Thumbnail with Duration Overlay
+            Stack(
               children: [
-                // Thumbnail with Duration Overlay
-                Stack(
-                  children: [
-                    ClipRRect(
-                      borderRadius: AppRadius.roundedM,
-                      child: SizedBox(
-                        width: 120,
-                        height: 70,
-                        child: CachedNetworkImage(
-                          imageUrl: video.thumbnailUrl,
-                          fit: BoxFit.cover,
-                          placeholder: (context, url) => Shimmer.fromColors(
-                            baseColor: context.colorScheme.surfaceContainerHighest,
-                            highlightColor: context.colorScheme.surface,
-                            child: Container(color: Colors.white),
-                          ),
-                          errorWidget: (context, url, error) => Container(
-                            color: context.colorScheme.surfaceContainerHighest,
-                          ),
-                        ),
+                ClipRRect(
+                  borderRadius: AppRadius.roundedM,
+                  child: SizedBox(
+                    width: 160,
+                    height: 90,
+                    child: CachedNetworkImage(
+                      imageUrl: video.thumbnailUrl,
+                      fit: BoxFit.cover,
+                      placeholder: (context, url) => Shimmer.fromColors(
+                        baseColor: context.colorScheme.surfaceContainerHighest,
+                        highlightColor: context.colorScheme.surface,
+                        child: Container(color: Colors.white),
+                      ),
+                      errorWidget: (context, url, error) => Container(
+                        color: context.colorScheme.surfaceContainerHighest,
                       ),
                     ),
-                    Positioned(
-                      bottom: 4,
-                      right: 4,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 4,
-                          vertical: 2,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Colors.black.withValues(alpha: 0.8),
-                          borderRadius: AppRadius.roundedS,
-                        ),
-                        child: Text(
-                          _formatDuration(video.durationSeconds),
-                          style: context.textTheme.labelSmall?.copyWith(
-                            color: Colors.white,
-                            fontSize: 10,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
-                gapW16,
-                // content
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        video.title,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: context.textTheme.bodyMedium?.copyWith(
-                          fontWeight: FontWeight.w600,
-                          color: context.colorScheme.onSurface,
-                        ),
+                Positioned(
+                  bottom: 6,
+                  right: 6,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 6,
+                      vertical: 2,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.black.withValues(alpha: 0.8),
+                      borderRadius: AppRadius.roundedS,
+                    ),
+                    child: Text(
+                      _formatDuration(video.durationSeconds),
+                      style: context.textTheme.labelSmall?.copyWith(
+                        color: Colors.white,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
                       ),
-                      const Gap(2),
-                      Text(
-                        video.channelName,
-                        style: context.textTheme.labelSmall?.copyWith(
-                          color: context.colorScheme.onSurfaceVariant,
-                        ),
-                      ),
-                      gapH8,
-                      // Progress Bar & Percentage
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Expanded(
-                                child: ClipRRect(
-                                  borderRadius: AppRadius.roundedS,
-                                  child: LinearProgressIndicator(
-                                    value: progress,
-                                    minHeight: 4,
-                                    backgroundColor: context
-                                        .colorScheme
-                                        .primary
-                                        .withValues(alpha: 0.1),
-                                    valueColor: AlwaysStoppedAnimation<Color>(
-                                      context.colorScheme.primary,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                          gapH4,
-                          Text(
-                            '$percentage% watched',
-                            style: context.textTheme.labelSmall?.copyWith(
-                              color: percentage > 0
-                                  ? context.colorScheme.primary
-                                  : context.colorScheme.onSurfaceVariant,
-                              fontWeight: percentage > 0
-                                  ? FontWeight.bold
-                                  : FontWeight.normal,
-                              fontSize: 10,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
+                    ),
                   ),
                 ),
               ],
             ),
-          ),
+            const Gap(8),
+            // content
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    video.title,
+                    maxLines: 3,
+                    overflow: TextOverflow.ellipsis,
+                    style: context.textTheme.bodyLarge?.copyWith(
+                      fontWeight: FontWeight.w500,
+                      fontSize: 16,
+                      color: context.colorScheme.onSurface,
+                    ),
+                  ),
+                  // const Gap(4),
+                  // Text(
+                  //   video.channelName,
+                  //   maxLines: 1,
+                  //   overflow: TextOverflow.ellipsis,
+                  //   style: context.textTheme.labelMedium?.copyWith(
+                  //     color: context.colorScheme.onSurfaceVariant,
+                  //   ),
+                  // ),
+                  gapH8,
+                  // Progress Bar & Percentage
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Expanded(
+                            child: ClipRRect(
+                              borderRadius: AppRadius.roundedS,
+                              child: LinearProgressIndicator(
+                                value: progress,
+                                minHeight: 4,
+                                backgroundColor: context
+                                    .colorScheme
+                                    .primary
+                                    .withValues(alpha: 0.1),
+                                valueColor: AlwaysStoppedAnimation<Color>(
+                                  context.colorScheme.primary,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      gapH4,
+                      Text(
+                        '$percentage% watched',
+                        style: context.textTheme.labelSmall?.copyWith(
+                          color: percentage > 0
+                              ? context.colorScheme.primary
+                              : context.colorScheme.onSurfaceVariant,
+                          fontWeight: percentage > 0
+                              ? FontWeight.bold
+                              : FontWeight.normal,
+                          fontSize: 10,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            // More Options Icon
+            GestureDetector(
+              onTap: handleOptions,
+              child: Icon(
+                Icons.more_vert,
+                color: context.colorScheme.onSurface,
+                size: 20,
+              ),
+            ),
+          ],
         ),
       ),
     );

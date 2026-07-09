@@ -58,11 +58,115 @@
         }
       ],
       "relations": []
+    },
+    {
+      "id": "2:1747732836037110316",
+      "lastPropertyId": "7:2056482601170706801",
+      "name": "PlaylistModel",
+      "properties": [
+        {
+          "id": "1:7240077376091324204",
+          "name": "id",
+          "type": 6,
+          "flags": 1
+        },
+        {
+          "id": "2:8390521226680882825",
+          "name": "title",
+          "type": 9
+        },
+        {
+          "id": "3:1235803000778735106",
+          "name": "youtubePlaylistId",
+          "type": 9
+        },
+        {
+          "id": "4:2400136349199165199",
+          "name": "thumbnailUrl",
+          "type": 9
+        },
+        {
+          "id": "5:1061084477007986129",
+          "name": "description",
+          "type": 9
+        },
+        {
+          "id": "6:7595335416670235681",
+          "name": "videoCount",
+          "type": 6
+        },
+        {
+          "id": "7:2056482601170706801",
+          "name": "createdAt",
+          "type": 12
+        }
+      ],
+      "relations": [
+        {
+          "id": "1:7202673744005411862",
+          "name": "videos",
+          "targetId": "3:726241950308333869"
+        }
+      ]
+    },
+    {
+      "id": "3:726241950308333869",
+      "lastPropertyId": "9:2581805604101822468",
+      "name": "PlaylistVideoModel",
+      "properties": [
+        {
+          "id": "1:7856006818633074081",
+          "name": "id",
+          "type": 6,
+          "flags": 1
+        },
+        {
+          "id": "2:5608615311261833221",
+          "name": "youtubeId",
+          "type": 9
+        },
+        {
+          "id": "3:6987531231511354401",
+          "name": "title",
+          "type": 9
+        },
+        {
+          "id": "4:161212671725606476",
+          "name": "channelName",
+          "type": 9
+        },
+        {
+          "id": "5:9062629195591732583",
+          "name": "thumbnailUrl",
+          "type": 9
+        },
+        {
+          "id": "6:5958995898863382511",
+          "name": "durationSeconds",
+          "type": 6
+        },
+        {
+          "id": "7:2795736950875446861",
+          "name": "lastWatchedPositionSeconds",
+          "type": 6
+        },
+        {
+          "id": "8:7498721501558651419",
+          "name": "addedAt",
+          "type": 12
+        },
+        {
+          "id": "9:2581805604101822468",
+          "name": "lastPlayedAt",
+          "type": 12
+        }
+      ],
+      "relations": []
     }
   ],
-  "lastEntityId": "1:5863521568893898851",
+  "lastEntityId": "3:726241950308333869",
   "lastIndexId": "1:4065306276962701119",
-  "lastRelationId": "0:0",
+  "lastRelationId": "1:7202673744005411862",
   "lastSequenceId": "0:0",
   "modelVersion": 5,
   "modelVersionParserMinimum": 5,

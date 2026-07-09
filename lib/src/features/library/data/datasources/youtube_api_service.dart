@@ -18,6 +18,8 @@ class YoutubeApiService {
   final http.Client _client;
 
   static const _baseUrl = 'https://www.googleapis.com/youtube/v3/videos';
+  static const _playlistItemsUrl = 'https://www.googleapis.com/youtube/v3/playlistItems';
+  static const _playlistsUrl = 'https://www.googleapis.com/youtube/v3/playlists';
 
   /// Fetches video details for [videoId].
   ///
@@ -96,6 +98,174 @@ class YoutubeApiService {
       'channelTitle': snippet['channelTitle'] as String,
       'thumbnailUrl': thumbUrl as String,
       'durationSeconds': _parseIsoDuration(contentDetails['duration'] as String),
+    };
+  }
+
+  /// Fetches all video IDs from a YouTube playlist.
+  ///
+  /// Uses `playlistItems.list` endpoint with pagination (maxResults=50 per page).
+  /// Returns a list of YouTube video ID strings.
+  ///
+  /// Throws [VideoException] on failure.
+  Future<List<String>> fetchPlaylistVideoIds(String playlistId) async {
+    final List<String> videoIds = [];
+    String? pageToken;
+    const maxPages = 10; // 10 pages × 50 = 500 videos max
+    int pageCount = 0;
+
+    do {
+      final uri = Uri.parse(
+        '$_playlistItemsUrl'
+        '?playlistId=$playlistId'
+        '&part=contentDetails'
+        '&maxResults=50'
+        '&key=$_apiKey'
+        '${pageToken != null ? '&pageToken=$pageToken' : ''}',
+      );
+
+      talker.log(
+        'YoutubeApiService: Fetching playlist items page ${pageCount + 1} '
+        'for playlist $playlistId',
+        logLevel: LogLevel.debug,
+      );
+
+      final http.Response response;
+      try {
+        response = await _client.get(uri);
+      } catch (e) {
+        throw const VideoException(
+          'Network error: unable to reach YouTube API',
+          code: 'offline',
+        );
+      }
+
+      if (response.statusCode == 403) {
+        final body = jsonDecode(response.body) as Map<String, dynamic>;
+        final reason = _extractErrorReason(body);
+        if (reason == 'quotaExceeded' || reason == 'rateLimitExceeded') {
+          throw const VideoException(
+            'YouTube API daily quota exceeded. Please try again tomorrow.',
+            code: 'rateLimited',
+          );
+        }
+        throw const VideoException(
+          'Access denied by YouTube API. Check your API key.',
+          code: 'forbidden',
+        );
+      }
+
+      if (response.statusCode == 404) {
+        throw const VideoException(
+          'Playlist not found — it may be private or deleted.',
+          code: 'playlistNotFound',
+        );
+      }
+
+      if (response.statusCode != 200) {
+        throw VideoException(
+          'YouTube API returned status ${response.statusCode}',
+          code: 'serverError',
+        );
+      }
+
+      final body = jsonDecode(response.body) as Map<String, dynamic>;
+      final items = body['items'] as List<dynamic>? ?? [];
+
+      for (final item in items) {
+        final contentDetails = item['contentDetails'] as Map<String, dynamic>;
+        final videoId = contentDetails['videoId'] as String?;
+        if (videoId != null) {
+          videoIds.add(videoId);
+        }
+      }
+
+      pageToken = body['nextPageToken'] as String?;
+      pageCount++;
+    } while (pageToken != null && pageCount < maxPages);
+
+    talker.log(
+      'YoutubeApiService: Fetched ${videoIds.length} video IDs '
+      'from playlist $playlistId',
+      logLevel: LogLevel.info,
+    );
+
+    return videoIds;
+  }
+
+  /// Fetches metadata for a YouTube playlist (title, description, thumbnail).
+  ///
+  /// Uses `playlists.list` endpoint.
+  /// Returns a map with keys: `title`, `description`, `thumbnailUrl`.
+  ///
+  /// Throws [VideoException] on failure.
+  Future<Map<String, dynamic>> fetchPlaylistDetails(String playlistId) async {
+    final uri = Uri.parse(
+      '$_playlistsUrl'
+      '?id=$playlistId'
+      '&part=snippet'
+      '&key=$_apiKey',
+    );
+
+    talker.log(
+      'YoutubeApiService: Fetching playlist details for $playlistId',
+      logLevel: LogLevel.debug,
+    );
+
+    final http.Response response;
+    try {
+      response = await _client.get(uri);
+    } catch (e) {
+      throw const VideoException(
+        'Network error: unable to reach YouTube API',
+        code: 'offline',
+      );
+    }
+
+    if (response.statusCode == 403) {
+      final body = jsonDecode(response.body) as Map<String, dynamic>;
+      final reason = _extractErrorReason(body);
+      if (reason == 'quotaExceeded' || reason == 'rateLimitExceeded') {
+        throw const VideoException(
+          'YouTube API daily quota exceeded. Please try again tomorrow.',
+          code: 'rateLimited',
+        );
+      }
+      throw const VideoException(
+        'Access denied by YouTube API. Check your API key.',
+        code: 'forbidden',
+      );
+    }
+
+    if (response.statusCode != 200) {
+      throw VideoException(
+        'YouTube API returned status ${response.statusCode}',
+        code: 'serverError',
+      );
+    }
+
+    final body = jsonDecode(response.body) as Map<String, dynamic>;
+    final items = body['items'] as List<dynamic>?;
+
+    if (items == null || items.isEmpty) {
+      throw const VideoException(
+        'Playlist not found — it may be private or deleted.',
+        code: 'playlistNotFound',
+      );
+    }
+
+    final snippet = items[0]['snippet'] as Map<String, dynamic>;
+    final thumbnails = snippet['thumbnails'] as Map<String, dynamic>? ?? {};
+
+    final thumbUrl =
+        (thumbnails['high'] as Map<String, dynamic>?)?['url'] ??
+        (thumbnails['medium'] as Map<String, dynamic>?)?['url'] ??
+        (thumbnails['default'] as Map<String, dynamic>?)?['url'] ??
+        '';
+
+    return {
+      'title': snippet['title'] as String? ?? 'Untitled Playlist',
+      'description': snippet['description'] as String? ?? '',
+      'thumbnailUrl': thumbUrl as String,
     };
   }
 

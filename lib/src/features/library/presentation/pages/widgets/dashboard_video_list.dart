@@ -4,9 +4,20 @@ import 'package:levelup_tube/src/features/library/domain/entities/video.dart';
 import 'package:levelup_tube/src/features/library/presentation/pages/widgets/dashboard_video_card.dart';
 
 class DashboardVideoList extends StatelessWidget {
-  const DashboardVideoList({required this.videos, super.key});
+  const DashboardVideoList({
+    required this.videos,
+    this.onVideoTap,
+    this.onVideoLongPress,
+    super.key,
+  });
 
   final List<Video> videos;
+  /// Optional override for individual video tap.
+  /// If null, each card uses its default behavior (LibraryVideoSelectedEvent).
+  final void Function(Video)? onVideoTap;
+  /// Optional override for individual video long-press.
+  /// If null, each card uses its default behavior (delete dialog).
+  final void Function(Video)? onVideoLongPress;
 
   @override
   Widget build(BuildContext context) {
@@ -21,7 +32,11 @@ class DashboardVideoList extends StatelessWidget {
 
         return Padding(
           padding: const EdgeInsets.only(bottom: AppSizes.p16),
-          child: DashboardVideoCard(video: video),
+          child: DashboardVideoCard(
+            video: video,
+            onTap: onVideoTap != null ? () => onVideoTap!(video) : null,
+            onLongPress: onVideoLongPress != null ? () => onVideoLongPress!(video) : null,
+          ),
         );
       },
     );

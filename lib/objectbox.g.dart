@@ -15,6 +15,8 @@ import 'package:objectbox/objectbox.dart' as obx;
 import 'package:objectbox_flutter_libs/objectbox_flutter_libs.dart';
 
 import 'src/features/library/data/models/video_model.dart';
+import 'src/features/playlist/models/playlist_model.dart';
+import 'src/features/playlist/models/playlist_video_model.dart';
 
 export 'package:objectbox/objectbox.dart'; // so that callers only have to import this file
 
@@ -84,6 +86,128 @@ final _entities = <obx_int.ModelEntity>[
     relations: <obx_int.ModelRelation>[],
     backlinks: <obx_int.ModelBacklink>[],
   ),
+  obx_int.ModelEntity(
+    id: const obx_int.IdUid(2, 1747732836037110316),
+    name: 'PlaylistModel',
+    lastPropertyId: const obx_int.IdUid(7, 2056482601170706801),
+    flags: 0,
+    properties: <obx_int.ModelProperty>[
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(1, 7240077376091324204),
+        name: 'id',
+        type: 6,
+        flags: 1,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(2, 8390521226680882825),
+        name: 'title',
+        type: 9,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(3, 1235803000778735106),
+        name: 'youtubePlaylistId',
+        type: 9,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(4, 2400136349199165199),
+        name: 'thumbnailUrl',
+        type: 9,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(5, 1061084477007986129),
+        name: 'description',
+        type: 9,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(6, 7595335416670235681),
+        name: 'videoCount',
+        type: 6,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(7, 2056482601170706801),
+        name: 'createdAt',
+        type: 12,
+        flags: 0,
+      ),
+    ],
+    relations: <obx_int.ModelRelation>[
+      obx_int.ModelRelation(
+        id: const obx_int.IdUid(1, 7202673744005411862),
+        name: 'videos',
+        targetId: const obx_int.IdUid(3, 726241950308333869),
+      ),
+    ],
+    backlinks: <obx_int.ModelBacklink>[],
+  ),
+  obx_int.ModelEntity(
+    id: const obx_int.IdUid(3, 726241950308333869),
+    name: 'PlaylistVideoModel',
+    lastPropertyId: const obx_int.IdUid(9, 2581805604101822468),
+    flags: 0,
+    properties: <obx_int.ModelProperty>[
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(1, 7856006818633074081),
+        name: 'id',
+        type: 6,
+        flags: 1,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(2, 5608615311261833221),
+        name: 'youtubeId',
+        type: 9,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(3, 6987531231511354401),
+        name: 'title',
+        type: 9,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(4, 161212671725606476),
+        name: 'channelName',
+        type: 9,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(5, 9062629195591732583),
+        name: 'thumbnailUrl',
+        type: 9,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(6, 5958995898863382511),
+        name: 'durationSeconds',
+        type: 6,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(7, 2795736950875446861),
+        name: 'lastWatchedPositionSeconds',
+        type: 6,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(8, 7498721501558651419),
+        name: 'addedAt',
+        type: 12,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(9, 2581805604101822468),
+        name: 'lastPlayedAt',
+        type: 12,
+        flags: 0,
+      ),
+    ],
+    relations: <obx_int.ModelRelation>[],
+    backlinks: <obx_int.ModelBacklink>[],
+  ),
 ];
 
 /// Shortcut for [obx.Store.new] that passes [getObjectBoxModel] and for Flutter
@@ -129,9 +253,9 @@ obx_int.ModelDefinition getObjectBoxModel() {
     // Typically, this is done with `dart run build_runner build`.
     generatorVersion: obx_int.GeneratorVersion.v2025_12_16,
     entities: _entities,
-    lastEntityId: const obx_int.IdUid(1, 5863521568893898851),
+    lastEntityId: const obx_int.IdUid(3, 726241950308333869),
     lastIndexId: const obx_int.IdUid(1, 4065306276962701119),
-    lastRelationId: const obx_int.IdUid(0, 0),
+    lastRelationId: const obx_int.IdUid(1, 7202673744005411862),
     lastSequenceId: const obx_int.IdUid(0, 0),
     retiredEntityUids: const [],
     retiredIndexUids: const [],
@@ -232,6 +356,175 @@ obx_int.ModelDefinition getObjectBoxModel() {
         return object;
       },
     ),
+    PlaylistModel: obx_int.EntityDefinition<PlaylistModel>(
+      model: _entities[1],
+      toOneRelations: (PlaylistModel object) => [],
+      toManyRelations: (PlaylistModel object) => {
+        obx_int.RelInfo<PlaylistModel>.toMany(1, object.id): object.videos,
+      },
+      getId: (PlaylistModel object) => object.id,
+      setId: (PlaylistModel object, int id) {
+        object.id = id;
+      },
+      objectToFB: (PlaylistModel object, fb.Builder fbb) {
+        final titleOffset = fbb.writeString(object.title);
+        final youtubePlaylistIdOffset = object.youtubePlaylistId == null
+            ? null
+            : fbb.writeString(object.youtubePlaylistId!);
+        final thumbnailUrlOffset = object.thumbnailUrl == null
+            ? null
+            : fbb.writeString(object.thumbnailUrl!);
+        final descriptionOffset = object.description == null
+            ? null
+            : fbb.writeString(object.description!);
+        fbb.startTable(8);
+        fbb.addInt64(0, object.id);
+        fbb.addOffset(1, titleOffset);
+        fbb.addOffset(2, youtubePlaylistIdOffset);
+        fbb.addOffset(3, thumbnailUrlOffset);
+        fbb.addOffset(4, descriptionOffset);
+        fbb.addInt64(5, object.videoCount);
+        fbb.addInt64(6, object.createdAt.microsecondsSinceEpoch * 1000);
+        fbb.finish(fbb.endTable());
+        return object.id;
+      },
+      objectFromFB: (obx.Store store, ByteData fbData) {
+        final buffer = fb.BufferContext(fbData);
+        final rootOffset = buffer.derefObject(0);
+        final titleParam = const fb.StringReader(
+          asciiOptimization: true,
+        ).vTableGet(buffer, rootOffset, 6, '');
+        final createdAtParam = DateTime.fromMicrosecondsSinceEpoch(
+          (const fb.Int64Reader().vTableGet(buffer, rootOffset, 16, 0) / 1000)
+              .round(),
+        );
+        final idParam = const fb.Int64Reader().vTableGet(
+          buffer,
+          rootOffset,
+          4,
+          0,
+        );
+        final youtubePlaylistIdParam = const fb.StringReader(
+          asciiOptimization: true,
+        ).vTableGetNullable(buffer, rootOffset, 8);
+        final thumbnailUrlParam = const fb.StringReader(
+          asciiOptimization: true,
+        ).vTableGetNullable(buffer, rootOffset, 10);
+        final descriptionParam = const fb.StringReader(
+          asciiOptimization: true,
+        ).vTableGetNullable(buffer, rootOffset, 12);
+        final videoCountParam = const fb.Int64Reader().vTableGet(
+          buffer,
+          rootOffset,
+          14,
+          0,
+        );
+        final object = PlaylistModel(
+          title: titleParam,
+          createdAt: createdAtParam,
+          id: idParam,
+          youtubePlaylistId: youtubePlaylistIdParam,
+          thumbnailUrl: thumbnailUrlParam,
+          description: descriptionParam,
+          videoCount: videoCountParam,
+        );
+        obx_int.InternalToManyAccess.setRelInfo<PlaylistModel>(
+          object.videos,
+          store,
+          obx_int.RelInfo<PlaylistModel>.toMany(1, object.id),
+        );
+        return object;
+      },
+    ),
+    PlaylistVideoModel: obx_int.EntityDefinition<PlaylistVideoModel>(
+      model: _entities[2],
+      toOneRelations: (PlaylistVideoModel object) => [],
+      toManyRelations: (PlaylistVideoModel object) => {},
+      getId: (PlaylistVideoModel object) => object.id,
+      setId: (PlaylistVideoModel object, int id) {
+        object.id = id;
+      },
+      objectToFB: (PlaylistVideoModel object, fb.Builder fbb) {
+        final youtubeIdOffset = fbb.writeString(object.youtubeId);
+        final titleOffset = fbb.writeString(object.title);
+        final channelNameOffset = fbb.writeString(object.channelName);
+        final thumbnailUrlOffset = fbb.writeString(object.thumbnailUrl);
+        fbb.startTable(10);
+        fbb.addInt64(0, object.id);
+        fbb.addOffset(1, youtubeIdOffset);
+        fbb.addOffset(2, titleOffset);
+        fbb.addOffset(3, channelNameOffset);
+        fbb.addOffset(4, thumbnailUrlOffset);
+        fbb.addInt64(5, object.durationSeconds);
+        fbb.addInt64(6, object.lastWatchedPositionSeconds);
+        fbb.addInt64(7, object.addedAt.microsecondsSinceEpoch * 1000);
+        fbb.addInt64(
+          8,
+          object.lastPlayedAt == null
+              ? null
+              : object.lastPlayedAt!.microsecondsSinceEpoch * 1000,
+        );
+        fbb.finish(fbb.endTable());
+        return object.id;
+      },
+      objectFromFB: (obx.Store store, ByteData fbData) {
+        final buffer = fb.BufferContext(fbData);
+        final rootOffset = buffer.derefObject(0);
+        final lastPlayedAtValue = const fb.Int64Reader().vTableGetNullable(
+          buffer,
+          rootOffset,
+          20,
+        );
+        final youtubeIdParam = const fb.StringReader(
+          asciiOptimization: true,
+        ).vTableGet(buffer, rootOffset, 6, '');
+        final titleParam = const fb.StringReader(
+          asciiOptimization: true,
+        ).vTableGet(buffer, rootOffset, 8, '');
+        final channelNameParam = const fb.StringReader(
+          asciiOptimization: true,
+        ).vTableGet(buffer, rootOffset, 10, '');
+        final thumbnailUrlParam = const fb.StringReader(
+          asciiOptimization: true,
+        ).vTableGet(buffer, rootOffset, 12, '');
+        final durationSecondsParam = const fb.Int64Reader().vTableGet(
+          buffer,
+          rootOffset,
+          14,
+          0,
+        );
+        final addedAtParam = DateTime.fromMicrosecondsSinceEpoch(
+          (const fb.Int64Reader().vTableGet(buffer, rootOffset, 18, 0) / 1000)
+              .round(),
+        );
+        final idParam = const fb.Int64Reader().vTableGet(
+          buffer,
+          rootOffset,
+          4,
+          0,
+        );
+        final lastWatchedPositionSecondsParam = const fb.Int64Reader()
+            .vTableGet(buffer, rootOffset, 16, 0);
+        final lastPlayedAtParam = lastPlayedAtValue == null
+            ? null
+            : DateTime.fromMicrosecondsSinceEpoch(
+                (lastPlayedAtValue / 1000).round(),
+              );
+        final object = PlaylistVideoModel(
+          youtubeId: youtubeIdParam,
+          title: titleParam,
+          channelName: channelNameParam,
+          thumbnailUrl: thumbnailUrlParam,
+          durationSeconds: durationSecondsParam,
+          addedAt: addedAtParam,
+          id: idParam,
+          lastWatchedPositionSeconds: lastWatchedPositionSecondsParam,
+          lastPlayedAt: lastPlayedAtParam,
+        );
+
+        return object;
+      },
+    ),
   };
 
   return obx_int.ModelDefinition(model, bindings);
@@ -281,5 +574,96 @@ class VideoModel_ {
   /// See [VideoModel.lastPlayedAt].
   static final lastPlayedAt = obx.QueryDateNanoProperty<VideoModel>(
     _entities[0].properties[8],
+  );
+}
+
+/// [PlaylistModel] entity fields to define ObjectBox queries.
+class PlaylistModel_ {
+  /// See [PlaylistModel.id].
+  static final id = obx.QueryIntegerProperty<PlaylistModel>(
+    _entities[1].properties[0],
+  );
+
+  /// See [PlaylistModel.title].
+  static final title = obx.QueryStringProperty<PlaylistModel>(
+    _entities[1].properties[1],
+  );
+
+  /// See [PlaylistModel.youtubePlaylistId].
+  static final youtubePlaylistId = obx.QueryStringProperty<PlaylistModel>(
+    _entities[1].properties[2],
+  );
+
+  /// See [PlaylistModel.thumbnailUrl].
+  static final thumbnailUrl = obx.QueryStringProperty<PlaylistModel>(
+    _entities[1].properties[3],
+  );
+
+  /// See [PlaylistModel.description].
+  static final description = obx.QueryStringProperty<PlaylistModel>(
+    _entities[1].properties[4],
+  );
+
+  /// See [PlaylistModel.videoCount].
+  static final videoCount = obx.QueryIntegerProperty<PlaylistModel>(
+    _entities[1].properties[5],
+  );
+
+  /// See [PlaylistModel.createdAt].
+  static final createdAt = obx.QueryDateNanoProperty<PlaylistModel>(
+    _entities[1].properties[6],
+  );
+
+  /// see [PlaylistModel.videos]
+  static final videos =
+      obx.QueryRelationToMany<PlaylistModel, PlaylistVideoModel>(
+        _entities[1].relations[0],
+      );
+}
+
+/// [PlaylistVideoModel] entity fields to define ObjectBox queries.
+class PlaylistVideoModel_ {
+  /// See [PlaylistVideoModel.id].
+  static final id = obx.QueryIntegerProperty<PlaylistVideoModel>(
+    _entities[2].properties[0],
+  );
+
+  /// See [PlaylistVideoModel.youtubeId].
+  static final youtubeId = obx.QueryStringProperty<PlaylistVideoModel>(
+    _entities[2].properties[1],
+  );
+
+  /// See [PlaylistVideoModel.title].
+  static final title = obx.QueryStringProperty<PlaylistVideoModel>(
+    _entities[2].properties[2],
+  );
+
+  /// See [PlaylistVideoModel.channelName].
+  static final channelName = obx.QueryStringProperty<PlaylistVideoModel>(
+    _entities[2].properties[3],
+  );
+
+  /// See [PlaylistVideoModel.thumbnailUrl].
+  static final thumbnailUrl = obx.QueryStringProperty<PlaylistVideoModel>(
+    _entities[2].properties[4],
+  );
+
+  /// See [PlaylistVideoModel.durationSeconds].
+  static final durationSeconds = obx.QueryIntegerProperty<PlaylistVideoModel>(
+    _entities[2].properties[5],
+  );
+
+  /// See [PlaylistVideoModel.lastWatchedPositionSeconds].
+  static final lastWatchedPositionSeconds =
+      obx.QueryIntegerProperty<PlaylistVideoModel>(_entities[2].properties[6]);
+
+  /// See [PlaylistVideoModel.addedAt].
+  static final addedAt = obx.QueryDateNanoProperty<PlaylistVideoModel>(
+    _entities[2].properties[7],
+  );
+
+  /// See [PlaylistVideoModel.lastPlayedAt].
+  static final lastPlayedAt = obx.QueryDateNanoProperty<PlaylistVideoModel>(
+    _entities[2].properties[8],
   );
 }

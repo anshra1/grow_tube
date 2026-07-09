@@ -14,17 +14,18 @@ import 'package:levelup_tube/src/features/library/presentation/bloc/library_even
 import 'package:talker_flutter/talker_flutter.dart';
 import 'package:toastification/toastification.dart';
 import 'package:youtube_player_iframe/youtube_player_iframe.dart';
-import 'package:toastification/toastification.dart';
 
 class DashboardVideoPlayer extends StatefulWidget {
   const DashboardVideoPlayer({
     required this.video,
     this.forcePlayTimestamp,
+    this.onProgressUpdate,
     super.key,
   });
 
   final Video video;
   final int? forcePlayTimestamp;
+  final void Function(String youtubeId, int positionSeconds)? onProgressUpdate;
 
   @override
   State<DashboardVideoPlayer> createState() => _DashboardVideoPlayerState();
@@ -43,7 +44,7 @@ class _DashboardVideoPlayerState extends State<DashboardVideoPlayer>
   late final Animation<double> _fadeAnimation;
 
   @override
-  void initState() {
+  void initState() {    
     super.initState();
     _animController = AnimationController(
       vsync: this,
@@ -260,12 +261,16 @@ class _DashboardVideoPlayerState extends State<DashboardVideoPlayer>
       final targetId = youtubeId ?? widget.video.youtubeId;
 
       if (position > 0 && mounted) {
-        context.read<LibraryBloc>().add(
-          LibraryVideoProgressUpdatedEvent(
-            youtubeId: targetId,
-            positionSeconds: position,
-          ),
-        );
+        if (widget.onProgressUpdate != null) {
+          widget.onProgressUpdate!(targetId, position);
+        } else {
+          context.read<LibraryBloc>().add(
+            LibraryVideoProgressUpdatedEvent(
+              youtubeId: targetId,
+              positionSeconds: position,
+            ),
+          );
+        }
       }
     } catch (_) {}
   }

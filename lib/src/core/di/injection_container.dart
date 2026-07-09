@@ -16,6 +16,9 @@ import 'package:levelup_tube/src/features/library/data/repositories/video_reposi
 import 'package:levelup_tube/src/features/library/domain/repositories/video_repository.dart';
 import 'package:levelup_tube/src/features/library/domain/usecases/library_usecases.dart';
 import 'package:levelup_tube/src/features/library/presentation/bloc/library_bloc.dart';
+import 'package:levelup_tube/src/features/playlist/data/playlist_local_datasource.dart';
+import 'package:levelup_tube/src/features/playlist/models/playlist_repository.dart';
+import 'package:levelup_tube/src/features/playlist/viewmodels/playlist_cubit.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:talker_flutter/talker_flutter.dart';
@@ -91,4 +94,22 @@ Future<void> init() async {
     ),
   );
   sl.registerFactory(() => ConnectivityCubit(sl()));
+
+  // ============================================================
+  // Playlist Feature
+  // ============================================================
+  sl.registerLazySingleton<PlaylistLocalDataSource>(
+    () => PlaylistLocalDataSourceImpl(sl()),
+  );
+
+  sl.registerLazySingleton(
+    () => PlaylistRepository(
+      localDataSource: sl(),
+      apiService: sl(),
+    ),
+  );
+
+  sl.registerFactory(
+    () => PlaylistCubit(sl()),
+  );
 }
