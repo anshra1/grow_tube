@@ -13,11 +13,17 @@ import 'package:levelup_tube/src/features/library/presentation/bloc/library_bloc
 import 'package:levelup_tube/src/features/library/presentation/bloc/library_event.dart';
 import 'package:talker_flutter/talker_flutter.dart';
 import 'package:youtube_player_iframe/youtube_player_iframe.dart';
+import 'package:toastification/toastification.dart';
 
 class DashboardVideoPlayer extends StatefulWidget {
-  const DashboardVideoPlayer({required this.video, super.key});
+  const DashboardVideoPlayer({
+    required this.video,
+    this.forcePlayTimestamp,
+    super.key,
+  });
 
   final Video video;
+  final int? forcePlayTimestamp;
 
   @override
   State<DashboardVideoPlayer> createState() => _DashboardVideoPlayerState();
@@ -67,6 +73,62 @@ class _DashboardVideoPlayerState extends State<DashboardVideoPlayer>
 
       // User explicitly tapped a video → auto-play it.
       _controller?.loadVideoById(videoId: widget.video.youtubeId, startSeconds: startPos);
+    } else if (widget.forcePlayTimestamp != null &&
+        widget.forcePlayTimestamp != oldWidget.forcePlayTimestamp) {
+      // User tapped the currently active video again in the list.
+      _handleRetry();
+    }
+  }
+
+  Future<void> _handleRetry() async {
+    if (_controller == null) {
+      // Case A: Controller was never created (device was offline at init time).
+      // Reinitialize the whole controller so the player can start fresh.
+      _reinitializeController();
+      return;
+    }
+
+    // Case B: Controller exists, let's see what it's doing
+    final state = await _controller!.playerState;
+
+    if (state == PlayerState.playing) {
+      // Don't interrupt perfectly playing video!
+      if (mounted) {
+        toastification.show(
+          context: context,
+          type: ToastificationType.info,
+          style: ToastificationStyle.fillColored,
+          title: const Text('Already playing'),
+          autoCloseDuration: const Duration(seconds: 2),
+          alignment: Alignment.bottomCenter,
+        );
+      }
+    } else if (state == PlayerState.buffering) {
+      // Video is stuck loading, kickstart it!
+      final pos = await _controller!.currentTime;
+      _controller!.loadVideoById(
+        videoId: widget.video.youtubeId,
+        startSeconds: pos,
+      );
+      if (mounted) {
+        toastification.show(
+          context: context,
+          type: ToastificationType.success,
+          style: ToastificationStyle.fillColored,
+          title: const Text('Restarted from same place'),
+          autoCloseDuration: const Duration(seconds: 2),
+          alignment: Alignment.bottomCenter,
+        );
+      }
+    } else if (state == PlayerState.paused) {
+      // Simply unpause
+      _controller!.playVideo();
+    } else {
+      // Broken state (unknown/unstarted)
+      _controller!.loadVideoById(
+        videoId: widget.video.youtubeId,
+        startSeconds: 0.0,
+      );
     }
   }
 

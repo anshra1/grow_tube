@@ -70,7 +70,7 @@ class _DashboardHeaderState extends State<DashboardHeader> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: AppSizes.p16),
+      padding: const EdgeInsets.only(left: AppSizes.p16),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -78,7 +78,7 @@ class _DashboardHeaderState extends State<DashboardHeader> {
             behavior: HitTestBehavior.opaque,
             onTap: _handleTitleTap,
             child: Text(
-              'LevelUp Tube',
+              'LevelUp',
               style: GoogleFonts.oswald(
                 fontSize: 26,
                 fontWeight: FontWeight.bold,
@@ -114,7 +114,7 @@ class _DashboardHeaderState extends State<DashboardHeader> {
                   ),
                 ],
               ),
-              gapW8,
+             
             ],
           ),
         ],

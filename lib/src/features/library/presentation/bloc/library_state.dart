@@ -25,13 +25,18 @@ final class LibraryEmptyState extends LibraryState {
 
 /// A state representing the successful load of the library data, holding the actual list of videos and the chosen hero video.
 final class LibraryVideoLoadedState extends LibraryState {
-  const LibraryVideoLoadedState({required this.libraryVideos, this.lastPlayVideo});
+  const LibraryVideoLoadedState({
+    required this.libraryVideos,
+    this.lastPlayVideo,
+    this.forcePlayTimestamp,
+  });
 
   final List<Video> libraryVideos;
   final Video? lastPlayVideo;
+  final int? forcePlayTimestamp;
 
   @override
-  List<Object?> get props => [libraryVideos, lastPlayVideo];
+  List<Object?> get props => [libraryVideos, lastPlayVideo, forcePlayTimestamp];
 }
 
 /// A state representing an error that occurred during a library operation, holding the error message.

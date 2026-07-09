@@ -18,10 +18,19 @@ class ClipboardService {
   /// Returns the video ID if valid, otherwise null.
   String? extractYouTubeId(String url) {
     final regExp = RegExp(
-      r'^.*(?:(?:youtu\.be\/|v\/|vi\/|u\/\w\/|embed\/|shorts\/)|(?:(?:watch)?\?v(?:i)?=|\&v(?:i)?=))([^#\&\?]*).*',
+      r'(?:youtube\.com\/(?:watch\?v=|embed\/|v\/|shorts\/|live\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})',
     );
     final match = regExp.firstMatch(url);
-    return match?.group(1);
+    if (match != null && match.group(1) != null) {
+      return match.group(1);
+    }
+    
+    // Fallback: check if the string itself is just an 11-char ID
+    if (RegExp(r'^[a-zA-Z0-9_-]{11}$').hasMatch(url.trim())) {
+      return url.trim();
+    }
+    
+    return null;
   }
 
   /// Checks if the given URL is new and hasn't been processed yet.

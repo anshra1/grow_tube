@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:levelup_tube/src/core/connectivity/connectivity_cubit.dart';
@@ -18,6 +19,13 @@ class _ConnectivityToastListenerState extends State<ConnectivityToastListener> {
   ConnectivityStatus _previous = ConnectivityStatus.unknown;
   final ConnectivityToastController _toastController =
       di.sl<ConnectivityToastController>();
+  Timer? _offlineTimer;
+
+  @override
+  void dispose() {
+    _offlineTimer?.cancel();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -33,13 +41,21 @@ class _ConnectivityToastListenerState extends State<ConnectivityToastListener> {
         }
 
         if (state == ConnectivityStatus.offline) {
-          _toastController.showOfflinePersistent();
+          _offlineTimer?.cancel();
+          _offlineTimer = Timer(const Duration(seconds: 3), () {
+            if (mounted && _previous == ConnectivityStatus.offline) {
+              _toastController.showOfflinePersistent();
+            }
+          });
           return;
         }
 
         if (state == ConnectivityStatus.online) {
-          _toastController.dismissOffline();
-          _toastController.showOnlineToast();
+          _offlineTimer?.cancel();
+          if (_toastController.isOfflineVisible) {
+            _toastController.dismissOffline();
+            _toastController.showOnlineToast();
+          }
         }
       },
       child: widget.child,

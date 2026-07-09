@@ -19,8 +19,10 @@ class AppStrings {
   static const String dashboardDeleteConfirm = 'Are you sure you want to delete';
 
   // Network
-  static const String networkOfflineTitle = 'Network issue';
+  static const String networkOfflineTitle = 'You are offline';
   static const String networkOfflineMessage =
+      'Waiting for internet connection...';
+  static const String actionOfflineMessage =
       'Check your internet and try again.';
   static const String networkOnlineTitle = 'Back online';
   static const String networkOnlineMessage =

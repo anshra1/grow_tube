@@ -29,14 +29,9 @@ class DashboardPage extends StatefulWidget {
 
 class _DashboardPageState extends State<DashboardPage>
     with WidgetsBindingObserver, ClipboardMonitorMixin {
-  /// Keeps track of video IDs we've already shown a prompt for in this session.
-  final Set<String> _promptedVideoIds = {};
 
   @override
   void onClipboardUrlDetected(String url, String videoId) {
-    if (_promptedVideoIds.contains(videoId)) return;
-
-    _promptedVideoIds.add(videoId);
     toastification.showCustom(
       context: context,
       alignment: Alignment.bottomCenter,
@@ -154,7 +149,10 @@ class _DashboardContent extends StatelessWidget {
                     ),
                   ),
                   LibraryVideoLoadedState() when state.lastPlayVideo != null =>
-                    DashboardVideoPlayer(video: state.lastPlayVideo!),
+                    DashboardVideoPlayer(
+                      video: state.lastPlayVideo!,
+                      forcePlayTimestamp: state.forcePlayTimestamp,
+                    ),
                   _ => const SizedBox.shrink(),
                 };
               },

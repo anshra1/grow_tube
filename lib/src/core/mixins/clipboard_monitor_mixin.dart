@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:levelup_tube/main.dart';
+import 'package:levelup_tube/src/core/di/injection_container.dart';
 import 'package:levelup_tube/src/core/services/clipboard_service.dart';
+import 'package:levelup_tube/src/features/library/domain/usecases/library_usecases.dart';
 
 mixin ClipboardMonitorMixin<T extends StatefulWidget>
     on State<T>, WidgetsBindingObserver {
@@ -33,8 +36,29 @@ mixin ClipboardMonitorMixin<T extends StatefulWidget>
 
     if (_clipboardService.isNewUrl(text)) {
       final videoId = _clipboardService.extractYouTubeId(text);
-      if (videoId != null && mounted) {
-        onClipboardUrlDetected(text, videoId);
+      talker.debug('ClipboardMonitorMixin: New clipboard text detected: $text');
+      talker.debug('ClipboardMonitorMixin: Extracted videoId: $videoId');
+
+      if (videoId != null) {
+        // Query the database to ensure we don't prompt for an already added video
+        final getVideoResult = await sl<GetVideo>()(videoId);
+        final isAlreadyAdded = getVideoResult.fold(
+          (failure) {
+            talker.error('ClipboardMonitorMixin: DB Error checking videoId: $failure');
+            return false;
+          },
+          (video) {
+            talker.debug('ClipboardMonitorMixin: DB result for $videoId: ${video?.title}');
+            return video != null;
+          },
+        );
+
+        talker.debug('ClipboardMonitorMixin: isAlreadyAdded = $isAlreadyAdded');
+
+        if (!isAlreadyAdded && mounted) {
+          talker.debug('ClipboardMonitorMixin: Showing popup for $videoId');
+          onClipboardUrlDetected(text, videoId);
+        }
       }
     }
   }

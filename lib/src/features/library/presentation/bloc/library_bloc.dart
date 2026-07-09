@@ -59,6 +59,7 @@ class LibraryBloc extends Bloc<LibraryEvent, LibraryState> {
         LibraryVideoLoadedState(
           libraryVideos: state.libraryVideos,
           lastPlayVideo: event.video,
+          forcePlayTimestamp: DateTime.now().millisecondsSinceEpoch,
         ),
       );
     }
@@ -186,7 +187,7 @@ class LibraryBloc extends Bloc<LibraryEvent, LibraryState> {
         case 'duplicate':
           return 'This video is already in your library.';
         case 'offline':
-          return AppStrings.networkOfflineMessage;
+          return AppStrings.actionOfflineMessage;
         case 'rateLimited':
           return 'YouTube API limit reached. Try again later.';
         case 'forbidden':
@@ -200,7 +201,7 @@ class LibraryBloc extends Bloc<LibraryEvent, LibraryState> {
     }
 
     if (failure is ConnectionFailure) {
-      return AppStrings.networkOfflineMessage;
+      return AppStrings.actionOfflineMessage;
     }
     if (failure is ValidationFailure) {
       return failure.message;
