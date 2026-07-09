@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:levelup_tube/src/core/design_system/app_radius.dart';
+import 'package:levelup_tube/src/core/design_system/app_sizes.dart';
 import 'package:levelup_tube/src/core/di/injection_container.dart';
 import 'package:levelup_tube/src/core/extensions/context_extensions.dart';
 import 'package:levelup_tube/src/core/widgets/pages/app_scaffold.dart';
@@ -8,6 +10,7 @@ import 'package:levelup_tube/src/features/library/presentation/pages/widgets/das
 import 'package:levelup_tube/src/features/playlist/models/playlist_model.dart';
 import 'package:levelup_tube/src/features/playlist/viewmodels/playlist_cubit.dart';
 import 'package:levelup_tube/src/features/playlist/viewmodels/playlist_state.dart';
+import 'package:levelup_tube/src/features/playlist/views/edit_playlist_page.dart';
 import 'package:levelup_tube/src/features/playlist/views/widgets/add_playlist_bottom_sheet.dart';
 import 'package:levelup_tube/src/features/playlist/views/widgets/playlist_card.dart';
 import 'package:toastification/toastification.dart';
@@ -30,10 +33,7 @@ class _PlaylistsPageContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AppScaffold(
-      appBar: AppBar(
-        title: const Text('My Playlists'),
-        leading: const BackButton(),
-      ),
+      appBar: AppBar(title: const Text('My Playlists'), leading: const BackButton()),
       body: BlocConsumer<PlaylistCubit, PlaylistState>(
         listener: (context, state) {
           if (state is PlaylistErrorState) {
@@ -49,49 +49,43 @@ class _PlaylistsPageContent extends StatelessWidget {
         },
         builder: (context, state) {
           return switch (state) {
-            PlaylistInitialState() || PlaylistLoadingState() =>
-              const DashboardVideoListShimmer(),
+            PlaylistInitialState() ||
+            PlaylistLoadingState() => const DashboardVideoListShimmer(),
 
             PlaylistEmptyState() => Center(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      Icons.playlist_play,
-                      size: 80,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.playlist_play,
+                    size: 80,
+                    color: context.colorScheme.onSurfaceVariant,
+                  ),
+                  const SizedBox(height: 16),
+                  Text('No playlists yet', style: context.textTheme.titleLarge),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Create a playlist or import from YouTube',
+                    style: context.textTheme.bodyMedium?.copyWith(
                       color: context.colorScheme.onSurfaceVariant,
                     ),
-                    const SizedBox(height: 16),
-                    Text(
-                      'No playlists yet',
-                      style: context.textTheme.titleLarge,
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'Create a playlist or import from YouTube',
-                      style: context.textTheme.bodyMedium?.copyWith(
-                        color: context.colorScheme.onSurfaceVariant,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-
-            PlaylistLoadedState(:final playlists) => RefreshIndicator(
-                onRefresh: () => context.read<PlaylistCubit>().loadPlaylists(),
-                child: _buildList(context, playlists),
-              ),
-
-            PlaylistImportingState(:final playlists, :final message) => Column(
-                children: [
-                  const LinearProgressIndicator(),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Text(message),
                   ),
-                  Expanded(child: _buildList(context, playlists)),
                 ],
               ),
+            ),
+
+            PlaylistLoadedState(:final playlists) => RefreshIndicator(
+              onRefresh: () => context.read<PlaylistCubit>().loadPlaylists(),
+              child: _buildList(context, playlists),
+            ),
+
+            PlaylistImportingState(:final playlists, :final message) => Column(
+              children: [
+                const LinearProgressIndicator(),
+                Padding(padding: const EdgeInsets.all(8.0), child: Text(message)),
+                Expanded(child: _buildList(context, playlists)),
+              ],
+            ),
 
             _ => const SizedBox.shrink(),
           };
@@ -118,9 +112,46 @@ class _PlaylistsPageContent extends StatelessWidget {
             playlist: playlist,
             onTap: () => context.push('/playlists/${playlist.id}'),
             onLongPress: () => _showDeleteDialog(context, playlist),
+            onOptionsTap: () => _showPlaylistOptionsBottomSheet(context, playlist),
           ),
         );
       },
+    );
+  }
+
+  void _showPlaylistOptionsBottomSheet(BuildContext context, PlaylistModel playlist) {
+    showModalBottomSheet(
+      context: context,
+      useSafeArea: true,
+      builder: (bottomSheetContext) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.edit_outlined),
+              title: const Text('Edit'),
+              onTap: () {
+                Navigator.pop(bottomSheetContext);
+                // Push to the new edit page
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => EditPlaylistPage(playlistId: playlist.id),
+                  ),
+                );
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.delete_outline),
+              title: const Text('Delete'),
+              onTap: () {
+                Navigator.pop(bottomSheetContext);
+                _showDeleteDialog(context, playlist);
+              },
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -144,26 +175,47 @@ class _PlaylistsPageContent extends StatelessWidget {
     showDialog(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: const Text('Delete Playlist?'),
-        content: Text(
-          'Are you sure you want to delete "${playlist.title}"?\n\n'
-          'Videos will remain in your library.',
+        insetPadding: const EdgeInsets.all(AppSizes.p16),
+        shape: const RoundedRectangleBorder(borderRadius: AppRadius.roundedXL),
+        backgroundColor: context.colorScheme.surface,
+        surfaceTintColor: Colors.transparent,
+        title: Text(
+          'Delete Playlist?',
+          style: context.textTheme.titleLarge?.copyWith(
+            fontWeight: FontWeight.bold,
+            color: context.colorScheme.onSurface,
+          ),
+          textAlign: TextAlign.center,
         ),
+        content: Text(
+          'Are you sure you want to delete ?',
+          style: context.textTheme.bodyMedium?.copyWith(
+            color: context.colorScheme.onSurfaceVariant,
+          ),
+          textAlign: TextAlign.center,
+        ),
+        actionsPadding: const EdgeInsets.fromLTRB(
+          AppSizes.p16,
+          0,
+          AppSizes.p16,
+          AppSizes.p16,
+        ),
+        actionsAlignment: MainAxisAlignment.spaceEvenly,
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext),
-            child: const Text('Cancel'),
+            child: Text(
+              'Cancel',
+              style: TextStyle(color: context.colorScheme.onSurfaceVariant),
+            ),
           ),
-          FilledButton(
+          TextButton(
             onPressed: () {
               context.read<PlaylistCubit>().deletePlaylist(playlist.id);
               Navigator.pop(dialogContext);
             },
-            style: FilledButton.styleFrom(
-              backgroundColor: context.colorScheme.error,
-              foregroundColor: context.colorScheme.onError,
-            ),
-            child: const Text('Delete'),
+            style: TextButton.styleFrom(foregroundColor: context.colorScheme.error),
+            child: const Text('Delete', style: TextStyle(fontWeight: FontWeight.bold)),
           ),
         ],
       ),

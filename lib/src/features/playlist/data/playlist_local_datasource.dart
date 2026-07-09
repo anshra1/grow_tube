@@ -97,7 +97,30 @@ class PlaylistLocalDataSourceImpl implements PlaylistLocalDataSource {
   Future<void> deletePlaylist(int id) async {
     talker.log('PlaylistLocalDS: Deleting playlist ID: $id', logLevel: LogLevel.info);
     try {
+      final playlist = _playlistBox.get(id);
+      if (playlist == null) return;
+
+      // Collect IDs of videos in this playlist
+      final videoIdsToRemove = playlist.videos.map((v) => v.id).toSet();
+
+      // Remove the playlist
       _playlistBox.remove(id);
+
+      // Find all video IDs used in other playlists
+      final allOtherPlaylists = _playlistBox.getAll();
+      final usedVideoIds = <int>{};
+      for (final p in allOtherPlaylists) {
+        usedVideoIds.addAll(p.videos.map((v) => v.id));
+      }
+
+      // Only delete videos that are NOT used in any other playlist
+      final orphanedVideoIds = videoIdsToRemove.difference(usedVideoIds).toList();
+
+      if (orphanedVideoIds.isNotEmpty) {
+        _videoBox.removeMany(orphanedVideoIds);
+        talker.log('PlaylistLocalDS: Deleted ${orphanedVideoIds.length} orphaned videos', logLevel: LogLevel.info);
+      }
+
       talker.log('PlaylistLocalDS: Playlist deleted successfully', logLevel: LogLevel.info);
     } catch (e, st) {
       talker.handle(e, st, 'PlaylistLocalDS: Error deleting playlist');

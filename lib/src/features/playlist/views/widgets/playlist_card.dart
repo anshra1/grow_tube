@@ -11,12 +11,14 @@ class PlaylistCard extends StatelessWidget {
     required this.playlist,
     required this.onTap,
     this.onLongPress,
+    this.onOptionsTap,
     super.key,
   });
 
   final PlaylistModel playlist;
   final VoidCallback onTap;
   final VoidCallback? onLongPress;
+  final VoidCallback? onOptionsTap;
 
   @override
   Widget build(BuildContext context) {
@@ -118,7 +120,7 @@ class PlaylistCard extends StatelessWidget {
             // More Options Icon
             const Gap(2),
             GestureDetector(
-              onTap: onLongPress,
+              onTap: onOptionsTap ?? onLongPress,
               child: Icon(
                 Icons.more_vert,
                 color: context.colorScheme.onSurface,

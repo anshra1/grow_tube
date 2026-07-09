@@ -14,9 +14,8 @@ class VideoRemoteDataSourceImpl implements VideoRemoteDataSource {
   VideoRemoteDataSourceImpl(this._apiService);
   final YoutubeApiService _apiService;
 
-  /// Regex to extract video ID from various YouTube URL formats.
   static final _videoIdRegex = RegExp(
-    r'(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})',
+    r'(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?|live|shorts)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})',
   );
 
   /// Regex to extract playlist ID from YouTube playlist URLs.

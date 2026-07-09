@@ -135,7 +135,7 @@ class DashboardVideoCard extends StatelessWidget {
                 ),
               ],
             ),
-            const Gap(8),
+            const Gap(12),
             // content
             Expanded(
               child: Column(
