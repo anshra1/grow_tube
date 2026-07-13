@@ -10,10 +10,10 @@ import 'package:levelup_tube/src/features/connectivity/presentation/bloc/connect
 import 'package:levelup_tube/src/features/connectivity/presentation/widgets/connectivity_toast_controller.dart';
 import 'package:levelup_tube/src/core/di/injection_container.dart' as di;
 import 'package:levelup_tube/src/core/extensions/context_extensions.dart';
-import 'package:levelup_tube/src/features/library/domain/entities/video.dart';
-import 'package:levelup_tube/src/features/library/presentation/bloc/library_bloc.dart';
-import 'package:levelup_tube/src/features/library/presentation/bloc/library_event.dart';
-import 'package:levelup_tube/src/features/library/presentation/pages/widgets/delete_video_dialog.dart';
+import 'package:levelup_tube/src/features/library/models/video.dart';
+import 'package:levelup_tube/src/features/library/viewmodels/library_bloc.dart';
+import 'package:levelup_tube/src/features/library/viewmodels/library_event.dart';
+import 'package:levelup_tube/src/features/library/views/widgets/delete_video_dialog.dart';
 
 class DashboardVideoCard extends StatelessWidget {
   const DashboardVideoCard({

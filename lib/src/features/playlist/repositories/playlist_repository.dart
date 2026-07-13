@@ -1,28 +1,76 @@
 import 'package:levelup_tube/objectbox.g.dart';
 import 'package:levelup_tube/src/core/error/exception.dart';
 import 'package:levelup_tube/src/core/utils/youtube_url_parser.dart';
-import 'package:levelup_tube/src/features/library/data/datasources/youtube_api_service.dart';
+import 'package:levelup_tube/src/core/services/youtube_api_service.dart';
 import 'package:levelup_tube/src/features/playlist/models/playlist_model.dart';
 import 'package:levelup_tube/src/features/playlist/models/playlist_video_model.dart';
 import 'package:talker_flutter/talker_flutter.dart';
 
-class PlaylistRepository {
-  PlaylistRepository({
-    required Store store,
+abstract class PlaylistRepository {
+  /// Fetches all playlists currently stored in the local database, ordered by newest first.
+  Future<List<PlaylistModel>> getAllPlaylists();
+
+  /// Retrieves a specific playlist by its local database ID.
+  Future<PlaylistModel?> getPlaylist(int id);
+
+  /// Creates a new custom playlist with the given [title] and saves it locally.
+  Future<int> createCustomPlaylist(String title);
+
+  /// Imports a YouTube playlist by its URL, fetching its metadata and all its videos.
+  /// Returns the local database ID of the newly imported playlist.
+  Future<int> importYoutubePlaylist(String playlistUrl);
+
+  /// Checks if a YouTube playlist with the given [youtubePlaylistId] has already been imported.
+  Future<bool> isPlaylistImported(String youtubePlaylistId);
+
+  /// Deletes a playlist by its local database ID.
+  /// Also cleans up any orphaned videos that are no longer part of any other playlist.
+  Future<void> deletePlaylist(int id);
+
+  /// Removes a specific video from a playlist without deleting the video from the library.
+  Future<void> removeVideoFromPlaylist(int playlistId, int videoModelId);
+
+  /// Adds a video to a specific playlist by fetching its metadata via its YouTube URL.
+  Future<void> addVideoToPlaylist(int playlistId, String videoUrl);
+
+  /// Updates the watch progress (in seconds) for a specific video across all playlists.
+  Future<void> updateVideoProgress(String youtubeId, int positionSeconds);
+
+  /// Retrieves the default "My Library" playlist, creating it if it doesn't exist yet.
+  Future<PlaylistModel> getOrCreateDefaultLibrary();
+
+  /// Adds a video (by URL) directly to the system's default library.
+  Future<void> addVideoToLibrary(String videoUrl);
+
+  /// Removes a video from the system's default library.
+  Future<void> removeVideoFromLibrary(int videoModelId);
+
+  /// Fetches the default library playlist, creating it if necessary.
+  Future<PlaylistModel> getDefaultLibrary();
+
+  /// Sets a specific playlist as the system-wide default, unsetting the flag on all others.
+  Future<void> setDefaultPlaylist(int playlistId);
+}
+
+class PlaylistRepositoryImpl implements PlaylistRepository {
+  PlaylistRepositoryImpl({
+    required this.playlistBox,
+    required this.videoBox,
+    required this.store,
     required this.apiService,
-  }) : _store = store;
+    required this.talker,
+  });
 
-  final Store _store;
+  final Box<PlaylistModel> playlistBox;
+  final Box<PlaylistVideoModel> videoBox;
+  final Store store;
   final YoutubeApiService apiService;
-  final Talker talker = TalkerFlutter.init();
-
-  Box<PlaylistModel> get _playlistBox => _store.box<PlaylistModel>();
-  Box<PlaylistVideoModel> get _videoBox => _store.box<PlaylistVideoModel>();
+  final Talker talker;
 
   Future<List<PlaylistModel>> getAllPlaylists() async {
     talker.log('PlaylistRepository: Fetching all playlists', logLevel: LogLevel.debug);
     try {
-      final query = _playlistBox.query()
+      final query = playlistBox.query()
         ..order(PlaylistModel_.createdAt, flags: Order.descending);
       final playlists = query.build().find();
       talker.log('PlaylistRepository: Found ${playlists.length} playlists', logLevel: LogLevel.debug);
@@ -36,7 +84,7 @@ class PlaylistRepository {
   Future<PlaylistModel?> getPlaylist(int id) async {
     talker.log('PlaylistRepository: Fetching playlist ID: $id', logLevel: LogLevel.debug);
     try {
-      final playlist = _playlistBox.get(id);
+      final playlist = playlistBox.get(id);
       if (playlist != null) {
         // ignore: unused_local_variable
         final _ = playlist.videos.length; // force lazy loading
@@ -59,7 +107,7 @@ class PlaylistRepository {
 
   Future<int> _savePlaylist(PlaylistModel playlist) async {
     try {
-      return _playlistBox.put(playlist);
+      return playlistBox.put(playlist);
     } catch (e, st) {
       talker.handle(e, st, 'PlaylistRepository: Error saving playlist');
       throw DatabaseException(e.toString());
@@ -131,7 +179,7 @@ class PlaylistRepository {
 
   Future<bool> isPlaylistImported(String youtubePlaylistId) async {
     try {
-      final count = _playlistBox
+      final count = playlistBox
           .query(PlaylistModel_.youtubePlaylistId.equals(youtubePlaylistId))
           .build()
           .count();
@@ -145,13 +193,13 @@ class PlaylistRepository {
   Future<void> deletePlaylist(int id) async {
     talker.log('PlaylistRepository: Deleting playlist ID: $id', logLevel: LogLevel.info);
     try {
-      final playlist = _playlistBox.get(id);
+      final playlist = playlistBox.get(id);
       if (playlist == null) return;
 
       final videoIdsToRemove = playlist.videos.map((v) => v.id).toSet();
-      _playlistBox.remove(id);
+      playlistBox.remove(id);
 
-      final allOtherPlaylists = _playlistBox.getAll();
+      final allOtherPlaylists = playlistBox.getAll();
       final usedVideoIds = <int>{};
       for (final p in allOtherPlaylists) {
         usedVideoIds.addAll(p.videos.map((v) => v.id));
@@ -159,7 +207,7 @@ class PlaylistRepository {
 
       final orphanedVideoIds = videoIdsToRemove.difference(usedVideoIds).toList();
       if (orphanedVideoIds.isNotEmpty) {
-        _videoBox.removeMany(orphanedVideoIds);
+        videoBox.removeMany(orphanedVideoIds);
       }
     } catch (e, st) {
       talker.handle(e, st, 'PlaylistRepository: Error deleting playlist');
@@ -168,13 +216,13 @@ class PlaylistRepository {
 
   Future<void> _internalAddVideoToPlaylist(int playlistId, PlaylistVideoModel video) async {
     try {
-      final playlist = _playlistBox.get(playlistId);
+      final playlist = playlistBox.get(playlistId);
       if (playlist == null) {
         throw DatabaseException('Playlist $playlistId not found');
       }
 
       PlaylistVideoModel dbVideo;
-      final existing = _videoBox
+      final existing = videoBox
           .query(PlaylistVideoModel_.youtubeId.equals(video.youtubeId))
           .build()
           .findFirst();
@@ -182,7 +230,7 @@ class PlaylistRepository {
       if (existing != null) {
         dbVideo = existing;
       } else {
-        final newId = _videoBox.put(video);
+        final newId = videoBox.put(video);
         video.id = newId;
         dbVideo = video;
       }
@@ -194,7 +242,7 @@ class PlaylistRepository {
 
       playlist.videos.add(dbVideo);
       playlist.videoCount = playlist.videos.length;
-      _playlistBox.put(playlist);
+      playlistBox.put(playlist);
     } catch (e, st) {
       if (e is DatabaseException) rethrow;
       talker.handle(e, st, 'PlaylistRepository: Error adding video to playlist');
@@ -204,7 +252,7 @@ class PlaylistRepository {
 
   Future<void> removeVideoFromPlaylist(int playlistId, int videoModelId) async {
     try {
-      final playlist = _playlistBox.get(playlistId);
+      final playlist = playlistBox.get(playlistId);
       if (playlist == null) return;
 
       playlist.videos.removeWhere((v) => v.id == videoModelId);
@@ -216,7 +264,7 @@ class PlaylistRepository {
         playlist.thumbnailUrl = null;
       }
 
-      _playlistBox.put(playlist);
+      playlistBox.put(playlist);
     } catch (e, st) {
       talker.handle(e, st, 'PlaylistRepository: Error removing video from playlist');
     }
@@ -243,14 +291,14 @@ class PlaylistRepository {
 
   Future<void> updateVideoProgress(String youtubeId, int positionSeconds) async {
     try {
-      final query = _videoBox.query(PlaylistVideoModel_.youtubeId.equals(youtubeId)).build();
+      final query = videoBox.query(PlaylistVideoModel_.youtubeId.equals(youtubeId)).build();
       final video = query.findFirst();
       query.close();
 
       if (video != null) {
         video.lastWatchedPositionSeconds = positionSeconds;
         video.lastPlayedAt = DateTime.now();
-        _videoBox.put(video);
+        videoBox.put(video);
       }
     } catch (e, st) {
       talker.handle(e, st, 'PlaylistRepository: Error updating video progress');
@@ -288,19 +336,19 @@ class PlaylistRepository {
 
   Future<void> setDefaultPlaylist(int playlistId) async {
     try {
-      _store.runInTransaction(TxMode.write, () {
-        final all = _playlistBox.getAll();
+      store.runInTransaction(TxMode.write, () {
+        final all = playlistBox.getAll();
         for (final p in all) {
           p.isSystemDefault = false;
         }
-        _playlistBox.putMany(all);
+        playlistBox.putMany(all);
 
-        final target = _playlistBox.get(playlistId);
+        final target = playlistBox.get(playlistId);
         if (target == null) {
           throw DatabaseException('Playlist $playlistId not found');
         }
         target.isSystemDefault = true;
-        _playlistBox.put(target);
+        playlistBox.put(target);
       });
     } catch (e, st) {
       if (e is DatabaseException) rethrow;

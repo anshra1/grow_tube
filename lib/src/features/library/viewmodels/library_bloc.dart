@@ -1,24 +1,15 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:levelup_tube/src/core/constants/app_strings.dart';
+import 'package:levelup_tube/src/core/error/exception.dart';
 import 'package:levelup_tube/src/core/error/failure.dart';
-import 'package:levelup_tube/src/features/library/domain/entities/video.dart';
-import 'package:levelup_tube/src/features/library/domain/usecases/library_usecases.dart';
-import 'package:levelup_tube/src/features/library/presentation/bloc/library_event.dart';
-import 'package:levelup_tube/src/features/library/presentation/bloc/library_state.dart';
+import 'package:levelup_tube/src/features/library/models/video.dart';
+import 'package:levelup_tube/src/features/playlist/repositories/playlist_repository.dart';
+import 'package:levelup_tube/src/features/library/viewmodels/library_event.dart';
+import 'package:levelup_tube/src/features/library/viewmodels/library_state.dart';
+import 'package:levelup_tube/src/core/utils/youtube_url_parser.dart';
 
 class LibraryBloc extends Bloc<LibraryEvent, LibraryState> {
-  LibraryBloc({
-    required GetAllVideos getAllVideos,
-    required GetLastPlayedVideo getLastPlayedVideo,
-    required AddVideo addVideo,
-    required DeleteVideo deleteVideo,
-    required UpdateVideoProgress updateVideoProgress,
-  }) : _getAllVideos = getAllVideos,
-       _getLastPlayedVideo = getLastPlayedVideo,
-       _addVideo = addVideo,
-       _deleteVideo = deleteVideo,
-       _updateVideoProgress = updateVideoProgress,
-       super(const LibraryInitialState()) {
+  LibraryBloc(this._repository) : super(const LibraryInitialState()) {
     // Fetches initial library data and determines the hero video
     on<LibraryInitializedEvent>(_onInitialized);
 
@@ -42,14 +33,10 @@ class LibraryBloc extends Bloc<LibraryEvent, LibraryState> {
   }
 
   /// Tracks the YouTube ID of the video explicitly chosen by the user.
-  /// When set, [_refreshLibrary] uses this instead of [getLastPlayedVideo].
+  /// When set, [_refreshLibrary] uses this instead of the repository's last played.
   String? _selectedHeroId;
 
-  final GetAllVideos _getAllVideos;
-  final GetLastPlayedVideo _getLastPlayedVideo;
-  final AddVideo _addVideo;
-  final DeleteVideo _deleteVideo;
-  final UpdateVideoProgress _updateVideoProgress;
+  final PlaylistRepository _repository;
 
   Future<void> _onVideoSelected(
     LibraryVideoSelectedEvent event,
@@ -82,18 +69,17 @@ class LibraryBloc extends Bloc<LibraryEvent, LibraryState> {
     LibraryVideoAddedAndPlayRequested event,
     Emitter<LibraryState> emit,
   ) async {
-    final result = await _addVideo(event.url);
-
-    await result.fold(
-      (failure) async => emit(LibraryFailureState(_mapFailureMessage(failure))),
-      (video) async {
-        // Refresh library to get updated list/hero.
-        // The repo's getLastPlayedVideo logic (lastPlayed ?? addedAt)
-        // should pick up this new video as the hero automatically
-        // because it's the most recently added/interacted with.
-        await _refreshLibrary(emit);
-      },
-    );
+    try {
+      await _repository.addVideoToLibrary(event.url);
+      final videoId = YoutubeUrlParser.extractVideoId(event.url);
+      if (videoId == null) {
+        emit(LibraryFailureState(_mapFailureMessage(const ServerFailure(message: 'Invalid YouTube URL', statusCode: 400))));
+        return;
+      }
+      await _refreshLibrary(emit);
+    } catch (e) {
+      emit(LibraryFailureState(_mapFailureMessage(_exceptionToFailure(e))));
+    }
   }
 
   Future<void> _onInitialized(
@@ -108,17 +94,13 @@ class LibraryBloc extends Bloc<LibraryEvent, LibraryState> {
     LibraryVideoProgressUpdatedEvent event,
     Emitter<LibraryState> emit,
   ) async {
-    final result = await _updateVideoProgress(
-      UpdateVideoProgressParams(
-        youtubeId: event.youtubeId,
-        positionSeconds: event.positionSeconds,
-      ),
-    );
-
-    await result.fold((failure) async {
+    try {
+      await _repository.updateVideoProgress(event.youtubeId, event.positionSeconds);
+    } catch (e) {
       // Progress save runs in the background and should not interrupt the UI
       // or show user-facing error toasts for stale callbacks.
-    }, (_) async => _refreshLibrary(emit));
+    }
+    await _refreshLibrary(emit);
   }
 
   Future<void> _onVideoAdded(
@@ -127,13 +109,14 @@ class LibraryBloc extends Bloc<LibraryEvent, LibraryState> {
   ) async {
     emit(const LibraryLoadingState());
 
-    final result = await _addVideo(event.url);
-
-    await result.fold((failure) async {
-      emit(LibraryFailureState(_mapFailureMessage(failure)));
+    try {
+      await _repository.addVideoToLibrary(event.url);
+      await _refreshLibrary(emit);
+    } catch (e) {
+      emit(LibraryFailureState(_mapFailureMessage(_exceptionToFailure(e))));
       // Recover the UI back to the loaded list so it doesn't stay deadlocked
       await _refreshLibrary(emit);
-    }, (_) async => _refreshLibrary(emit));
+    }
   }
 
   Future<void> _onVideoDeleted(
@@ -143,13 +126,14 @@ class LibraryBloc extends Bloc<LibraryEvent, LibraryState> {
     // F5: "remove from DB -> re-emit video list".
     emit(const LibraryLoadingState());
 
-    final result = await _deleteVideo(event.id);
-
-    await result.fold((failure) async {
-      emit(LibraryFailureState(_mapFailureMessage(failure)));
+    try {
+      await _repository.removeVideoFromLibrary(event.id);
+      await _refreshLibrary(emit);
+    } catch (e) {
+      emit(LibraryFailureState(_mapFailureMessage(_exceptionToFailure(e))));
       // Recover the UI back to the loaded list so it doesn't stay deadlocked
       await _refreshLibrary(emit);
-    }, (_) async => _refreshLibrary(emit));
+    }
   }
 
   /// Helper to fetch videos + hero and emit appropriate state.
@@ -158,36 +142,50 @@ class LibraryBloc extends Bloc<LibraryEvent, LibraryState> {
   /// that video is kept as the hero so that progress-save callbacks don't
   /// reset the player to whatever the DB considers "last played".
   Future<void> _refreshLibrary(Emitter<LibraryState> emit) async {
-    final videosResult = await _getAllVideos();
+    try {
+      final library = await _repository.getDefaultLibrary();
+      final videos = library.videos.map((v) => v.toEntity()).toList();
+      videos.sort((a, b) => b.addedAt.compareTo(a.addedAt));
 
-    if (videosResult.isLeft()) {
-      final failure = videosResult.getLeft().toNullable()!;
-      emit(LibraryFailureState(_mapFailureMessage(failure)));
-      return;
+      if (videos.isEmpty) {
+        _selectedHeroId = null;
+        emit(const LibraryEmptyState());
+        return;
+      }
+
+      // If the user explicitly picked a video, keep it as the hero.
+      // Otherwise fall back to the DB's last-played video.
+      Video? heroVideo;
+      if (_selectedHeroId != null) {
+        heroVideo = videos.where((v) => v.youtubeId == _selectedHeroId).firstOrNull;
+      }
+
+      if (heroVideo == null) {
+        final sortedForHero = List<Video>.from(videos);
+        sortedForHero.sort((a, b) {
+          if (a.lastPlayedAt != null && b.lastPlayedAt != null) {
+            return b.lastPlayedAt!.compareTo(a.lastPlayedAt!);
+          }
+          if (a.lastPlayedAt != null) return -1;
+          if (b.lastPlayedAt != null) return 1;
+          return b.addedAt.compareTo(a.addedAt);
+        });
+        heroVideo = sortedForHero.firstOrNull;
+        // Sync _selectedHeroId so future refreshes stay on this video.
+        _selectedHeroId = heroVideo?.youtubeId;
+      }
+
+      emit(LibraryVideoLoadedState(libraryVideos: videos, lastPlayVideo: heroVideo));
+    } catch (e) {
+      emit(LibraryFailureState(_mapFailureMessage(_exceptionToFailure(e))));
     }
-
-    final videos = videosResult.getRight().toNullable()!;
-    if (videos.isEmpty) {
-      _selectedHeroId = null;
-      emit(const LibraryEmptyState());
-      return;
+  }
+  
+  Failure _exceptionToFailure(dynamic e) {
+    if (e is VideoException) {
+      return VideoFailure(message: e.message, code: e.code);
     }
-
-    // If the user explicitly picked a video, keep it as the hero.
-    // Otherwise fall back to the DB's last-played video.
-    Video? heroVideo;
-    if (_selectedHeroId != null) {
-      heroVideo = videos.where((v) => v.youtubeId == _selectedHeroId).firstOrNull;
-    }
-
-    if (heroVideo == null) {
-      final heroResult = await _getLastPlayedVideo();
-      heroVideo = heroResult.fold((failure) => null, (video) => video);
-      // Sync _selectedHeroId so future refreshes stay on this video.
-      _selectedHeroId = heroVideo?.youtubeId;
-    }
-
-    emit(LibraryVideoLoadedState(libraryVideos: videos, lastPlayVideo: heroVideo));
+    return ServerFailure(message: e.toString(), statusCode: 500);
   }
 
   String _mapFailureMessage(Failure failure) {

@@ -15,8 +15,8 @@ import 'package:levelup_tube/src/core/widgets/pages/startup_error_app.dart';
 import 'package:talker_flutter/talker_flutter.dart';
 import 'package:toastification/toastification.dart';
 
-import 'package:levelup_tube/src/features/library/presentation/bloc/library_bloc.dart';
-import 'package:levelup_tube/src/features/library/presentation/bloc/library_event.dart';
+import 'package:levelup_tube/src/features/library/viewmodels/library_bloc.dart';
+import 'package:levelup_tube/src/features/library/viewmodels/library_event.dart';
 
 late final Talker talker;
 

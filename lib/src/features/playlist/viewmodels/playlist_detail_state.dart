@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:levelup_tube/src/features/library/domain/entities/video.dart';
+import 'package:levelup_tube/src/features/library/models/video.dart';
 import 'package:levelup_tube/src/features/playlist/models/playlist_model.dart';
 
 sealed class PlaylistDetailState extends Equatable {

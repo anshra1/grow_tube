@@ -1,5 +1,5 @@
 import 'package:objectbox/objectbox.dart';
-import 'package:levelup_tube/src/features/library/domain/entities/video.dart';
+import 'package:levelup_tube/src/features/library/models/video.dart';
 
 @Entity()
 class PlaylistVideoModel {

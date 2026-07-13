@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:levelup_tube/src/features/library/domain/entities/video.dart';
+import 'package:levelup_tube/src/features/library/models/video.dart';
 
 sealed class LibraryState extends Equatable {
   const LibraryState();

@@ -3,11 +3,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:levelup_tube/src/core/di/injection_container.dart';
 import 'package:levelup_tube/src/core/mixins/clipboard_monitor_mixin.dart';
-import 'package:levelup_tube/src/features/library/presentation/bloc/library_bloc.dart';
-import 'package:levelup_tube/src/features/library/presentation/bloc/library_event.dart';
-import 'package:levelup_tube/src/features/library/presentation/pages/widgets/add_video_bottom_sheet.dart';
-import 'package:levelup_tube/src/features/library/presentation/pages/widgets/clipboard_playlist_prompt.dart';
-import 'package:levelup_tube/src/features/library/presentation/pages/widgets/clipboard_video_prompt.dart';
+import 'package:levelup_tube/src/features/library/viewmodels/library_bloc.dart';
+import 'package:levelup_tube/src/features/library/viewmodels/library_event.dart';
+import 'package:levelup_tube/src/features/library/views/widgets/add_video_bottom_sheet.dart';
+import 'package:levelup_tube/src/features/library/views/widgets/clipboard_playlist_prompt.dart';
+import 'package:levelup_tube/src/features/library/views/widgets/clipboard_video_prompt.dart';
 import 'package:levelup_tube/src/features/settings/presentation/settings_cubit.dart';
 import 'package:toastification/toastification.dart';
 

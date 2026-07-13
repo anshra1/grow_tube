@@ -9,9 +9,10 @@ import 'package:levelup_tube/src/core/services/logging/talker_logging_service.da
 import 'package:levelup_tube/src/features/connectivity/data/services/internet_connection_service.dart';
 import 'package:levelup_tube/src/core/theme/theme_cubit.dart';
 import 'package:levelup_tube/src/core/theme/theme_preferences.dart';
-import 'package:levelup_tube/src/features/library/data/datasources/youtube_api_service.dart';
-import 'package:levelup_tube/src/features/library/domain/usecases/library_usecases.dart';
-import 'package:levelup_tube/src/features/library/presentation/bloc/library_bloc.dart';
+import 'package:levelup_tube/src/core/services/youtube_api_service.dart';
+import 'package:levelup_tube/src/features/library/viewmodels/library_bloc.dart';
+import 'package:levelup_tube/src/features/playlist/models/playlist_model.dart';
+import 'package:levelup_tube/src/features/playlist/models/playlist_video_model.dart';
 import 'package:levelup_tube/src/features/playlist/repositories/playlist_repository.dart';
 import 'package:levelup_tube/src/features/playlist/viewmodels/playlist_cubit.dart';
 import 'package:levelup_tube/src/features/settings/presentation/settings_cubit.dart';
@@ -64,31 +65,28 @@ Future<void> init() async {
   // ============================================================
   // Repositories
   // ============================================================
+  sl.registerLazySingleton<Box<PlaylistModel>>(() => sl<Store>().box<PlaylistModel>());
+  sl.registerLazySingleton<Box<PlaylistVideoModel>>(() => sl<Store>().box<PlaylistVideoModel>());
+
   sl.registerLazySingleton<PlaylistRepository>(
-    () => PlaylistRepository(store: sl(), apiService: sl()),
+    () => PlaylistRepositoryImpl(
+      playlistBox: sl(),
+      videoBox: sl(),
+      store: sl(),
+      apiService: sl(),
+      talker: sl(),
+    ),
   );
 
   // ============================================================
   // Use Cases
   // ============================================================
-  sl.registerLazySingleton(() => GetAllVideos(sl()));
-  sl.registerLazySingleton(() => GetVideo(sl()));
-  sl.registerLazySingleton(() => GetLastPlayedVideo(sl()));
-  sl.registerLazySingleton(() => AddVideo(sl()));
-  sl.registerLazySingleton(() => DeleteVideo(sl()));
-  sl.registerLazySingleton(() => UpdateVideoProgress(sl()));
 
   // ============================================================
   // Blocs
   // ============================================================
   sl.registerFactory(
-    () => LibraryBloc(
-      getAllVideos: sl(),
-      getLastPlayedVideo: sl(),
-      addVideo: sl(),
-      deleteVideo: sl(),
-      updateVideoProgress: sl(),
-    ),
+    () => LibraryBloc(sl()),
   );
   sl.registerFactory(() => ConnectivityCubit(sl()));
   sl.registerFactory(

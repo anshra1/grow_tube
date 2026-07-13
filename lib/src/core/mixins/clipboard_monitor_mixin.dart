@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:levelup_tube/main.dart';
 import 'package:levelup_tube/src/core/di/injection_container.dart';
 import 'package:levelup_tube/src/core/services/clipboard_service.dart';
-import 'package:levelup_tube/src/features/library/domain/usecases/library_usecases.dart';
 import 'package:levelup_tube/src/features/playlist/repositories/playlist_repository.dart';
 
 mixin ClipboardMonitorMixin<T extends StatefulWidget>
@@ -72,17 +71,19 @@ mixin ClipboardMonitorMixin<T extends StatefulWidget>
     talker.debug('ClipboardMonitorMixin: Clipboard text: $text, videoId: $videoId');
 
     // DB is the authoritative source — always check it first
-    final getVideoResult = await sl<GetVideo>()(videoId);
-    final isAlreadyAdded = getVideoResult.fold(
-      (failure) {
-        talker.error('ClipboardMonitorMixin: DB Error checking videoId: $failure');
-        return true; // On error, assume already added (safe default)
-      },
-      (video) {
-        talker.debug('ClipboardMonitorMixin: DB result for $videoId: ${video?.title}');
-        return video != null;
-      },
-    );
+    bool isAlreadyAdded = true; // safe default
+    try {
+      final library = await sl<PlaylistRepository>().getDefaultLibrary();
+      final video = library.videos.where((v) => v.youtubeId == videoId).firstOrNull;
+      if (video != null) {
+        talker.debug('ClipboardMonitorMixin: DB result for $videoId: ${video.title}');
+        isAlreadyAdded = true;
+      } else {
+        isAlreadyAdded = false;
+      }
+    } catch (e) {
+      talker.error('ClipboardMonitorMixin: DB Error checking videoId: $e');
+    }
 
     if (isAlreadyAdded) {
       talker.debug('ClipboardMonitorMixin: Video $videoId already in library, skipping');
