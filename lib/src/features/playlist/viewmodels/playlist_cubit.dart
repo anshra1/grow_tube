@@ -1,6 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:levelup_tube/src/features/playlist/models/playlist_model.dart';
-import 'package:levelup_tube/src/features/playlist/models/playlist_repository.dart';
+import 'package:levelup_tube/src/features/playlist/repositories/playlist_repository.dart';
 import 'package:levelup_tube/src/features/playlist/viewmodels/playlist_state.dart';
 
 class PlaylistCubit extends Cubit<PlaylistState> {
@@ -17,6 +17,14 @@ class PlaylistCubit extends Cubit<PlaylistState> {
     } else {
       emit(PlaylistLoadedState(playlists));
     }
+  }
+
+  /// Load playlists and then start importing.
+  Future<void> loadAndImport(String url) async {
+    await loadPlaylists();
+    // Wait for the screen transition to finish before showing the importing state
+    await Future.delayed(const Duration(milliseconds: 500));
+    await importPlaylist(url);
   }
 
   /// Create a new custom (empty) playlist.

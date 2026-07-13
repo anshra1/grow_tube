@@ -11,6 +11,7 @@ class PlaylistModel {
     this.thumbnailUrl,
     this.description,
     this.videoCount = 0,
+    this.isSystemDefault = false,
   });
 
   @Id()
@@ -36,6 +37,9 @@ class PlaylistModel {
 
   @Property(type: PropertyType.dateNano)
   DateTime createdAt;
+
+  /// Identifies if this is a system-generated playlist (like "My Library")
+  bool isSystemDefault;
 
   /// The ObjectBox ToMany relation to VideoModel.
   /// This is the CORE relationship — a playlist contains many videos.

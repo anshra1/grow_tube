@@ -62,3 +62,9 @@ final class LibraryVideoSelectedEvent extends LibraryEvent {
   @override
   List<Object?> get props => [video];
 }
+
+/// Triggered when the default playlist changes in Settings.
+/// Forces the Home tab to reload its video list from the new default.
+final class LibraryDefaultPlaylistChangedEvent extends LibraryEvent {
+  const LibraryDefaultPlaylistChangedEvent();
+}

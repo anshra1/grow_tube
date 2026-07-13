@@ -8,7 +8,7 @@ import 'package:levelup_tube/src/features/library/presentation/pages/widgets/add
 import 'package:levelup_tube/src/features/library/presentation/pages/widgets/dashboard_video_list.dart';
 import 'package:levelup_tube/src/features/library/presentation/pages/widgets/dashboard_video_list_shimmer.dart';
 import 'package:levelup_tube/src/features/library/presentation/pages/widgets/dashboard_video_player.dart';
-import 'package:levelup_tube/src/features/playlist/models/playlist_repository.dart';
+import 'package:levelup_tube/src/features/playlist/repositories/playlist_repository.dart';
 import 'package:levelup_tube/src/features/playlist/viewmodels/playlist_detail_cubit.dart';
 import 'package:levelup_tube/src/features/playlist/viewmodels/playlist_detail_state.dart';
 import 'package:shimmer/shimmer.dart';

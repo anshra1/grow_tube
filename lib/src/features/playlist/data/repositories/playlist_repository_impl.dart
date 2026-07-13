@@ -1,13 +1,15 @@
 import 'package:levelup_tube/main.dart';
 import 'package:levelup_tube/src/core/error/exception.dart';
-import 'package:levelup_tube/src/features/library/data/datasources/video_remote_datasource.dart';
+import 'package:levelup_tube/src/core/utils/youtube_url_parser.dart';
 import 'package:levelup_tube/src/features/library/data/datasources/youtube_api_service.dart';
 import 'package:levelup_tube/src/features/playlist/models/playlist_video_model.dart';
-import 'package:levelup_tube/src/features/playlist/data/playlist_local_datasource.dart';
+import 'package:levelup_tube/src/features/playlist/data/repositories/playlist_local_datasource.dart';
 import 'package:levelup_tube/src/features/playlist/models/playlist_model.dart';
+import 'package:levelup_tube/src/features/playlist/domain/repositories/playlist_repository.dart';
+import 'package:talker_flutter/talker_flutter.dart';
 
-class PlaylistRepository {
-  PlaylistRepository({
+class PlaylistRepositoryImpl implements PlaylistRepository {
+  PlaylistRepositoryImpl({
     required this.localDataSource,
     required this.apiService,
   });
@@ -15,18 +17,18 @@ class PlaylistRepository {
   final PlaylistLocalDataSource localDataSource;
   final YoutubeApiService apiService;
 
-  /// Returns all playlists, ordered newest first.
-  /// Catches DatabaseException → returns empty list and logs error.
+  @override
   Future<List<PlaylistModel>> getAllPlaylists() async {
     try {
-      return await localDataSource.getAllPlaylists();
+      final playlists = await localDataSource.getAllPlaylists();
+      return playlists;
     } catch (e, st) {
       talker.handle(e, st, 'PlaylistRepository: Error fetching playlists');
       return [];
     }
   }
 
-  /// Returns a single playlist with videos loaded.
+  @override
   Future<PlaylistModel?> getPlaylist(int id) async {
     try {
       return await localDataSource.getPlaylist(id);
@@ -36,63 +38,38 @@ class PlaylistRepository {
     }
   }
 
-  /// Creates a new empty custom playlist.
-  /// Returns the created playlist's ObjectBox ID.
+  @override
   Future<int> createCustomPlaylist(String title) async {
     final playlist = PlaylistModel(
       title: title.trim(),
       createdAt: DateTime.now(),
+      isSystemDefault: false,
     );
     return localDataSource.savePlaylist(playlist);
   }
 
-  /// Imports a YouTube playlist:
-  /// 1. Extract playlist ID from URL
-  /// 2. Check if already imported (duplicate guard)
-  /// 3. Fetch playlist metadata (title, thumbnail)
-  /// 4. Fetch all video IDs in the playlist
-  /// 5. For each video ID, fetch video details via YoutubeApiService
-  /// 6. Create PlaylistModel, add all VideoModels to its ToMany
-  /// 7. Save to ObjectBox
-  ///
-  /// Returns the created playlist's ObjectBox ID.
-  ///
-  /// Throws:
-  /// - [VideoException] for API errors (invalid URL, quota, etc.)
-  /// - [DatabaseException] for local DB errors
-  /// - [Exception] with 'duplicate' message if already imported
+  @override
   Future<int> importYoutubePlaylist(String playlistUrl) async {
-    // 1. Extract playlist ID
-    final playlistId = VideoRemoteDataSourceImpl.extractPlaylistId(playlistUrl);
+    final playlistId = YoutubeUrlParser.extractPlaylistId(playlistUrl);
     if (playlistId == null) {
-      throw const VideoException(
-        'Invalid YouTube playlist URL.',
-        code: 'invalidUrl',
-      );
+      throw const VideoException('Invalid YouTube playlist URL.', code: 'invalidUrl');
     }
 
-    // 2. Check duplicate
     final alreadyImported = await localDataSource.isPlaylistImported(playlistId);
     if (alreadyImported) {
       throw Exception('This playlist has already been imported.');
     }
 
-    // 3. Fetch playlist metadata
     talker.log('PlaylistRepository: Fetching metadata for playlist $playlistId');
     final playlistMeta = await apiService.fetchPlaylistDetails(playlistId);
 
-    // 4. Fetch video IDs
     talker.log('PlaylistRepository: Fetching video IDs for playlist $playlistId');
     final videoIds = await apiService.fetchPlaylistVideoIds(playlistId);
 
     if (videoIds.isEmpty) {
-      throw const VideoException(
-        'This playlist has no videos.',
-        code: 'emptyPlaylist',
-      );
+      throw const VideoException('This playlist has no videos.', code: 'emptyPlaylist');
     }
 
-    // 5. Fetch video details for each ID
     talker.log('PlaylistRepository: Fetching details for ${videoIds.length} videos');
     final List<PlaylistVideoModel> videoModels = [];
 
@@ -109,22 +86,14 @@ class PlaylistRepository {
         );
         videoModels.add(model);
       } catch (e) {
-        // Skip unavailable videos (private, deleted, etc.)
-        // Log but don't fail the entire import.
-        talker.warning(
-          'PlaylistRepository: Skipping video $videoId — $e',
-        );
+        talker.warning('PlaylistRepository: Skipping video $videoId — $e');
       }
     }
 
     if (videoModels.isEmpty) {
-      throw const VideoException(
-        'No accessible videos found in this playlist.',
-        code: 'emptyPlaylist',
-      );
+      throw const VideoException('No accessible videos found in this playlist.', code: 'emptyPlaylist');
     }
 
-    // 6. Create PlaylistModel
     final playlist = PlaylistModel(
       title: playlistMeta['title'] as String,
       createdAt: DateTime.now(),
@@ -132,40 +101,39 @@ class PlaylistRepository {
       thumbnailUrl: playlistMeta['thumbnailUrl'] as String?,
       description: playlistMeta['description'] as String?,
       videoCount: videoModels.length,
+      isSystemDefault: false,
     );
 
-    // 7. Save playlist first to get an ID
     final savedId = await localDataSource.savePlaylist(playlist);
-
-    // 8. Add each video to the playlist
     for (final video in videoModels) {
       await localDataSource.addVideoToPlaylist(savedId, video);
     }
-
-    talker.log(
-      'PlaylistRepository: Imported playlist "${playlistMeta['title']}" '
-      'with ${videoModels.length} videos (ID: $savedId)',
-    );
-
+    talker.log('PlaylistRepository: Imported playlist "${playlistMeta['title']}" with ${videoModels.length} videos (ID: $savedId)');
     return savedId;
   }
 
+  @override
+  Future<bool> isPlaylistImported(String youtubePlaylistId) async {
+    return localDataSource.isPlaylistImported(youtubePlaylistId);
+  }
+
+  @override
   Future<void> deletePlaylist(int id) async {
     await localDataSource.deletePlaylist(id);
   }
 
+  @override
   Future<void> removeVideoFromPlaylist(int playlistId, int videoModelId) async {
     await localDataSource.removeVideoFromPlaylist(playlistId, videoModelId);
   }
 
-  /// Adds a single video to a playlist by URL.
+  @override
   Future<void> addVideoToPlaylist(int playlistId, String videoUrl) async {
-    final videoId = VideoRemoteDataSourceImpl.extractVideoId(videoUrl);
+    final videoId = YoutubeUrlParser.extractVideoId(videoUrl);
     if (videoId == null) {
       throw const VideoException('Invalid YouTube URL', code: 'invalidUrl');
     }
 
-    // Fetch details
     final data = await apiService.fetchVideoDetails(videoId);
     final model = PlaylistVideoModel(
       youtubeId: data['id'] as String,
@@ -179,7 +147,54 @@ class PlaylistRepository {
     await localDataSource.addVideoToPlaylist(playlistId, model);
   }
 
+  @override
   Future<void> updateVideoProgress(String youtubeId, int positionSeconds) async {
+    // We need to update progress across all playlists where this video exists,
+    // since PlaylistVideoModel doesn't enforce uniqueness on youtubeId.
+    // However, the original code had this method on PlaylistLocalDataSource but wait, did it?
+    // Let's implement it by querying PlaylistVideoModel by youtubeId and updating all.
+    // The VideoLocalDataSource had this. Let's assume PlaylistLocalDataSource doesn't have it yet, we will add it.
     await localDataSource.updateVideoProgress(youtubeId, positionSeconds);
+  }
+
+  @override
+  Future<PlaylistModel> getOrCreateDefaultLibrary() async {
+    final playlists = await localDataSource.getAllPlaylists();
+    var defaultLib = playlists.where((p) => p.isSystemDefault).firstOrNull;
+    if (defaultLib == null) {
+       talker.log('PlaylistRepository: Creating new Default Library playlist.', logLevel: LogLevel.info);
+       defaultLib = PlaylistModel(
+         title: 'My Library',
+         createdAt: DateTime.now(),
+         isSystemDefault: true,
+       );
+       final id = await localDataSource.savePlaylist(defaultLib);
+       defaultLib.id = id;
+    } else {
+       talker.log('PlaylistRepository: Found existing Default Library playlist (ID: ${defaultLib.id}).', logLevel: LogLevel.debug);
+    }
+    return defaultLib;
+  }
+
+  @override
+  Future<void> addVideoToLibrary(String videoUrl) async {
+    final defaultLib = await getOrCreateDefaultLibrary();
+    await addVideoToPlaylist(defaultLib.id, videoUrl);
+  }
+
+  @override
+  Future<void> removeVideoFromLibrary(int videoModelId) async {
+    final defaultLib = await getOrCreateDefaultLibrary();
+    await removeVideoFromPlaylist(defaultLib.id, videoModelId);
+  }
+
+  @override
+  Future<PlaylistModel> getDefaultLibrary() async {
+    return getOrCreateDefaultLibrary();
+  }
+
+  @override
+  Future<void> setDefaultPlaylist(int playlistId) async {
+    await localDataSource.setDefaultPlaylist(playlistId);
   }
 }

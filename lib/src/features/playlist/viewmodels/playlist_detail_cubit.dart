@@ -1,6 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:levelup_tube/src/features/library/domain/entities/video.dart';
-import 'package:levelup_tube/src/features/playlist/models/playlist_repository.dart';
+import 'package:levelup_tube/src/features/playlist/repositories/playlist_repository.dart';
 import 'package:levelup_tube/src/features/playlist/viewmodels/playlist_detail_state.dart';
 
 class PlaylistDetailCubit extends Cubit<PlaylistDetailState> {
@@ -35,11 +35,12 @@ class PlaylistDetailCubit extends Cubit<PlaylistDetailState> {
     }
 
     // Hero = selected video, or fall back to first video in playlist
-    Video? heroVideo;
+    Video heroVideo;
     if (_selectedHeroId != null) {
-      heroVideo = videos.where((v) => v.youtubeId == _selectedHeroId).firstOrNull;
+      heroVideo = videos.where((v) => v.youtubeId == _selectedHeroId).firstOrNull ?? videos.first;
+    } else {
+      heroVideo = videos.first;
     }
-    heroVideo ??= videos.first;
     _selectedHeroId = heroVideo.youtubeId;
 
     emit(PlaylistDetailLoadedState(

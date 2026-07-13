@@ -89,7 +89,7 @@ final _entities = <obx_int.ModelEntity>[
   obx_int.ModelEntity(
     id: const obx_int.IdUid(2, 1747732836037110316),
     name: 'PlaylistModel',
-    lastPropertyId: const obx_int.IdUid(7, 2056482601170706801),
+    lastPropertyId: const obx_int.IdUid(8, 199409539475203119),
     flags: 0,
     properties: <obx_int.ModelProperty>[
       obx_int.ModelProperty(
@@ -132,6 +132,12 @@ final _entities = <obx_int.ModelEntity>[
         id: const obx_int.IdUid(7, 2056482601170706801),
         name: 'createdAt',
         type: 12,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(8, 199409539475203119),
+        name: 'isSystemDefault',
+        type: 1,
         flags: 0,
       ),
     ],
@@ -377,7 +383,7 @@ obx_int.ModelDefinition getObjectBoxModel() {
         final descriptionOffset = object.description == null
             ? null
             : fbb.writeString(object.description!);
-        fbb.startTable(8);
+        fbb.startTable(9);
         fbb.addInt64(0, object.id);
         fbb.addOffset(1, titleOffset);
         fbb.addOffset(2, youtubePlaylistIdOffset);
@@ -385,6 +391,7 @@ obx_int.ModelDefinition getObjectBoxModel() {
         fbb.addOffset(4, descriptionOffset);
         fbb.addInt64(5, object.videoCount);
         fbb.addInt64(6, object.createdAt.microsecondsSinceEpoch * 1000);
+        fbb.addBool(7, object.isSystemDefault);
         fbb.finish(fbb.endTable());
         return object.id;
       },
@@ -419,6 +426,12 @@ obx_int.ModelDefinition getObjectBoxModel() {
           14,
           0,
         );
+        final isSystemDefaultParam = const fb.BoolReader().vTableGet(
+          buffer,
+          rootOffset,
+          18,
+          false,
+        );
         final object = PlaylistModel(
           title: titleParam,
           createdAt: createdAtParam,
@@ -427,6 +440,7 @@ obx_int.ModelDefinition getObjectBoxModel() {
           thumbnailUrl: thumbnailUrlParam,
           description: descriptionParam,
           videoCount: videoCountParam,
+          isSystemDefault: isSystemDefaultParam,
         );
         obx_int.InternalToManyAccess.setRelInfo<PlaylistModel>(
           object.videos,
@@ -612,6 +626,11 @@ class PlaylistModel_ {
   /// See [PlaylistModel.createdAt].
   static final createdAt = obx.QueryDateNanoProperty<PlaylistModel>(
     _entities[1].properties[6],
+  );
+
+  /// See [PlaylistModel.isSystemDefault].
+  static final isSystemDefault = obx.QueryBooleanProperty<PlaylistModel>(
+    _entities[1].properties[7],
   );
 
   /// see [PlaylistModel.videos]

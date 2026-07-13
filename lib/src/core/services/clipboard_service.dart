@@ -33,6 +33,19 @@ class ClipboardService {
     return null;
   }
 
+  /// Validates a string to see if it's a YouTube playlist URL and extracts the ID.
+  /// Returns the playlist ID if valid, otherwise null.
+  String? extractYouTubePlaylistId(String url) {
+    final regExp = RegExp(
+      r'(?:youtube\.com\/(?:playlist\?|watch\?.*&)list=)([a-zA-Z0-9_-]+)',
+    );
+    final match = regExp.firstMatch(url);
+    if (match != null && match.group(1) != null) {
+      return match.group(1);
+    }
+    return null;
+  }
+
   /// Checks if the given URL is new and hasn't been processed yet.
   bool isNewUrl(String url) {
     if (url.isNotEmpty && url != _lastProcessedUrl) {

@@ -35,6 +35,10 @@ abstract class PlaylistLocalDataSource {
 
   /// Updates watch progress for a playlist video.
   Future<void> updateVideoProgress(String youtubeId, int positionSeconds);
+
+  /// Atomically sets [playlistId] as the sole system default,
+  /// clearing the flag from all other playlists in a single transaction.
+  Future<void> setDefaultPlaylist(int playlistId);
 }
 
 class PlaylistLocalDataSourceImpl implements PlaylistLocalDataSource {
@@ -253,4 +257,33 @@ class PlaylistLocalDataSourceImpl implements PlaylistLocalDataSource {
       throw DatabaseException(e.toString());
     }
   }
+
+  @override
+  Future<void> setDefaultPlaylist(int playlistId) async {
+    talker.log('PlaylistLocalDS: Setting default playlist to ID: $playlistId', logLevel: LogLevel.info);
+    try {
+      _store.runInTransaction(TxMode.write, () {
+        // 1. Clear all existing defaults
+        final all = _playlistBox.getAll();
+        for (final p in all) {
+          p.isSystemDefault = false;
+        }
+        _playlistBox.putMany(all);
+
+        // 2. Set the new default — throws if not found (rolls back transaction)
+        final target = _playlistBox.get(playlistId);
+        if (target == null) {
+          throw DatabaseException('Playlist $playlistId not found');
+        }
+        target.isSystemDefault = true;
+        _playlistBox.put(target);
+      });
+      talker.log('PlaylistLocalDS: Default playlist set to ID: $playlistId', logLevel: LogLevel.info);
+    } catch (e, st) {
+      if (e is DatabaseException) rethrow;
+      talker.handle(e, st, 'PlaylistLocalDS: Error setting default playlist');
+      throw DatabaseException(e.toString());
+    }
+  }
 }
+

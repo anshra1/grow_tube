@@ -36,6 +36,9 @@ class LibraryBloc extends Bloc<LibraryEvent, LibraryState> {
 
     // Selects a specific video to be displayed as the hero video
     on<LibraryVideoSelectedEvent>(_onVideoSelected);
+
+    // Reloads the library when the default playlist changes in Settings
+    on<LibraryDefaultPlaylistChangedEvent>(_onDefaultPlaylistChanged);
   }
 
   /// Tracks the YouTube ID of the video explicitly chosen by the user.
@@ -63,6 +66,16 @@ class LibraryBloc extends Bloc<LibraryEvent, LibraryState> {
         ),
       );
     }
+  }
+
+  Future<void> _onDefaultPlaylistChanged(
+    LibraryDefaultPlaylistChangedEvent event,
+    Emitter<LibraryState> emit,
+  ) async {
+    // Clear the pinned hero so the new default playlist's
+    // last-played video becomes the hero naturally.
+    _selectedHeroId = null;
+    await _refreshLibrary(emit);
   }
 
   Future<void> _onVideoAddedAndPlay(

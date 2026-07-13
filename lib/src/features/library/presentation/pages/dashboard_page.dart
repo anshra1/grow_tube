@@ -1,116 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
-import 'package:levelup_tube/src/core/constants/app_icons.dart';
 import 'package:levelup_tube/src/core/constants/app_strings.dart';
 import 'package:levelup_tube/src/core/design_system/app_radius.dart';
 import 'package:levelup_tube/src/core/design_system/app_sizes.dart';
-import 'package:levelup_tube/src/core/mixins/clipboard_monitor_mixin.dart';
 import 'package:levelup_tube/src/core/extensions/context_extensions.dart';
 import 'package:levelup_tube/src/core/widgets/pages/app_scaffold.dart';
 import 'package:levelup_tube/src/features/library/presentation/bloc/library_bloc.dart';
 import 'package:levelup_tube/src/features/library/presentation/bloc/library_event.dart';
 import 'package:levelup_tube/src/features/library/presentation/bloc/library_state.dart';
-import 'package:levelup_tube/src/features/library/presentation/pages/widgets/add_video_bottom_sheet.dart';
-import 'package:levelup_tube/src/features/library/presentation/pages/widgets/clipboard_video_prompt.dart';
 import 'package:levelup_tube/src/features/library/presentation/pages/widgets/dashboard_empty_state.dart';
-import 'package:levelup_tube/src/features/library/presentation/pages/widgets/dashboard_header.dart';
 import 'package:levelup_tube/src/features/library/presentation/pages/widgets/dashboard_video_list.dart';
 import 'package:levelup_tube/src/features/library/presentation/pages/widgets/dashboard_video_list_shimmer.dart';
 import 'package:levelup_tube/src/features/library/presentation/pages/widgets/dashboard_video_player.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:toastification/toastification.dart';
 
-class DashboardPage extends StatefulWidget {
+class DashboardPage extends StatelessWidget {
   const DashboardPage({super.key});
 
   @override
-  State<DashboardPage> createState() => _DashboardPageState();
-}
-
-class _DashboardPageState extends State<DashboardPage>
-    with WidgetsBindingObserver, ClipboardMonitorMixin {
-  @override
-  void onClipboardUrlDetected(String url, String videoId) {
-    toastification.showCustom(
-      context: context,
-      alignment: Alignment.bottomCenter,
-      autoCloseDuration: const Duration(seconds: 10),
-      animationBuilder: (context, animation, alignment, child) {
-        return SlideTransition(
-          position: Tween<Offset>(
-            begin: const Offset(0, 1),
-            end: const Offset(0, 0),
-          ).animate(animation),
-          child: child,
-        );
-      },
-      builder: (context, holder) {
-        return ClipboardVideoPrompt(
-          url: url,
-          onDismiss: () => toastification.dismiss(holder),
-          onAdd: () {
-            context.read<LibraryBloc>().add(LibraryVideoAddedEvent(url));
-            toastification.dismiss(holder);
-          },
-          onWatch: () {
-            context.read<LibraryBloc>().add(LibraryVideoAddedAndPlayRequested(url));
-            toastification.dismiss(holder);
-          },
-        );
-      },
-    );
-  }
-
-  @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return AppScaffold(
-      body: const _DashboardContent(),
-      floatingActionButton: BlocBuilder<LibraryBloc, LibraryState>(
-        buildWhen: (previous, current) =>
-            current is LibraryEmptyState || current is LibraryVideoLoadedState,
-        builder: (context, state) {
-          if (state is LibraryEmptyState) {
-            return const SizedBox.shrink();
-          }
-          return Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              FloatingActionButton.small(
-                heroTag: 'playlist_fab',
-                onPressed: () => context.push('/playlists'),
-                backgroundColor: context.colorScheme.secondaryContainer,
-                foregroundColor: context.colorScheme.onSecondaryContainer,
-                child: const Icon(Icons.playlist_play_rounded),
-              ),
-              const SizedBox(height: 12),
-              FloatingActionButton(
-                heroTag: 'add_video_fab',
-                onPressed: () {
-                  showModalBottomSheet(
-                    context: context,
-                    isScrollControlled: true,
-                    useSafeArea: true,
-                    builder: (_) => AddVideoBottomSheet(
-                      onAdd: (url) {
-                        context.read<LibraryBloc>().add(LibraryVideoAddedEvent(url));
-                      },
-                    ),
-                  );
-                },
-                backgroundColor: context.colorScheme.primary,
-                foregroundColor: context.colorScheme.onPrimary,
-                child: const Icon(AppIcons.add),
-              ),
-            ],
-          );
-        },
-      ),
+    return const AppScaffold(
+      body: _DashboardContent(),
     );
   }
 }
@@ -136,7 +47,6 @@ class _DashboardContent extends StatelessWidget {
       },
       child: Column(
         children: [
-          const DashboardHeader(),
           const SizedBox(height: AppSizes.p8),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: AppSizes.p16),

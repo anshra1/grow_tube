@@ -61,7 +61,7 @@
     },
     {
       "id": "2:1747732836037110316",
-      "lastPropertyId": "7:2056482601170706801",
+      "lastPropertyId": "8:199409539475203119",
       "name": "PlaylistModel",
       "properties": [
         {
@@ -99,6 +99,11 @@
           "id": "7:2056482601170706801",
           "name": "createdAt",
           "type": 12
+        },
+        {
+          "id": "8:199409539475203119",
+          "name": "isSystemDefault",
+          "type": 1
         }
       ],
       "relations": [

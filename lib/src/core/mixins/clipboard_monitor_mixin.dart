@@ -3,6 +3,7 @@ import 'package:levelup_tube/main.dart';
 import 'package:levelup_tube/src/core/di/injection_container.dart';
 import 'package:levelup_tube/src/core/services/clipboard_service.dart';
 import 'package:levelup_tube/src/features/library/domain/usecases/library_usecases.dart';
+import 'package:levelup_tube/src/features/playlist/repositories/playlist_repository.dart';
 
 mixin ClipboardMonitorMixin<T extends StatefulWidget>
     on State<T>, WidgetsBindingObserver {
@@ -34,6 +35,37 @@ mixin ClipboardMonitorMixin<T extends StatefulWidget>
     final text = await _clipboardService.getClipboardText();
     if (text == null) return;
 
+    // Check for Playlist first
+    final playlistId = _clipboardService.extractYouTubePlaylistId(text);
+    if (playlistId != null) {
+      talker.debug('ClipboardMonitorMixin: Clipboard text: $text, playlistId: $playlistId');
+      
+      bool isAlreadyImported = false;
+      try {
+        isAlreadyImported = await sl<PlaylistRepository>().isPlaylistImported(playlistId);
+      } catch (e) {
+        talker.error('ClipboardMonitorMixin: DB Error checking playlistId: $e');
+        isAlreadyImported = true; // safe default
+      }
+      
+      if (isAlreadyImported) {
+        talker.debug('ClipboardMonitorMixin: Playlist $playlistId already in library, skipping');
+        return;
+      }
+      
+      if (!_clipboardService.isNewUrl(text)) {
+        talker.debug('ClipboardMonitorMixin: Already prompted for playlist $playlistId this session');
+        return;
+      }
+      
+      if (mounted) {
+        talker.debug('ClipboardMonitorMixin: Showing playlist popup for $playlistId');
+        onClipboardPlaylistDetected(text, playlistId);
+      }
+      return;
+    }
+
+    // Fallback to Video check
     final videoId = _clipboardService.extractYouTubeId(text);
     if (videoId == null) return;
 
@@ -70,6 +102,10 @@ mixin ClipboardMonitorMixin<T extends StatefulWidget>
   }
 
   /// Abstract method to be implemented by the widget using the mixin.
-  /// This is called when a new, valid YouTube URL is detected.
+  /// This is called when a new, valid YouTube Video URL is detected.
   void onClipboardUrlDetected(String url, String videoId);
+  
+  /// Abstract method to be implemented by the widget using the mixin.
+  /// This is called when a new, valid YouTube Playlist URL is detected.
+  void onClipboardPlaylistDetected(String url, String playlistId);
 }

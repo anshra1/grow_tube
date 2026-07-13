@@ -16,12 +16,22 @@ import 'package:levelup_tube/src/features/playlist/views/widgets/playlist_card.d
 import 'package:toastification/toastification.dart';
 
 class PlaylistsPage extends StatelessWidget {
-  const PlaylistsPage({super.key});
+  const PlaylistsPage({this.importUrl, super.key});
+  
+  final String? importUrl;
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider<PlaylistCubit>(
-      create: (context) => sl<PlaylistCubit>()..loadPlaylists(),
+      create: (context) {
+        final cubit = sl<PlaylistCubit>();
+        if (importUrl != null) {
+          cubit.loadAndImport(importUrl!);
+        } else {
+          cubit.loadPlaylists();
+        }
+        return cubit;
+      },
       child: const _PlaylistsPageContent(),
     );
   }
@@ -111,7 +121,7 @@ class _PlaylistsPageContent extends StatelessWidget {
           child: PlaylistCard(
             playlist: playlist,
             onTap: () => context.push('/playlists/${playlist.id}'),
-            onLongPress: () => _showDeleteDialog(context, playlist),
+            onLongPress: playlist.isSystemDefault ? null : () => _showDeleteDialog(context, playlist),
             onOptionsTap: () => _showPlaylistOptionsBottomSheet(context, playlist),
           ),
         );
@@ -127,28 +137,37 @@ class _PlaylistsPageContent extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            ListTile(
-              leading: const Icon(Icons.edit_outlined),
-              title: const Text('Edit'),
-              onTap: () {
-                Navigator.pop(bottomSheetContext);
-                // Push to the new edit page
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => EditPlaylistPage(playlistId: playlist.id),
-                  ),
-                );
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.delete_outline),
-              title: const Text('Delete'),
-              onTap: () {
-                Navigator.pop(bottomSheetContext);
-                _showDeleteDialog(context, playlist);
-              },
-            ),
+            if (!playlist.isSystemDefault) ...[
+              ListTile(
+                leading: const Icon(Icons.edit_outlined),
+                title: const Text('Edit'),
+                onTap: () {
+                  Navigator.pop(bottomSheetContext);
+                  // Push to the new edit page
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => EditPlaylistPage(playlistId: playlist.id),
+                    ),
+                  );
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.delete_outline),
+                title: const Text('Delete'),
+                onTap: () {
+                  Navigator.pop(bottomSheetContext);
+                  _showDeleteDialog(context, playlist);
+                },
+              ),
+            ] else ...[
+              ListTile(
+                leading: const Icon(Icons.info_outline),
+                title: const Text('System Playlist'),
+                subtitle: const Text('Cannot be edited or deleted.'),
+                onTap: () => Navigator.pop(bottomSheetContext),
+              ),
+            ],
           ],
         ),
       ),
