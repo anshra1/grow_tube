@@ -1,4 +1,4 @@
-import 'package:levelup_tube/src/core/services/logging/logging_service.dart';
+import 'package:levelup_tube/src/core/services/logging_service/logging_service.dart';
 
 /// No-op implementation of [LoggingService] for Crashlytics.
 ///

@@ -9,7 +9,7 @@ import 'package:levelup_tube/src/core/design_system/app_theme.dart';
 import 'package:levelup_tube/src/core/di/injection_container.dart' as di;
 import 'package:levelup_tube/src/core/router/app_router.dart';
 import 'package:levelup_tube/src/core/theme/theme_cubit.dart';
-import 'package:levelup_tube/src/core/utils/talker_bloc_observer.dart';
+import 'package:levelup_tube/src/core/services/logging_service/talker_bloc_observer.dart';
 import 'package:levelup_tube/src/features/connectivity/presentation/widgets/connectivity_toast_listener.dart';
 import 'package:levelup_tube/src/core/widgets/pages/startup_error_app.dart';
 import 'package:talker_flutter/talker_flutter.dart';
@@ -32,12 +32,6 @@ Future<void> main() async {
     return true;
   };
 
-  // Initialize Talker
-  talker = TalkerFlutter.init();
-
-  // Initialize Bloc Observer
-  Bloc.observer = TalkerBlocObserver(talker: talker);
-
   // Initialize DI
   try {
     await di.init();
@@ -51,6 +45,10 @@ Future<void> main() async {
     );
     return;
   }
+
+  // Set global talker from DI and initialize Bloc Observer
+  talker = di.sl<Talker>();
+  Bloc.observer = TalkerBlocObserver(talker: talker);
 
   runApp(const LevelUpTube());
 }

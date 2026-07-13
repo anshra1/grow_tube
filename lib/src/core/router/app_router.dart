@@ -4,27 +4,29 @@ import 'package:levelup_tube/src/features/library/views/dashboard_page.dart';
 import 'package:levelup_tube/src/features/navigation/presentation/pages/main_scaffold.dart';
 import 'package:levelup_tube/src/features/playlist/views/playlist_detail_page.dart';
 import 'package:levelup_tube/src/features/playlist/views/playlists_page.dart';
-import 'package:levelup_tube/src/features/settings/presentation/pages/settings_page.dart';
-import 'package:talker_flutter/talker_flutter.dart';
+import 'package:levelup_tube/src/features/settings/pages/settings_page.dart';
 
 // Root navigator key — used for pushes that appear above the shell
 // (e.g., the playlist import flow triggered from the clipboard toast).
-final GlobalKey<NavigatorState> _rootNavigatorKey =
-    GlobalKey<NavigatorState>(debugLabel: 'root');
+final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>(
+  debugLabel: 'root',
+);
 
 // Per-branch navigator keys — each branch maintains its own back-stack.
-final GlobalKey<NavigatorState> _homeNavigatorKey =
-    GlobalKey<NavigatorState>(debugLabel: 'home');
-final GlobalKey<NavigatorState> _playlistsNavigatorKey =
-    GlobalKey<NavigatorState>(debugLabel: 'playlists');
-final GlobalKey<NavigatorState> _settingsNavigatorKey =
-    GlobalKey<NavigatorState>(debugLabel: 'settings');
+final GlobalKey<NavigatorState> _homeNavigatorKey = GlobalKey<NavigatorState>(
+  debugLabel: 'home',
+);
+final GlobalKey<NavigatorState> _playlistsNavigatorKey = GlobalKey<NavigatorState>(
+  debugLabel: 'playlists',
+);
+final GlobalKey<NavigatorState> _settingsNavigatorKey = GlobalKey<NavigatorState>(
+  debugLabel: 'settings',
+);
 
 class AppRouter {
   static final router = GoRouter(
     navigatorKey: _rootNavigatorKey,
     initialLocation: '/',
-    observers: [TalkerRouteObserver(TalkerFlutter.init())],
     routes: [
       // ── Shell: wraps Home, Playlists, and Settings with the bottom nav bar ──
       StatefulShellRoute.indexedStack(
@@ -36,10 +38,7 @@ class AppRouter {
           StatefulShellBranch(
             navigatorKey: _homeNavigatorKey,
             routes: [
-              GoRoute(
-                path: '/',
-                builder: (context, state) => const DashboardPage(),
-              ),
+              GoRoute(path: '/', builder: (context, state) => const DashboardPage()),
             ],
           ),
 

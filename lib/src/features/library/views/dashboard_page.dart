@@ -49,7 +49,7 @@ class _DashboardContent extends StatelessWidget {
         children: [
           const SizedBox(height: AppSizes.p8),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: AppSizes.p16),
+            padding: const EdgeInsets.symmetric(horizontal: AppSizes.p8),
             // Smart Player Component
             child: BlocBuilder<LibraryBloc, LibraryState>(
               buildWhen: (previous, current) {

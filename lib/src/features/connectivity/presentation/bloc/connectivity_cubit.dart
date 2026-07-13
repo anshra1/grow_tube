@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:internet_connection_checker_plus/internet_connection_checker_plus.dart';
-import 'package:levelup_tube/src/features/connectivity/data/services/internet_connection_service.dart';
+import 'package:levelup_tube/src/features/connectivity/data/internet_connection_service.dart';
 
 enum ConnectivityStatus { unknown, online, offline }
 

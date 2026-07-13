@@ -8,7 +8,7 @@ import 'package:levelup_tube/src/features/library/viewmodels/library_event.dart'
 import 'package:levelup_tube/src/features/library/views/widgets/add_video_bottom_sheet.dart';
 import 'package:levelup_tube/src/features/library/views/widgets/clipboard_playlist_prompt.dart';
 import 'package:levelup_tube/src/features/library/views/widgets/clipboard_video_prompt.dart';
-import 'package:levelup_tube/src/features/settings/presentation/settings_cubit.dart';
+import 'package:levelup_tube/src/features/settings/viewmodels/settings_cubit.dart';
 import 'package:toastification/toastification.dart';
 
 class MainScaffold extends StatefulWidget {

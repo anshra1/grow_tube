@@ -11,20 +11,29 @@ class PlaylistCubit extends Cubit<PlaylistState> {
   /// Load all playlists from DB.
   Future<void> loadPlaylists() async {
     emit(const PlaylistLoadingState());
-    final playlists = await _repository.getAllPlaylists();
-    if (playlists.isEmpty) {
-      emit(const PlaylistEmptyState());
-    } else {
-      emit(PlaylistLoadedState(playlists));
+    try {
+      final playlists = await _repository.getAllPlaylists();
+      if (playlists.isEmpty) {
+        emit(const PlaylistEmptyState());
+      } else {
+        emit(PlaylistLoadedState(playlists));
+      }
+    } catch (e) {
+      emit(PlaylistErrorState(e.toString()));
     }
   }
 
   /// Load playlists and then start importing.
   Future<void> loadAndImport(String url) async {
-    await loadPlaylists();
-    // Wait for the screen transition to finish before showing the importing state
-    await Future.delayed(const Duration(milliseconds: 500));
-    await importPlaylist(url);
+    try {
+      await loadPlaylists();
+      // Wait for the screen transition to finish before showing the importing state
+      await Future.delayed(const Duration(milliseconds: 500));
+      await importPlaylist(url);
+    } catch (e) {
+      emit(PlaylistErrorState(e.toString()));
+      await loadPlaylists(); // recover UI
+    }
   }
 
   /// Create a new custom (empty) playlist.
@@ -34,8 +43,13 @@ class PlaylistCubit extends Cubit<PlaylistState> {
       await loadPlaylists(); // recover UI
       return;
     }
-    await _repository.createCustomPlaylist(title);
-    await loadPlaylists();
+    try {
+      await _repository.createCustomPlaylist(title);
+      await loadPlaylists();
+    } catch (e) {
+      emit(PlaylistErrorState(e.toString()));
+      await loadPlaylists(); // recover UI
+    }
   }
 
   /// Import a YouTube playlist by URL.
@@ -57,7 +71,12 @@ class PlaylistCubit extends Cubit<PlaylistState> {
 
   /// Delete a playlist.
   Future<void> deletePlaylist(int id) async {
-    await _repository.deletePlaylist(id);
-    await loadPlaylists();
+    try {
+      await _repository.deletePlaylist(id);
+      await loadPlaylists();
+    } catch (e) {
+      emit(PlaylistErrorState(e.toString()));
+      await loadPlaylists(); // recover UI
+    }
   }
 }

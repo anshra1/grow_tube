@@ -20,34 +20,38 @@ class PlaylistDetailCubit extends Cubit<PlaylistDetailState> {
   Future<void> loadPlaylist() async {
     emit(const PlaylistDetailLoadingState());
 
-    final playlist = await _repository.getPlaylist(playlistId);
-    if (playlist == null) {
-      emit(const PlaylistDetailErrorState('Playlist not found.'));
-      return;
+    try {
+      final playlist = await _repository.getPlaylist(playlistId);
+      if (playlist == null) {
+        emit(const PlaylistDetailErrorState('Playlist not found.'));
+        return;
+      }
+
+      // Convert VideoModel → Video entity for UI consumption
+      final videos = playlist.videos.map((m) => m.toEntity()).toList();
+
+      if (videos.isEmpty) {
+        emit(PlaylistDetailEmptyState(playlist));
+        return;
+      }
+
+      // Hero = selected video, or fall back to first video in playlist
+      Video heroVideo;
+      if (_selectedHeroId != null) {
+        heroVideo = videos.where((v) => v.youtubeId == _selectedHeroId).firstOrNull ?? videos.first;
+      } else {
+        heroVideo = videos.first;
+      }
+      _selectedHeroId = heroVideo.youtubeId;
+
+      emit(PlaylistDetailLoadedState(
+        playlist: playlist,
+        videos: videos,
+        heroVideo: heroVideo,
+      ));
+    } catch (e) {
+      emit(PlaylistDetailErrorState(e.toString()));
     }
-
-    // Convert VideoModel → Video entity for UI consumption
-    final videos = playlist.videos.map((m) => m.toEntity()).toList();
-
-    if (videos.isEmpty) {
-      emit(PlaylistDetailEmptyState(playlist));
-      return;
-    }
-
-    // Hero = selected video, or fall back to first video in playlist
-    Video heroVideo;
-    if (_selectedHeroId != null) {
-      heroVideo = videos.where((v) => v.youtubeId == _selectedHeroId).firstOrNull ?? videos.first;
-    } else {
-      heroVideo = videos.first;
-    }
-    _selectedHeroId = heroVideo.youtubeId;
-
-    emit(PlaylistDetailLoadedState(
-      playlist: playlist,
-      videos: videos,
-      heroVideo: heroVideo,
-    ));
   }
 
   /// User tapped a video in the list — set as hero and auto-play.
@@ -67,15 +71,24 @@ class PlaylistDetailCubit extends Cubit<PlaylistDetailState> {
   /// Save watch progress (called by the player's heartbeat).
   /// The progress is saved to the shared VideoModel — same as library.
   Future<void> updateProgress(String youtubeId, int positionSeconds) async {
-    await _repository.updateVideoProgress(youtubeId, positionSeconds);
+    try {
+      await _repository.updateVideoProgress(youtubeId, positionSeconds);
+    } catch (e) {
+      // Progress save runs in the background, ignore errors to not interrupt UI
+    }
     // Don't reload playlist here — that would reset the player.
     // Progress is silently saved and will be visible when playlist reloads.
   }
 
   /// Remove a video from this playlist (not from the library).
   Future<void> removeVideo(int videoModelId) async {
-    await _repository.removeVideoFromPlaylist(playlistId, videoModelId);
-    await loadPlaylist();
+    try {
+      await _repository.removeVideoFromPlaylist(playlistId, videoModelId);
+      await loadPlaylist();
+    } catch (e) {
+      emit(PlaylistDetailErrorState(e.toString()));
+      await loadPlaylist(); // Recover UI
+    }
   }
 
   /// Add a video to this playlist by URL.

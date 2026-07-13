@@ -24,8 +24,8 @@ class DashboardVideoList extends StatelessWidget {
     return ListView.builder(
       physics: const BouncingScrollPhysics(),
       padding: const EdgeInsets.symmetric(
-        horizontal: AppSizes.p16,
-      ).copyWith(bottom: AppSizes.p48),
+        horizontal: AppSizes.p8,
+      ),
       itemCount: videos.length,
       itemBuilder: (context, index) {
         final video = videos[index];
