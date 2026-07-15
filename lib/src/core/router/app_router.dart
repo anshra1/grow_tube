@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:levelup_tube/src/features/library/views/dashboard_page.dart';
-import 'package:levelup_tube/src/features/navigation/presentation/pages/main_scaffold.dart';
+import 'package:levelup_tube/src/features/navigation/pages/main_scaffold.dart';
 import 'package:levelup_tube/src/features/playlist/views/playlist_detail_page.dart';
 import 'package:levelup_tube/src/features/playlist/views/playlists_page.dart';
 import 'package:levelup_tube/src/features/settings/pages/settings_page.dart';

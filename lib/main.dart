@@ -15,6 +15,7 @@ import 'package:levelup_tube/src/features/connectivity/presentation/bloc/connect
 import 'package:levelup_tube/src/features/connectivity/presentation/widgets/connectivity_toast_listener.dart';
 import 'package:levelup_tube/src/features/library/viewmodels/library_bloc.dart';
 import 'package:levelup_tube/src/features/library/viewmodels/library_event.dart';
+import 'package:levelup_tube/src/features/navigation/cubit/fullscreen_video_cubit.dart';
 import 'package:talker_flutter/talker_flutter.dart';
 import 'package:toastification/toastification.dart';
 
@@ -71,6 +72,7 @@ class LevelUpTube extends StatelessWidget {
             create: (context) =>
                 di.sl<LibraryBloc>()..add(const LibraryInitializedEvent()),
           ),
+          BlocProvider(create: (context) => FullscreenVideoCubit()),
         ],
         child: BlocBuilder<ThemeCubit, ThemeState>(
           builder: (context, themeState) {

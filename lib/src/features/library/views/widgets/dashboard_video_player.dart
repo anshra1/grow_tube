@@ -12,6 +12,7 @@ import 'package:levelup_tube/src/features/connectivity/presentation/bloc/connect
 import 'package:levelup_tube/src/features/library/models/video.dart';
 import 'package:levelup_tube/src/features/library/viewmodels/library_bloc.dart';
 import 'package:levelup_tube/src/features/library/viewmodels/library_event.dart';
+import 'package:levelup_tube/src/features/navigation/cubit/fullscreen_video_cubit.dart';
 import 'package:talker_flutter/talker_flutter.dart';
 import 'package:toastification/toastification.dart';
 import 'package:youtube_player_iframe/youtube_player_iframe.dart';
@@ -217,6 +218,7 @@ class _DashboardVideoPlayerState extends State<DashboardVideoPlayer>
     if (!_overlayController.isShowing) {
       // 1. Enter Fullscreen (mounts the overlay)
       setState(_overlayController.toggle);
+      context.read<FullscreenVideoCubit>().enterFullscreen();
 
       // 2. Instantly jump to black (hide the player while it stretches to landscape)
       _animController.value = 1.0;
@@ -256,6 +258,7 @@ class _DashboardVideoPlayerState extends State<DashboardVideoPlayer>
       if (mounted) {
         setState(_overlayController.toggle);
         _animController.value = 0.0;
+        context.read<FullscreenVideoCubit>().exitFullscreen();
       }
     }
   }
@@ -294,6 +297,7 @@ class _DashboardVideoPlayerState extends State<DashboardVideoPlayer>
 
   @override
   void dispose() {
+    context.read<FullscreenVideoCubit>().exitFullscreen();
     _animController.dispose();
     _heartbeatTimer?.cancel();
     _errorSubscription?.cancel();
