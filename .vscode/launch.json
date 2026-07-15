@@ -6,7 +6,8 @@
             "request": "launch",
             "type": "dart",
             "toolArgs": [
-                "--dart-define=YOUTUBE_API_KEY=AIzaSyDuMfvPDlZRIDMRYPrtzfB--Mxd3Y7gQTg"
+                "--dart-define=YOUTUBE_API_KEY=AIzaSyDuMfvPDlZRIDMRYPrtzfB--Mxd3Y7gQTg",
+                "--no-enable-impeller"
             ]
         }
     ]

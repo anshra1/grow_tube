@@ -35,15 +35,9 @@ class StartupErrorApp extends StatelessWidget {
                       mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          title,
-                          style: Theme.of(context).textTheme.headlineSmall,
-                        ),
+                        Text(title, style: Theme.of(context).textTheme.headlineSmall),
                         const SizedBox(height: 12),
-                        Text(
-                          message,
-                          style: Theme.of(context).textTheme.bodyLarge,
-                        ),
+                        Text(message, style: Theme.of(context).textTheme.bodyLarge),
                         if (kDebugMode && debugDetails != null) ...[
                           const SizedBox(height: 16),
                           SelectableText(

@@ -25,12 +25,12 @@ abstract class LoggingService {
   ///
   /// Optionally include an [error] object and [stackTrace] for
   /// error-level logs.
-  void log(
-    LogLevel level,
-    String message, {
-    Object? error,
-    StackTrace? stackTrace,
-  });
+  void log(LogLevel level, String message, {Object? error, StackTrace? stackTrace});
+
+  /// Handles an exception/error with optional stack trace and message.
+  ///
+  /// This is the primary method for logging caught exceptions.
+  void handle(Object error, StackTrace stackTrace, String message);
 
   /// Sets the user identifier for crash reports and analytics.
   void setUserIdentifier(String userId);

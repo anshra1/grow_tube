@@ -1,10 +1,10 @@
 import 'package:levelup_tube/objectbox.g.dart';
 import 'package:levelup_tube/src/core/error/exception.dart';
-import 'package:levelup_tube/src/core/utils/youtube_url_parser.dart';
+import 'package:levelup_tube/src/core/services/logging_service/app_logger.dart';
 import 'package:levelup_tube/src/core/services/youtube_api_service.dart';
+import 'package:levelup_tube/src/core/utils/youtube_url_parser.dart';
 import 'package:levelup_tube/src/features/playlist/models/playlist_model.dart';
 import 'package:levelup_tube/src/features/playlist/models/playlist_video_model.dart';
-import 'package:talker_flutter/talker_flutter.dart';
 
 abstract class PlaylistRepository {
   /// Fetches all playlists currently stored in the local database, ordered by newest first.
@@ -58,31 +58,31 @@ class PlaylistRepositoryImpl implements PlaylistRepository {
     required this.videoBox,
     required this.store,
     required this.apiService,
-    required this.talker,
+    required this.appLogger,
   });
 
   final Box<PlaylistModel> playlistBox;
   final Box<PlaylistVideoModel> videoBox;
   final Store store;
   final YoutubeApiService apiService;
-  final Talker talker;
+  final AppLogger appLogger;
 
   Future<List<PlaylistModel>> getAllPlaylists() async {
-    talker.log('PlaylistRepository: Fetching all playlists', logLevel: LogLevel.debug);
+    appLogger.debug('PlaylistRepository: Fetching all playlists');
     try {
       final query = playlistBox.query()
         ..order(PlaylistModel_.createdAt, flags: Order.descending);
       final playlists = query.build().find();
-      talker.log('PlaylistRepository: Found ${playlists.length} playlists', logLevel: LogLevel.debug);
+      appLogger.debug('PlaylistRepository: Found ${playlists.length} playlists');
       return playlists;
     } catch (e, st) {
-      talker.handle(e, st, 'PlaylistRepository: Error fetching playlists');
+      appLogger.handle(e, st, 'PlaylistRepository: Error fetching playlists');
       return [];
     }
   }
 
   Future<PlaylistModel?> getPlaylist(int id) async {
-    talker.log('PlaylistRepository: Fetching playlist ID: $id', logLevel: LogLevel.debug);
+    appLogger.debug('PlaylistRepository: Fetching playlist ID: $id');
     try {
       final playlist = playlistBox.get(id);
       if (playlist != null) {
@@ -91,7 +91,7 @@ class PlaylistRepositoryImpl implements PlaylistRepository {
       }
       return playlist;
     } catch (e, st) {
-      talker.handle(e, st, 'PlaylistRepository: Error fetching playlist $id');
+      appLogger.handle(e, st, 'PlaylistRepository: Error fetching playlist $id');
       return null;
     }
   }
@@ -109,7 +109,7 @@ class PlaylistRepositoryImpl implements PlaylistRepository {
     try {
       return playlistBox.put(playlist);
     } catch (e, st) {
-      talker.handle(e, st, 'PlaylistRepository: Error saving playlist');
+      appLogger.handle(e, st, 'PlaylistRepository: Error saving playlist');
       throw DatabaseException(e.toString());
     }
   }
@@ -125,17 +125,17 @@ class PlaylistRepositoryImpl implements PlaylistRepository {
       throw Exception('This playlist has already been imported.');
     }
 
-    talker.log('PlaylistRepository: Fetching metadata for playlist $playlistId');
+    appLogger.info('PlaylistRepository: Fetching metadata for playlist $playlistId');
     final playlistMeta = await apiService.fetchPlaylistDetails(playlistId);
 
-    talker.log('PlaylistRepository: Fetching video IDs for playlist $playlistId');
+    appLogger.info('PlaylistRepository: Fetching video IDs for playlist $playlistId');
     final videoIds = await apiService.fetchPlaylistVideoIds(playlistId);
 
     if (videoIds.isEmpty) {
       throw const VideoException('This playlist has no videos.', code: 'emptyPlaylist');
     }
 
-    talker.log('PlaylistRepository: Fetching details for ${videoIds.length} videos');
+    appLogger.info('PlaylistRepository: Fetching details for ${videoIds.length} videos');
     final List<PlaylistVideoModel> videoModels = [];
 
     for (final videoId in videoIds) {
@@ -151,12 +151,15 @@ class PlaylistRepositoryImpl implements PlaylistRepository {
         );
         videoModels.add(model);
       } catch (e) {
-        talker.warning('PlaylistRepository: Skipping video $videoId — $e');
+        appLogger.warning('PlaylistRepository: Skipping video $videoId — $e');
       }
     }
 
     if (videoModels.isEmpty) {
-      throw const VideoException('No accessible videos found in this playlist.', code: 'emptyPlaylist');
+      throw const VideoException(
+        'No accessible videos found in this playlist.',
+        code: 'emptyPlaylist',
+      );
     }
 
     final playlist = PlaylistModel(
@@ -173,7 +176,9 @@ class PlaylistRepositoryImpl implements PlaylistRepository {
     for (final video in videoModels) {
       await _internalAddVideoToPlaylist(savedId, video);
     }
-    talker.log('PlaylistRepository: Imported playlist "${playlistMeta['title']}" with ${videoModels.length} videos (ID: $savedId)');
+    appLogger.info(
+      'PlaylistRepository: Imported playlist "${playlistMeta['title']}" with ${videoModels.length} videos (ID: $savedId)',
+    );
     return savedId;
   }
 
@@ -185,13 +190,13 @@ class PlaylistRepositoryImpl implements PlaylistRepository {
           .count();
       return count > 0;
     } catch (e, st) {
-      talker.handle(e, st, 'PlaylistRepository: Error checking imported playlist');
-      return false; 
+      appLogger.handle(e, st, 'PlaylistRepository: Error checking imported playlist');
+      return false;
     }
   }
 
   Future<void> deletePlaylist(int id) async {
-    talker.log('PlaylistRepository: Deleting playlist ID: $id', logLevel: LogLevel.info);
+    appLogger.info('PlaylistRepository: Deleting playlist ID: $id');
     try {
       final playlist = playlistBox.get(id);
       if (playlist == null) return;
@@ -210,11 +215,14 @@ class PlaylistRepositoryImpl implements PlaylistRepository {
         videoBox.removeMany(orphanedVideoIds);
       }
     } catch (e, st) {
-      talker.handle(e, st, 'PlaylistRepository: Error deleting playlist');
+      appLogger.handle(e, st, 'PlaylistRepository: Error deleting playlist');
     }
   }
 
-  Future<void> _internalAddVideoToPlaylist(int playlistId, PlaylistVideoModel video) async {
+  Future<void> _internalAddVideoToPlaylist(
+    int playlistId,
+    PlaylistVideoModel video,
+  ) async {
     try {
       final playlist = playlistBox.get(playlistId);
       if (playlist == null) {
@@ -245,7 +253,7 @@ class PlaylistRepositoryImpl implements PlaylistRepository {
       playlistBox.put(playlist);
     } catch (e, st) {
       if (e is DatabaseException) rethrow;
-      talker.handle(e, st, 'PlaylistRepository: Error adding video to playlist');
+      appLogger.handle(e, st, 'PlaylistRepository: Error adding video to playlist');
       throw DatabaseException(e.toString());
     }
   }
@@ -266,7 +274,7 @@ class PlaylistRepositoryImpl implements PlaylistRepository {
 
       playlistBox.put(playlist);
     } catch (e, st) {
-      talker.handle(e, st, 'PlaylistRepository: Error removing video from playlist');
+      appLogger.handle(e, st, 'PlaylistRepository: Error removing video from playlist');
     }
   }
 
@@ -291,7 +299,9 @@ class PlaylistRepositoryImpl implements PlaylistRepository {
 
   Future<void> updateVideoProgress(String youtubeId, int positionSeconds) async {
     try {
-      final query = videoBox.query(PlaylistVideoModel_.youtubeId.equals(youtubeId)).build();
+      final query = videoBox
+          .query(PlaylistVideoModel_.youtubeId.equals(youtubeId))
+          .build();
       final video = query.findFirst();
       query.close();
 
@@ -301,7 +311,7 @@ class PlaylistRepositoryImpl implements PlaylistRepository {
         videoBox.put(video);
       }
     } catch (e, st) {
-      talker.handle(e, st, 'PlaylistRepository: Error updating video progress');
+      appLogger.handle(e, st, 'PlaylistRepository: Error updating video progress');
     }
   }
 
@@ -309,13 +319,13 @@ class PlaylistRepositoryImpl implements PlaylistRepository {
     final playlists = await getAllPlaylists();
     var defaultLib = playlists.where((p) => p.isSystemDefault).firstOrNull;
     if (defaultLib == null) {
-       defaultLib = PlaylistModel(
-         title: 'My Library',
-         createdAt: DateTime.now(),
-         isSystemDefault: true,
-       );
-       final id = await _savePlaylist(defaultLib);
-       defaultLib.id = id;
+      defaultLib = PlaylistModel(
+        title: 'My Library',
+        createdAt: DateTime.now(),
+        isSystemDefault: true,
+      );
+      final id = await _savePlaylist(defaultLib);
+      defaultLib.id = id;
     }
     return defaultLib;
   }
@@ -352,7 +362,7 @@ class PlaylistRepositoryImpl implements PlaylistRepository {
       });
     } catch (e, st) {
       if (e is DatabaseException) rethrow;
-      talker.handle(e, st, 'PlaylistRepository: Error setting default playlist');
+       appLogger.handle(e, st, 'PlaylistRepository: Error setting default playlist');
       throw DatabaseException(e.toString());
     }
   }

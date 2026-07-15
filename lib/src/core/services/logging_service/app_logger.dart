@@ -13,6 +13,7 @@ import 'package:levelup_tube/src/core/services/logging_service/logging_service.d
 /// logger.warning('Deprecated API field used');
 /// logger.error('Failed to fetch data', error: e, stackTrace: stack);
 /// logger.fatal('Critical failure', error: e, stackTrace: stack);
+/// logger.handle(e, stackTrace, 'Failed to do something');
 /// ```
 class AppLogger {
   /// Creates an [AppLogger] with the given list of logging services.
@@ -30,18 +31,21 @@ class AppLogger {
   void warning(String message) => _log(LogLevel.warning, message);
 
   /// Logs an error message with optional error object and stack trace.
-  void error(
-    String message, {
-    Object? error,
-    StackTrace? stackTrace,
-  }) => _log(LogLevel.error, message, error: error, stackTrace: stackTrace);
+  void error(String message, {Object? error, StackTrace? stackTrace}) =>
+      _log(LogLevel.error, message, error: error, stackTrace: stackTrace);
 
   /// Logs a fatal error. Use for unrecoverable errors.
-  void fatal(
-    String message, {
-    Object? error,
-    StackTrace? stackTrace,
-  }) => _log(LogLevel.fatal, message, error: error, stackTrace: stackTrace);
+  void fatal(String message, {Object? error, StackTrace? stackTrace}) =>
+      _log(LogLevel.fatal, message, error: error, stackTrace: stackTrace);
+
+  /// Handles an exception/error with optional stack trace and message.
+  ///
+  /// This is the primary method for logging caught exceptions.
+  void handle(Object error, StackTrace stackTrace, String message) {
+    for (final service in _services) {
+      service.handle(error, stackTrace, message);
+    }
+  }
 
   /// Sets the user identifier on all logging services.
   void setUserIdentifier(String userId) {
@@ -57,12 +61,7 @@ class AppLogger {
     }
   }
 
-  void _log(
-    LogLevel level,
-    String message, {
-    Object? error,
-    StackTrace? stackTrace,
-  }) {
+  void _log(LogLevel level, String message, {Object? error, StackTrace? stackTrace}) {
     for (final service in _services) {
       service.log(level, message, error: error, stackTrace: stackTrace);
     }

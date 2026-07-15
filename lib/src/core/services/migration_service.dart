@@ -1,18 +1,17 @@
 import 'package:levelup_tube/objectbox.g.dart';
+import 'package:levelup_tube/src/core/services/logging_service/app_logger.dart';
 import 'package:levelup_tube/src/features/library/data/models/video_model.dart';
 import 'package:levelup_tube/src/features/playlist/models/playlist_model.dart';
 import 'package:levelup_tube/src/features/playlist/models/playlist_video_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:talker_flutter/talker_flutter.dart';
-import 'package:levelup_tube/main.dart'; // for talker
 
 class MigrationService {
   static const String _migratedLibraryV1Key = 'has_migrated_library_v1';
 
-  static Future<void> run(Store store, SharedPreferences prefs) async {
+  static Future<void> run(Store store, SharedPreferences prefs, AppLogger appLogger) async {
     final hasMigrated = prefs.getBool(_migratedLibraryV1Key) ?? false;
     if (hasMigrated) {
-      talker.log('[TESTING_LOG] MigrationService: Library V1 migration already completed.', logLevel: LogLevel.info);
+      appLogger.info('[TESTING_LOG] MigrationService: Library V1 migration already completed.');
       return;
     }
 
@@ -23,11 +22,11 @@ class MigrationService {
     if (oldVideosCount == 0) {
       // Nothing to migrate. Set flag to prevent future checks.
       await prefs.setBool(_migratedLibraryV1Key, true);
-      talker.log('[TESTING_LOG] MigrationService: No V1 videos to migrate.', logLevel: LogLevel.info);
+      appLogger.info('[TESTING_LOG] MigrationService: No V1 videos to migrate.');
       return;
     }
 
-    talker.log('[TESTING_LOG] MigrationService: Starting Library V1 migration of $oldVideosCount videos.', logLevel: LogLevel.info);
+    appLogger.info('[TESTING_LOG] MigrationService: Starting Library V1 migration of $oldVideosCount videos.');
 
     try {
       // 1. Find or create default playlist
@@ -69,14 +68,14 @@ class MigrationService {
       
       // 5. Commit flag
       await prefs.setBool(_migratedLibraryV1Key, true);
-      talker.log('[TESTING_LOG] MigrationService: Migration completed successfully. Flag set.', logLevel: LogLevel.info);
+      appLogger.info('[TESTING_LOG] MigrationService: Migration completed successfully. Flag set.');
       
       // 6. Delete old box entries safely
       videoBox.removeAll();
-      talker.log('[TESTING_LOG] MigrationService: Old VideoModel box cleared.', logLevel: LogLevel.info);
+      appLogger.info('[TESTING_LOG] MigrationService: Old VideoModel box cleared.');
 
     } catch (e, st) {
-      talker.handle(e, st, '[TESTING_LOG] MigrationService: Failed to complete Library V1 migration');
+      appLogger.handle(e, st, '[TESTING_LOG] MigrationService: Failed to complete Library V1 migration');
       // Do not set the flag, allowing it to retry on next launch
     }
   }

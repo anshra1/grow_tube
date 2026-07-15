@@ -41,6 +41,15 @@ class TalkerLoggingService implements LoggingService {
   }
 
   @override
+  void handle(
+    Object error,
+    StackTrace stackTrace,
+    String message,
+  ) {
+    _talker.handle(error, stackTrace, message);
+  }
+
+  @override
   void setUserIdentifier(String userId) {
     _talker.info('User identified: $userId');
   }
