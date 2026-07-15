@@ -1,9 +1,11 @@
 import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:levelup_tube/src/core/di/injection_container.dart'
+    as di;
 import 'package:levelup_tube/src/features/connectivity/presentation/bloc/connectivity_cubit.dart';
 import 'package:levelup_tube/src/features/connectivity/presentation/widgets/connectivity_toast_controller.dart';
-import 'package:levelup_tube/src/core/di/injection_container.dart' as di;
 
 class ConnectivityToastListener extends StatefulWidget {
   const ConnectivityToastListener({required this.child, super.key});
@@ -15,10 +17,11 @@ class ConnectivityToastListener extends StatefulWidget {
       _ConnectivityToastListenerState();
 }
 
-class _ConnectivityToastListenerState extends State<ConnectivityToastListener> {
+class _ConnectivityToastListenerState
+    extends State<ConnectivityToastListener> {
   ConnectivityStatus _previous = ConnectivityStatus.unknown;
-  final ConnectivityToastController _toastController =
-      di.sl<ConnectivityToastController>();
+  final ConnectivityToastController _toastController = di
+      .sl<ConnectivityToastController>();
   Timer? _offlineTimer;
 
   @override
@@ -53,8 +56,8 @@ class _ConnectivityToastListenerState extends State<ConnectivityToastListener> {
         if (state == ConnectivityStatus.online) {
           _offlineTimer?.cancel();
           if (_toastController.isOfflineVisible) {
-            _toastController.dismissOffline();
-            _toastController.showOnlineToast();
+            _toastController..dismissOffline()
+            ..showOnlineToast();
           }
         }
       },

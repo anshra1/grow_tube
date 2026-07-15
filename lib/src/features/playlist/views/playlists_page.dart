@@ -5,7 +5,7 @@ import 'package:levelup_tube/src/core/design_system/app_radius.dart';
 import 'package:levelup_tube/src/core/design_system/app_sizes.dart';
 import 'package:levelup_tube/src/core/di/injection_container.dart';
 import 'package:levelup_tube/src/core/extensions/context_extensions.dart';
-import 'package:levelup_tube/src/core/widgets/pages/app_scaffold.dart';
+import 'package:levelup_tube/src/core/widgets/template/app_scaffold.dart';
 import 'package:levelup_tube/src/features/library/views/widgets/dashboard_video_list_shimmer.dart';
 import 'package:levelup_tube/src/features/playlist/models/playlist_model.dart';
 import 'package:levelup_tube/src/features/playlist/viewmodels/playlist_cubit.dart';
@@ -17,7 +17,7 @@ import 'package:toastification/toastification.dart';
 
 class PlaylistsPage extends StatelessWidget {
   const PlaylistsPage({this.importUrl, super.key});
-  
+
   final String? importUrl;
 
   @override
@@ -43,7 +43,10 @@ class _PlaylistsPageContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AppScaffold(
-      appBar: AppBar(title: const Text('My Playlists'), leading: const BackButton()),
+      appBar: AppBar(
+        title: const Text('My Playlists'),
+        leading: const BackButton(),
+      ),
       body: BlocConsumer<PlaylistCubit, PlaylistState>(
         listener: (context, state) {
           if (state is PlaylistErrorState) {
@@ -59,8 +62,8 @@ class _PlaylistsPageContent extends StatelessWidget {
         },
         builder: (context, state) {
           return switch (state) {
-            PlaylistInitialState() ||
-            PlaylistLoadingState() => const DashboardVideoListShimmer(),
+            PlaylistInitialState() || PlaylistLoadingState() =>
+              const DashboardVideoListShimmer(),
 
             PlaylistEmptyState() => Center(
               child: Column(
@@ -72,7 +75,10 @@ class _PlaylistsPageContent extends StatelessWidget {
                     color: context.colorScheme.onSurfaceVariant,
                   ),
                   const SizedBox(height: 16),
-                  Text('No playlists yet', style: context.textTheme.titleLarge),
+                  Text(
+                    'No playlists yet',
+                    style: context.textTheme.titleLarge,
+                  ),
                   const SizedBox(height: 8),
                   Text(
                     'Create a playlist or import from YouTube',
@@ -85,17 +91,25 @@ class _PlaylistsPageContent extends StatelessWidget {
             ),
 
             PlaylistLoadedState(:final playlists) => RefreshIndicator(
-              onRefresh: () => context.read<PlaylistCubit>().loadPlaylists(),
+              onRefresh: () =>
+                  context.read<PlaylistCubit>().loadPlaylists(),
               child: _buildList(context, playlists),
             ),
 
-            PlaylistImportingState(:final playlists, :final message) => Column(
-              children: [
-                const LinearProgressIndicator(),
-                Padding(padding: const EdgeInsets.all(8.0), child: Text(message)),
-                Expanded(child: _buildList(context, playlists)),
-              ],
-            ),
+            PlaylistImportingState(
+              :final playlists,
+              :final message,
+            ) =>
+              Column(
+                children: [
+                  const LinearProgressIndicator(),
+                  Padding(
+                    padding: const EdgeInsets.all(8),
+                    child: Text(message),
+                  ),
+                  Expanded(child: _buildList(context, playlists)),
+                ],
+              ),
 
             _ => const SizedBox.shrink(),
           };
@@ -110,7 +124,10 @@ class _PlaylistsPageContent extends StatelessWidget {
     );
   }
 
-  Widget _buildList(BuildContext context, List<PlaylistModel> playlists) {
+  Widget _buildList(
+    BuildContext context,
+    List<PlaylistModel> playlists,
+  ) {
     return ListView.builder(
       padding: const EdgeInsets.all(16).copyWith(bottom: 80),
       itemCount: playlists.length,
@@ -121,16 +138,22 @@ class _PlaylistsPageContent extends StatelessWidget {
           child: PlaylistCard(
             playlist: playlist,
             onTap: () => context.push('/playlists/${playlist.id}'),
-            onLongPress: playlist.isSystemDefault ? null : () => _showDeleteDialog(context, playlist),
-            onOptionsTap: () => _showPlaylistOptionsBottomSheet(context, playlist),
+            onLongPress: playlist.isSystemDefault
+                ? null
+                : () => _showDeleteDialog(context, playlist),
+            onOptionsTap: () =>
+                _showPlaylistOptionsBottomSheet(context, playlist),
           ),
         );
       },
     );
   }
 
-  void _showPlaylistOptionsBottomSheet(BuildContext context, PlaylistModel playlist) {
-    showModalBottomSheet(
+  void _showPlaylistOptionsBottomSheet(
+    BuildContext context,
+    PlaylistModel playlist,
+  ) {
+    showModalBottomSheet<void>(
       context: context,
       useSafeArea: true,
       builder: (bottomSheetContext) => SafeArea(
@@ -144,10 +167,11 @@ class _PlaylistsPageContent extends StatelessWidget {
                 onTap: () {
                   Navigator.pop(bottomSheetContext);
                   // Push to the new edit page
-                  Navigator.push(
+                  Navigator.push<void>(
                     context,
-                    MaterialPageRoute(
-                      builder: (_) => EditPlaylistPage(playlistId: playlist.id),
+                    MaterialPageRoute<void>(
+                      builder: (_) =>
+                          EditPlaylistPage(playlistId: playlist.id),
                     ),
                   );
                 },
@@ -175,7 +199,7 @@ class _PlaylistsPageContent extends StatelessWidget {
   }
 
   void _showAddPlaylistBottomSheet(BuildContext context) {
-    showModalBottomSheet(
+    showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
       useSafeArea: true,
@@ -190,12 +214,17 @@ class _PlaylistsPageContent extends StatelessWidget {
     );
   }
 
-  void _showDeleteDialog(BuildContext context, PlaylistModel playlist) {
-    showDialog(
+  void _showDeleteDialog(
+    BuildContext context,
+    PlaylistModel playlist,
+  ) {
+    showDialog<void>(
       context: context,
       builder: (dialogContext) => AlertDialog(
         insetPadding: const EdgeInsets.all(AppSizes.p16),
-        shape: const RoundedRectangleBorder(borderRadius: AppRadius.roundedXL),
+        shape: const RoundedRectangleBorder(
+          borderRadius: AppRadius.roundedXL,
+        ),
         backgroundColor: context.colorScheme.surface,
         surfaceTintColor: Colors.transparent,
         title: Text(
@@ -225,16 +254,25 @@ class _PlaylistsPageContent extends StatelessWidget {
             onPressed: () => Navigator.pop(dialogContext),
             child: Text(
               'Cancel',
-              style: TextStyle(color: context.colorScheme.onSurfaceVariant),
+              style: TextStyle(
+                color: context.colorScheme.onSurfaceVariant,
+              ),
             ),
           ),
           TextButton(
             onPressed: () {
-              context.read<PlaylistCubit>().deletePlaylist(playlist.id);
+              context.read<PlaylistCubit>().deletePlaylist(
+                playlist.id,
+              );
               Navigator.pop(dialogContext);
             },
-            style: TextButton.styleFrom(foregroundColor: context.colorScheme.error),
-            child: const Text('Delete', style: TextStyle(fontWeight: FontWeight.bold)),
+            style: TextButton.styleFrom(
+              foregroundColor: context.colorScheme.error,
+            ),
+            child: const Text(
+              'Delete',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
           ),
         ],
       ),

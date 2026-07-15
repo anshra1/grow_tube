@@ -18,9 +18,9 @@ class ConnectivityToastController {
       description: const Text(AppStrings.networkOfflineMessage),
       alignment: Alignment.bottomCenter,
       autoCloseDuration: const Duration(days: 365),
-    );
+    )
 
-    item.pause();
+    ..pause();
     _offlineItem = item;
   }
 
@@ -28,7 +28,10 @@ class ConnectivityToastController {
     final item = _offlineItem;
     if (item == null) return;
 
-    toastification.dismiss(item, showRemoveAnimation: showRemoveAnimation);
+    toastification.dismiss(
+      item,
+      showRemoveAnimation: showRemoveAnimation,
+    );
     _offlineItem = null;
   }
 
@@ -64,9 +67,9 @@ class ConnectivityToastController {
       autoCloseDuration: const Duration(days: 365),
       animationDuration: const Duration(milliseconds: 450),
       animationBuilder: _shakeAnimation,
-    );
+    )
 
-    item.pause();
+    ..pause();
     _offlineItem = item;
   }
 
@@ -76,18 +79,39 @@ class ConnectivityToastController {
     Alignment alignment,
     Widget child,
   ) {
-    final shake = TweenSequence<double>([
-      TweenSequenceItem(tween: Tween(begin: 0.0, end: -10.0), weight: 1),
-      TweenSequenceItem(tween: Tween(begin: -10.0, end: 10.0), weight: 2),
-      TweenSequenceItem(tween: Tween(begin: 10.0, end: -6.0), weight: 2),
-      TweenSequenceItem(tween: Tween(begin: -6.0, end: 6.0), weight: 2),
-      TweenSequenceItem(tween: Tween(begin: 6.0, end: 0.0), weight: 1),
-    ]).animate(CurvedAnimation(parent: animation, curve: Curves.easeOut));
+    final shake =
+        TweenSequence<double>([
+          TweenSequenceItem(
+            tween: Tween(begin: 0, end: -10),
+            weight: 1,
+          ),
+          TweenSequenceItem(
+            tween: Tween(begin: -10, end: 10),
+            weight: 2,
+          ),
+          TweenSequenceItem(
+            tween: Tween(begin: 10, end: -6),
+            weight: 2,
+          ),
+          TweenSequenceItem(
+            tween: Tween(begin: -6, end: 6),
+            weight: 2,
+          ),
+          TweenSequenceItem(
+            tween: Tween(begin: 6, end: 0),
+            weight: 1,
+          ),
+        ]).animate(
+          CurvedAnimation(parent: animation, curve: Curves.easeOut),
+        );
 
     return AnimatedBuilder(
       animation: shake,
       builder: (context, _) {
-        return Transform.translate(offset: Offset(shake.value, 0), child: child);
+        return Transform.translate(
+          offset: Offset(shake.value, 0),
+          child: child,
+        );
       },
     );
   }

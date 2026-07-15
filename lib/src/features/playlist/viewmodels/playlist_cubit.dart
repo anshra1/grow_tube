@@ -4,7 +4,8 @@ import 'package:levelup_tube/src/features/playlist/repositories/playlist_reposit
 import 'package:levelup_tube/src/features/playlist/viewmodels/playlist_state.dart';
 
 class PlaylistCubit extends Cubit<PlaylistState> {
-  PlaylistCubit(this._repository) : super(const PlaylistInitialState());
+  PlaylistCubit(this._repository)
+    : super(const PlaylistInitialState());
 
   final PlaylistRepository _repository;
 
@@ -18,7 +19,7 @@ class PlaylistCubit extends Cubit<PlaylistState> {
       } else {
         emit(PlaylistLoadedState(playlists));
       }
-    } catch (e) {
+    } on Object catch (e) {
       emit(PlaylistErrorState(e.toString()));
     }
   }
@@ -28,9 +29,9 @@ class PlaylistCubit extends Cubit<PlaylistState> {
     try {
       await loadPlaylists();
       // Wait for the screen transition to finish before showing the importing state
-      await Future.delayed(const Duration(milliseconds: 500));
+      await Future<void>.delayed(const Duration(milliseconds: 500));
       await importPlaylist(url);
-    } catch (e) {
+    } on Object catch (e) {
       emit(PlaylistErrorState(e.toString()));
       await loadPlaylists(); // recover UI
     }
@@ -39,14 +40,16 @@ class PlaylistCubit extends Cubit<PlaylistState> {
   /// Create a new custom (empty) playlist.
   Future<void> createPlaylist(String title) async {
     if (title.trim().isEmpty) {
-      emit(const PlaylistErrorState('Playlist name cannot be empty.'));
+      emit(
+        const PlaylistErrorState('Playlist name cannot be empty.'),
+      );
       await loadPlaylists(); // recover UI
       return;
     }
     try {
       await _repository.createCustomPlaylist(title);
       await loadPlaylists();
-    } catch (e) {
+    } on Object catch (e) {
       emit(PlaylistErrorState(e.toString()));
       await loadPlaylists(); // recover UI
     }
@@ -63,7 +66,7 @@ class PlaylistCubit extends Cubit<PlaylistState> {
     try {
       await _repository.importYoutubePlaylist(url);
       await loadPlaylists();
-    } catch (e) {
+    } on Object catch (e) {
       emit(PlaylistErrorState(e.toString()));
       await loadPlaylists(); // recover UI
     }
@@ -74,7 +77,7 @@ class PlaylistCubit extends Cubit<PlaylistState> {
     try {
       await _repository.deletePlaylist(id);
       await loadPlaylists();
-    } catch (e) {
+    } on Object catch (e) {
       emit(PlaylistErrorState(e.toString()));
       await loadPlaylists(); // recover UI
     }

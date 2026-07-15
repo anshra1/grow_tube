@@ -31,13 +31,11 @@ class MigrationService {
     try {
       // 1. Find or create default playlist
       var defaultPlaylist = playlistBox.query(PlaylistModel_.isSystemDefault.equals(true)).build().findFirst();
-      if (defaultPlaylist == null) {
-        defaultPlaylist = PlaylistModel(
+      defaultPlaylist ??= PlaylistModel(
           title: 'My Library',
           createdAt: DateTime.now(),
           isSystemDefault: true,
         );
-      }
 
       // 2. Fetch all old videos and convert
       final allOldVideos = videoBox.getAll();
@@ -52,7 +50,6 @@ class MigrationService {
             thumbnailUrl: old.thumbnailUrl,
             durationSeconds: old.durationSeconds,
             addedAt: old.addedAt,
-            id: 0,
             lastWatchedPositionSeconds: old.lastWatchedPositionSeconds,
             lastPlayedAt: old.lastPlayedAt,
           );
@@ -74,7 +71,7 @@ class MigrationService {
       videoBox.removeAll();
       appLogger.info('[TESTING_LOG] MigrationService: Old VideoModel box cleared.');
 
-    } catch (e, st) {
+    } on Exception catch (e, st) {
       appLogger.handle(e, st, '[TESTING_LOG] MigrationService: Failed to complete Library V1 migration');
       // Do not set the flag, allowing it to retry on next launch
     }

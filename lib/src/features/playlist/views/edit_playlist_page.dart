@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:levelup_tube/src/core/widgets/pages/app_scaffold.dart';
+import 'package:levelup_tube/src/core/widgets/template/app_scaffold.dart';
 
 class EditPlaylistPage extends StatelessWidget {
   const EditPlaylistPage({

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:shimmer/shimmer.dart';
 import 'package:levelup_tube/src/core/design_system/app_radius.dart';
 import 'package:levelup_tube/src/core/design_system/app_shadows.dart';
 import 'package:levelup_tube/src/core/design_system/app_sizes.dart';
 import 'package:levelup_tube/src/core/extensions/context_extensions.dart';
+import 'package:shimmer/shimmer.dart';
 
 class DashboardVideoListShimmer extends StatelessWidget {
   const DashboardVideoListShimmer({super.key});
@@ -27,7 +27,8 @@ class DashboardVideoListShimmer extends StatelessWidget {
                 color: context.colorScheme.surface,
                 borderRadius: AppRadius.roundedL,
                 border: Border.all(
-                  color: context.colorScheme.outlineVariant.withValues(alpha: 0.5),
+                  color: context.colorScheme.outlineVariant
+                      .withValues(alpha: 0.5),
                 ),
                 boxShadow: AppShadows.card,
               ),
@@ -76,7 +77,8 @@ class DashboardVideoListShimmer extends StatelessWidget {
 
                         // Progress Bar & Percentage
                         Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                          crossAxisAlignment:
+                              CrossAxisAlignment.start,
                           children: [
                             Container(
                               width: double.infinity,

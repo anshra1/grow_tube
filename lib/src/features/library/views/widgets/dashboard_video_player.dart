@@ -1,3 +1,4 @@
+//
 // ignore_for_file: invalid_use_of_internal_member
 
 import 'dart:async';
@@ -6,8 +7,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:levelup_tube/main.dart';
-import 'package:levelup_tube/src/features/connectivity/presentation/bloc/connectivity_cubit.dart';
 import 'package:levelup_tube/src/core/design_system/app_radius.dart';
+import 'package:levelup_tube/src/features/connectivity/presentation/bloc/connectivity_cubit.dart';
 import 'package:levelup_tube/src/features/library/models/video.dart';
 import 'package:levelup_tube/src/features/library/viewmodels/library_bloc.dart';
 import 'package:levelup_tube/src/features/library/viewmodels/library_event.dart';
@@ -25,10 +26,12 @@ class DashboardVideoPlayer extends StatefulWidget {
 
   final Video video;
   final int? forcePlayTimestamp;
-  final void Function(String youtubeId, int positionSeconds)? onProgressUpdate;
+  final void Function(String youtubeId, int positionSeconds)?
+  onProgressUpdate;
 
   @override
-  State<DashboardVideoPlayer> createState() => _DashboardVideoPlayerState();
+  State<DashboardVideoPlayer> createState() =>
+      _DashboardVideoPlayerState();
 }
 
 class _DashboardVideoPlayerState extends State<DashboardVideoPlayer>
@@ -36,7 +39,8 @@ class _DashboardVideoPlayerState extends State<DashboardVideoPlayer>
   YoutubePlayerController? _controller;
   StreamSubscription<YoutubePlayerValue>? _errorSubscription;
   Timer? _heartbeatTimer;
-  final OverlayPortalController _overlayController = OverlayPortalController();
+  final OverlayPortalController _overlayController =
+      OverlayPortalController();
   final _youtubePlayerKey = GlobalKey();
   StreamSubscription<ConnectivityStatus>? _connectivitySubscription;
 
@@ -44,13 +48,16 @@ class _DashboardVideoPlayerState extends State<DashboardVideoPlayer>
   late final Animation<double> _fadeAnimation;
 
   @override
-  void initState() {    
+  void initState() {
     super.initState();
     _animController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 300),
     );
-    _fadeAnimation = CurvedAnimation(parent: _animController, curve: Curves.easeInOut);
+    _fadeAnimation = CurvedAnimation(
+      parent: _animController,
+      curve: Curves.easeInOut,
+    );
     _maybeInitializeController();
     _listenConnectivity();
     _startHeartbeat();
@@ -74,7 +81,10 @@ class _DashboardVideoPlayerState extends State<DashboardVideoPlayer>
       );
 
       // User explicitly tapped a video → auto-play it.
-      _controller?.loadVideoById(videoId: widget.video.youtubeId, startSeconds: startPos);
+      _controller?.loadVideoById(
+        videoId: widget.video.youtubeId,
+        startSeconds: startPos,
+      );
     } else if (widget.forcePlayTimestamp != null &&
         widget.forcePlayTimestamp != oldWidget.forcePlayTimestamp) {
       // User tapped the currently active video again in the list.
@@ -108,7 +118,7 @@ class _DashboardVideoPlayerState extends State<DashboardVideoPlayer>
     } else if (state == PlayerState.buffering) {
       // Video is stuck loading, kickstart it!
       final pos = await _controller!.currentTime;
-      _controller!.loadVideoById(
+      await _controller!.loadVideoById(
         videoId: widget.video.youtubeId,
         startSeconds: pos,
       );
@@ -124,12 +134,12 @@ class _DashboardVideoPlayerState extends State<DashboardVideoPlayer>
       }
     } else if (state == PlayerState.paused) {
       // Simply unpause
-      _controller!.playVideo();
+      await _controller!.playVideo();
     } else {
       // Broken state (unknown/unstarted)
-      _controller!.loadVideoById(
+      await _controller!.loadVideoById(
         videoId: widget.video.youtubeId,
-        startSeconds: 0.0,
+        startSeconds: 0,
       );
     }
   }
@@ -141,14 +151,16 @@ class _DashboardVideoPlayerState extends State<DashboardVideoPlayer>
         .stream
         .distinct()
         .listen((status) {
-          if (status == ConnectivityStatus.online && _controller == null) {
+          if (status == ConnectivityStatus.online &&
+              _controller == null) {
             _reinitializeController();
           }
         });
   }
 
   void _maybeInitializeController() {
-    if (context.read<ConnectivityCubit>().state != ConnectivityStatus.online) {
+    if (context.read<ConnectivityCubit>().state !=
+        ConnectivityStatus.online) {
       return;
     }
     _initializeController();
@@ -177,12 +189,6 @@ class _DashboardVideoPlayerState extends State<DashboardVideoPlayer>
 
     final controller = YoutubePlayerController(
       params: const YoutubePlayerParams(
-        mute: false,
-        showControls: true,
-        showFullscreenButton: false,
-        enableJavaScript: true,
-        strictRelatedVideos: false,
-        playsInline: true,
         enableCaption: false,
         origin: 'https://www.youtube-nocookie.com',
       ),
@@ -192,7 +198,10 @@ class _DashboardVideoPlayerState extends State<DashboardVideoPlayer>
 
     // On app launch: cue the video (shows thumbnail/controls, does NOT auto-play).
     // Auto-play only happens when the user explicitly taps a video (see didUpdateWidget).
-    controller.cueVideoById(videoId: widget.video.youtubeId, startSeconds: startPos);
+    controller.cueVideoById(
+      videoId: widget.video.youtubeId,
+      startSeconds: startPos,
+    );
 
     _errorSubscription = controller.listen((value) {
       if (value.error != YoutubeError.none) {
@@ -204,10 +213,10 @@ class _DashboardVideoPlayerState extends State<DashboardVideoPlayer>
     });
   }
 
-  void _toggleFullScreen() async {
+  Future<void> _toggleFullScreen() async {
     if (!_overlayController.isShowing) {
       // 1. Enter Fullscreen (mounts the overlay)
-      setState(() => _overlayController.toggle());
+      setState(_overlayController.toggle);
 
       // 2. Instantly jump to black (hide the player while it stretches to landscape)
       _animController.value = 1.0;
@@ -217,29 +226,35 @@ class _DashboardVideoPlayerState extends State<DashboardVideoPlayer>
         DeviceOrientation.landscapeLeft,
         DeviceOrientation.landscapeRight,
       ]);
-      await SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
+      await SystemChrome.setEnabledSystemUIMode(
+        SystemUiMode.immersiveSticky,
+      );
 
       // 4. Wait for hardware rotation to complete
-      await Future.delayed(const Duration(milliseconds: 300));
+      await Future<void>.delayed(const Duration(milliseconds: 300));
 
       // 5. Fade out the black box to reveal the newly-sized landscape player
       if (mounted) {
-        _animController.reverse();
+        await _animController.reverse();
       }
     } else {
       // 1. Fade the black box IN to hide the landscape player before it shrinks
-      await _animController.forward(from: 0.0);
+      await _animController.forward(from: 0);
 
       // 2. Trigger hardware rotation back to portrait
-      await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
-      await SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+      await SystemChrome.setPreferredOrientations([
+        DeviceOrientation.portraitUp,
+      ]);
+      await SystemChrome.setEnabledSystemUIMode(
+        SystemUiMode.edgeToEdge,
+      );
 
       // 3. Wait for hardware rotation to complete
-      await Future.delayed(const Duration(milliseconds: 300));
+      await Future<void>.delayed(const Duration(milliseconds: 300));
 
       // 4. Remove the overlay entirely and reset the black box
       if (mounted) {
-        setState(() => _overlayController.toggle());
+        setState(_overlayController.toggle);
         _animController.value = 0.0;
       }
     }
@@ -247,7 +262,9 @@ class _DashboardVideoPlayerState extends State<DashboardVideoPlayer>
 
   void _startHeartbeat() {
     _heartbeatTimer?.cancel();
-    _heartbeatTimer = Timer.periodic(const Duration(seconds: 60), (_) {
+    _heartbeatTimer = Timer.periodic(const Duration(seconds: 60), (
+      _,
+    ) {
       _saveProgress();
     });
   }
@@ -272,7 +289,7 @@ class _DashboardVideoPlayerState extends State<DashboardVideoPlayer>
           );
         }
       }
-    } catch (_) {}
+    } on Exception catch (_) {}
   }
 
   @override
@@ -296,7 +313,6 @@ class _DashboardVideoPlayerState extends State<DashboardVideoPlayer>
         : YoutubePlayer(
             key: _youtubePlayerKey,
             controller: controller,
-            aspectRatio: 16 / 9,
             enableFullScreenOnVerticalDrag: false,
           );
 
@@ -312,7 +328,10 @@ class _DashboardVideoPlayerState extends State<DashboardVideoPlayer>
         // When fullscreen, leave behind an empty 16:9 box in the structural list
         // so the UI beneath it doesn't snap upwards.
         child: _overlayController.isShowing
-            ? const AspectRatio(aspectRatio: 16 / 9, child: SizedBox())
+            ? const AspectRatio(
+                aspectRatio: 16 / 9,
+                child: SizedBox(),
+              )
             : Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -330,21 +349,31 @@ class _DashboardVideoPlayerState extends State<DashboardVideoPlayer>
                       onTap: _toggleFullScreen,
                       borderRadius: BorderRadius.circular(8),
                       child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4,
+                        ),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Icon(
                               Icons.screen_rotation,
                               size: 18,
-                              color: Theme.of(context).colorScheme.onSurfaceVariant,
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.onSurfaceVariant,
                             ),
                             const SizedBox(width: 4),
                             Text(
                               'Landscape',
-                              style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                                color: Theme.of(context).colorScheme.onSurfaceVariant,
-                              ),
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .labelSmall
+                                  ?.copyWith(
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.onSurfaceVariant,
+                                  ),
                             ),
                           ],
                         ),
@@ -360,7 +389,7 @@ class _DashboardVideoPlayerState extends State<DashboardVideoPlayer>
               children: [
                 // The underlying player, which might stretch during rotation
                 Positioned.fill(
-                  child: Container(
+                  child: ColoredBox(
                     color: Colors.black,
                     child: player ?? const SizedBox.shrink(),
                   ),
@@ -372,7 +401,9 @@ class _DashboardVideoPlayerState extends State<DashboardVideoPlayer>
                     builder: (context, child) {
                       return IgnorePointer(
                         child: Container(
-                          color: Colors.black.withValues(alpha: _fadeAnimation.value),
+                          color: Colors.black.withValues(
+                            alpha: _fadeAnimation.value,
+                          ),
                         ),
                       );
                     },

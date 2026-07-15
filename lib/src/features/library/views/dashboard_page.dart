@@ -4,7 +4,7 @@ import 'package:levelup_tube/src/core/constants/app_strings.dart';
 import 'package:levelup_tube/src/core/design_system/app_radius.dart';
 import 'package:levelup_tube/src/core/design_system/app_sizes.dart';
 import 'package:levelup_tube/src/core/extensions/context_extensions.dart';
-import 'package:levelup_tube/src/core/widgets/pages/app_scaffold.dart';
+import 'package:levelup_tube/src/core/widgets/template/app_scaffold.dart';
 import 'package:levelup_tube/src/features/library/viewmodels/library_bloc.dart';
 import 'package:levelup_tube/src/features/library/viewmodels/library_event.dart';
 import 'package:levelup_tube/src/features/library/viewmodels/library_state.dart';
@@ -20,9 +20,7 @@ class DashboardPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const AppScaffold(
-      body: _DashboardContent(),
-    );
+    return const AppScaffold(body: _DashboardContent());
   }
 }
 
@@ -38,7 +36,7 @@ class _DashboardContent extends StatelessWidget {
             context: context,
             type: ToastificationType.error,
             style: ToastificationStyle.fillColored,
-            title: Text(AppStrings.dashboardError),
+            title: const Text(AppStrings.dashboardError),
             description: Text(state.message),
             autoCloseDuration: const Duration(seconds: 4),
             alignment: Alignment.bottomCenter,
@@ -49,7 +47,9 @@ class _DashboardContent extends StatelessWidget {
         children: [
           const SizedBox(height: AppSizes.p8),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: AppSizes.p8),
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppSizes.p8,
+            ),
             // Smart Player Component
             child: BlocBuilder<LibraryBloc, LibraryState>(
               buildWhen: (previous, current) {
@@ -62,7 +62,8 @@ class _DashboardContent extends StatelessWidget {
                   LibraryInitialState() => AspectRatio(
                     aspectRatio: 16 / 9,
                     child: Shimmer.fromColors(
-                      baseColor: context.colorScheme.surfaceContainerHighest,
+                      baseColor:
+                          context.colorScheme.surfaceContainerHighest,
                       highlightColor: context.colorScheme.surface,
                       child: Container(
                         decoration: BoxDecoration(
@@ -72,7 +73,8 @@ class _DashboardContent extends StatelessWidget {
                       ),
                     ),
                   ),
-                  LibraryVideoLoadedState() when state.lastPlayVideo != null =>
+                  LibraryVideoLoadedState()
+                      when state.lastPlayVideo != null =>
                     DashboardVideoPlayer(
                       video: state.lastPlayVideo!,
                       forcePlayTimestamp: state.forcePlayTimestamp,
@@ -93,10 +95,13 @@ class _DashboardContent extends StatelessWidget {
               },
               builder: (context, state) {
                 return switch (state) {
-                  LibraryInitialState() => const DashboardVideoListShimmer(),
+                  LibraryInitialState() =>
+                    const DashboardVideoListShimmer(),
                   LibraryEmptyState() => DashboardEmptyState(
                     onAddVideo: (url) {
-                      context.read<LibraryBloc>().add(LibraryVideoAddedEvent(url));
+                      context.read<LibraryBloc>().add(
+                        LibraryVideoAddedEvent(url),
+                      );
                     },
                   ),
                   LibraryVideoLoadedState() => DashboardVideoList(

@@ -1,8 +1,11 @@
+//
+// ignore_for_file: avoid_dynamic_calls
+
 import 'dart:convert';
 
+import 'package:http/http.dart' as http;
 import 'package:levelup_tube/main.dart';
 import 'package:levelup_tube/src/core/error/exception.dart';
-import 'package:http/http.dart' as http;
 import 'package:talker_flutter/talker_flutter.dart';
 
 /// Thin wrapper around the YouTube Data API v3 `videos.list` endpoint.
@@ -17,9 +20,12 @@ class YoutubeApiService {
   final String _apiKey;
   final http.Client _client;
 
-  static const _baseUrl = 'https://www.googleapis.com/youtube/v3/videos';
-  static const _playlistItemsUrl = 'https://www.googleapis.com/youtube/v3/playlistItems';
-  static const _playlistsUrl = 'https://www.googleapis.com/youtube/v3/playlists';
+  static const _baseUrl =
+      'https://www.googleapis.com/youtube/v3/videos';
+  static const _playlistItemsUrl =
+      'https://www.googleapis.com/youtube/v3/playlistItems';
+  static const _playlistsUrl =
+      'https://www.googleapis.com/youtube/v3/playlists';
 
   /// Fetches video details for [videoId].
   ///
@@ -27,31 +33,35 @@ class YoutubeApiService {
   /// `thumbnailUrl`, `durationSeconds`.
   ///
   /// Throws [VideoException] on failure.
-  Future<Map<String, dynamic>> fetchVideoDetails(String videoId) async {
+  Future<Map<String, dynamic>> fetchVideoDetails(
+    String videoId,
+  ) async {
     final uri = Uri.parse(
       '$_baseUrl?id=$videoId&part=snippet,contentDetails&key=$_apiKey',
     );
 
-    talker.log(
-      'YoutubeApiService: Fetching details for $videoId',
-      logLevel: LogLevel.debug,
-    );
+    talker.log('YoutubeApiService: Fetching details for $videoId');
 
     final http.Response response;
     try {
       response = await _client.get(uri);
-    } catch (e) {
-      throw VideoException('Network error: unable to reach YouTube API', code: 'offline');
+    } on Object {
+      throw const VideoException(
+        'Network error: unable to reach YouTube API',
+        code: 'offline',
+      );
     }
 
     if (response.statusCode == 403) {
       final body = jsonDecode(response.body) as Map<String, dynamic>;
       final reason = _extractErrorReason(body);
 
-      talker.error('YoutubeApiService: 403 Forbidden - reason: $reason');
-      talker.debug('YoutubeApiService: Error body: ${response.body}');
+      talker
+        ..error('YoutubeApiService: 403 Forbidden - reason: $reason')
+        ..debug('YoutubeApiService: Error body: ${response.body}');
 
-      if (reason == 'quotaExceeded' || reason == 'rateLimitExceeded') {
+      if (reason == 'quotaExceeded' ||
+          reason == 'rateLimitExceeded') {
         throw const VideoException(
           'YouTube API daily quota exceeded. Please try again tomorrow.',
           code: 'rateLimited',
@@ -82,7 +92,8 @@ class YoutubeApiService {
 
     final item = items[0] as Map<String, dynamic>;
     final snippet = item['snippet'] as Map<String, dynamic>;
-    final contentDetails = item['contentDetails'] as Map<String, dynamic>;
+    final contentDetails =
+        item['contentDetails'] as Map<String, dynamic>;
     final thumbnails = snippet['thumbnails'] as Map<String, dynamic>;
 
     // Prefer high > medium > default thumbnail
@@ -97,7 +108,9 @@ class YoutubeApiService {
       'title': snippet['title'] as String,
       'channelTitle': snippet['channelTitle'] as String,
       'thumbnailUrl': thumbUrl as String,
-      'durationSeconds': _parseIsoDuration(contentDetails['duration'] as String),
+      'durationSeconds': _parseIsoDuration(
+        contentDetails['duration'] as String,
+      ),
     };
   }
 
@@ -107,11 +120,13 @@ class YoutubeApiService {
   /// Returns a list of YouTube video ID strings.
   ///
   /// Throws [VideoException] on failure.
-  Future<List<String>> fetchPlaylistVideoIds(String playlistId) async {
-    final List<String> videoIds = [];
+  Future<List<String>> fetchPlaylistVideoIds(
+    String playlistId,
+  ) async {
+    final videoIds = <String>[];
     String? pageToken;
     const maxPages = 10; // 10 pages × 50 = 500 videos max
-    int pageCount = 0;
+    var pageCount = 0;
 
     do {
       final uri = Uri.parse(
@@ -126,13 +141,12 @@ class YoutubeApiService {
       talker.log(
         'YoutubeApiService: Fetching playlist items page ${pageCount + 1} '
         'for playlist $playlistId',
-        logLevel: LogLevel.debug,
       );
 
       final http.Response response;
       try {
         response = await _client.get(uri);
-      } catch (e) {
+      } on Object {
         throw const VideoException(
           'Network error: unable to reach YouTube API',
           code: 'offline',
@@ -140,9 +154,11 @@ class YoutubeApiService {
       }
 
       if (response.statusCode == 403) {
-        final body = jsonDecode(response.body) as Map<String, dynamic>;
+        final body =
+            jsonDecode(response.body) as Map<String, dynamic>;
         final reason = _extractErrorReason(body);
-        if (reason == 'quotaExceeded' || reason == 'rateLimitExceeded') {
+        if (reason == 'quotaExceeded' ||
+            reason == 'rateLimitExceeded') {
           throw const VideoException(
             'YouTube API daily quota exceeded. Please try again tomorrow.',
             code: 'rateLimited',
@@ -172,7 +188,8 @@ class YoutubeApiService {
       final items = body['items'] as List<dynamic>? ?? [];
 
       for (final item in items) {
-        final contentDetails = item['contentDetails'] as Map<String, dynamic>;
+        final contentDetails =
+            item['contentDetails'] as Map<String, dynamic>;
         final videoId = contentDetails['videoId'] as String?;
         if (videoId != null) {
           videoIds.add(videoId);
@@ -198,7 +215,9 @@ class YoutubeApiService {
   /// Returns a map with keys: `title`, `description`, `thumbnailUrl`.
   ///
   /// Throws [VideoException] on failure.
-  Future<Map<String, dynamic>> fetchPlaylistDetails(String playlistId) async {
+  Future<Map<String, dynamic>> fetchPlaylistDetails(
+    String playlistId,
+  ) async {
     final uri = Uri.parse(
       '$_playlistsUrl'
       '?id=$playlistId'
@@ -208,13 +227,12 @@ class YoutubeApiService {
 
     talker.log(
       'YoutubeApiService: Fetching playlist details for $playlistId',
-      logLevel: LogLevel.debug,
     );
 
     final http.Response response;
     try {
       response = await _client.get(uri);
-    } catch (e) {
+    } on Object {
       throw const VideoException(
         'Network error: unable to reach YouTube API',
         code: 'offline',
@@ -224,7 +242,8 @@ class YoutubeApiService {
     if (response.statusCode == 403) {
       final body = jsonDecode(response.body) as Map<String, dynamic>;
       final reason = _extractErrorReason(body);
-      if (reason == 'quotaExceeded' || reason == 'rateLimitExceeded') {
+      if (reason == 'quotaExceeded' ||
+          reason == 'rateLimitExceeded') {
         throw const VideoException(
           'YouTube API daily quota exceeded. Please try again tomorrow.',
           code: 'rateLimited',
@@ -253,8 +272,11 @@ class YoutubeApiService {
       );
     }
 
-    final snippet = items[0]['snippet'] as Map<String, dynamic>;
-    final thumbnails = snippet['thumbnails'] as Map<String, dynamic>? ?? {};
+    final snippet =
+        (items[0] as Map<String, dynamic>)['snippet']
+            as Map<String, dynamic>;
+    final thumbnails =
+        snippet['thumbnails'] as Map<String, dynamic>? ?? {};
 
     final thumbUrl =
         (thumbnails['high'] as Map<String, dynamic>?)?['url'] ??
@@ -288,9 +310,13 @@ class YoutubeApiService {
       final error = body['error'] as Map<String, dynamic>?;
       final errors = error?['errors'] as List<dynamic>?;
       if (errors != null && errors.isNotEmpty) {
-        return (errors[0] as Map<String, dynamic>)['reason'] as String? ?? '';
+        return (errors[0] as Map<String, dynamic>)['reason']
+                as String? ??
+            '';
       }
-    } catch (_) {}
+    } on Object {
+      // Do nothing
+    }
     return '';
   }
 }

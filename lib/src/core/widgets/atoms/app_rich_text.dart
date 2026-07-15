@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:levelup_tube/src/core/design_system/app_colors.dart';
 import 'package:levelup_tube/src/core/extensions/context_extensions.dart';
 
 /// A widget that displays text where specific target substrings are highlighted
@@ -19,7 +20,7 @@ class AppRichText extends StatelessWidget {
   /// The second part of the text (highlighted color).
   final String highlightedText;
 
-  /// The base text style. Uses [AppTypography.headlineMedium] by default.
+  /// The base text style. Uses AppTypography.headlineMedium by default.
   final TextStyle? style;
 
   /// The highlight text style. Uses [AppColors.secondary] color by default.

@@ -17,7 +17,8 @@ import 'package:levelup_tube/src/core/services/logging_service/logging_service.d
 /// ```
 class AppLogger {
   /// Creates an [AppLogger] with the given list of logging services.
-  AppLogger({required List<LoggingService> services}) : _services = services;
+  AppLogger({required List<LoggingService> services})
+    : _services = services;
 
   final List<LoggingService> _services;
 
@@ -31,12 +32,28 @@ class AppLogger {
   void warning(String message) => _log(LogLevel.warning, message);
 
   /// Logs an error message with optional error object and stack trace.
-  void error(String message, {Object? error, StackTrace? stackTrace}) =>
-      _log(LogLevel.error, message, error: error, stackTrace: stackTrace);
+  void error(
+    String message, {
+    Object? error,
+    StackTrace? stackTrace,
+  }) => _log(
+    LogLevel.error,
+    message,
+    error: error,
+    stackTrace: stackTrace,
+  );
 
   /// Logs a fatal error. Use for unrecoverable errors.
-  void fatal(String message, {Object? error, StackTrace? stackTrace}) =>
-      _log(LogLevel.fatal, message, error: error, stackTrace: stackTrace);
+  void fatal(
+    String message, {
+    Object? error,
+    StackTrace? stackTrace,
+  }) => _log(
+    LogLevel.fatal,
+    message,
+    error: error,
+    stackTrace: stackTrace,
+  );
 
   /// Handles an exception/error with optional stack trace and message.
   ///
@@ -54,16 +71,133 @@ class AppLogger {
     }
   }
 
-  /// Sets a custom key-value pair on all logging services.
+  /// Clears the user identifier on all logging services.
+  void clearUserIdentifier() {
+    for (final service in _services) {
+      service.clearUserIdentifier();
+    }
+  }
+
+  /// Sets a custom key-value pair (string) on all logging services.
   void setCustomKey(String key, String value) {
     for (final service in _services) {
       service.setCustomKey(key, value);
     }
   }
 
-  void _log(LogLevel level, String message, {Object? error, StackTrace? stackTrace}) {
+  /// Sets a custom key-value pair (int) on all logging services.
+  void setCustomIntKey(String key, int value) {
     for (final service in _services) {
-      service.log(level, message, error: error, stackTrace: stackTrace);
+      service.setCustomIntKey(key, value);
+    }
+  }
+
+  /// Sets a custom key-value pair (double) on all logging services.
+  void setCustomDoubleKey(String key, double value) {
+    for (final service in _services) {
+      service.setCustomDoubleKey(key, value);
+    }
+  }
+
+  /// Sets a custom key-value pair (bool) on all logging services.
+  void setCustomBoolKey(String key, {required bool value}) {
+    for (final service in _services) {
+      service.setCustomBoolKey(key, value: value);
+    }
+  }
+
+  /// Sets a custom key-value pair (list) on all logging services.
+  void setCustomListKey(String key, List<String> value) {
+    for (final service in _services) {
+      service.setCustomListKey(key, value);
+    }
+  }
+
+  /// Clears a custom key on all logging services.
+  void clearCustomKey(String key) {
+    for (final service in _services) {
+      service.clearCustomKey(key);
+    }
+  }
+
+  /// Clears all custom keys on all logging services.
+  void clearAllCustomKeys() {
+    for (final service in _services) {
+      service.clearAllCustomKeys();
+    }
+  }
+
+  /// Enables or disables crash reporting on all supported logging services.
+  Future<void> setCrashlyticsCollectionEnabled({
+    required bool enabled,
+  }) async {
+    for (final service in _services) {
+      await service.setCrashlyticsCollectionEnabled(enabled: enabled);
+    }
+  }
+
+  /// Checks if crash reporting is enabled on any service.
+  Future<bool> isCrashlyticsCollectionEnabled() async {
+    for (final service in _services) {
+      if (await service.isCrashlyticsCollectionEnabled()) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /// Manually sends unsent reports on all supported logging services.
+  Future<void> sendUnsentReports() async {
+    for (final service in _services) {
+      await service.sendUnsentReports();
+    }
+  }
+
+  /// Deletes unsent reports on all supported logging services.
+  Future<void> deleteUnsentReports() async {
+    for (final service in _services) {
+      await service.deleteUnsentReports();
+    }
+  }
+
+  /// Records a fatal error on all logging services.
+  Future<void> recordFatalError(
+    Object error,
+    StackTrace stackTrace, {
+    String? reason,
+  }) async {
+    for (final service in _services) {
+      await service.recordFatalError(
+        error,
+        stackTrace,
+        reason: reason,
+      );
+    }
+  }
+
+  /// Checks if any logging service has Crashlytics available.
+  bool get isCrashlyticsAvailable {
+    for (final service in _services) {
+      if (service.isCrashlyticsAvailable) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  void _log(
+    LogLevel level,
+    String message, {
+    Object? error,
+    StackTrace? stackTrace,
+  }) {
+    for (final service in _services) {
+      service.log(
+        level,
+        message,
+        error: error,
+        stackTrace: stackTrace,
+      );
     }
   }
 }

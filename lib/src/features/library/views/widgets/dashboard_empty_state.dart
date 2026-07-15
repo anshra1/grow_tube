@@ -14,7 +14,8 @@ class DashboardEmptyState extends StatefulWidget {
   final ValueChanged<String> onAddVideo;
 
   @override
-  State<DashboardEmptyState> createState() => _DashboardEmptyStateState();
+  State<DashboardEmptyState> createState() =>
+      _DashboardEmptyStateState();
 }
 
 class _DashboardEmptyStateState extends State<DashboardEmptyState>
@@ -56,13 +57,16 @@ class _DashboardEmptyStateState extends State<DashboardEmptyState>
     // Illustration: 0.0 – 0.4
     _illustrationFadeAnim = CurvedAnimation(
       parent: _staggerController,
-      curve: const Interval(0.0, 0.4, curve: Curves.easeOut),
+      curve: const Interval(0, 0.4, curve: Curves.easeOut),
     );
-    _illustrationSlideAnim = Tween<Offset>(begin: const Offset(0, 0.3), end: Offset.zero)
-        .animate(
+    _illustrationSlideAnim =
+        Tween<Offset>(
+          begin: const Offset(0, 0.3),
+          end: Offset.zero,
+        ).animate(
           CurvedAnimation(
             parent: _staggerController,
-            curve: const Interval(0.0, 0.4, curve: Curves.easeOut),
+            curve: const Interval(0, 0.4, curve: Curves.easeOut),
           ),
         );
 
@@ -71,23 +75,30 @@ class _DashboardEmptyStateState extends State<DashboardEmptyState>
       parent: _staggerController,
       curve: const Interval(0.25, 0.65, curve: Curves.easeOut),
     );
-    _textSlideAnim = Tween<Offset>(begin: const Offset(0, 0.3), end: Offset.zero).animate(
-      CurvedAnimation(
-        parent: _staggerController,
-        curve: const Interval(0.25, 0.65, curve: Curves.easeOut),
-      ),
-    );
+    _textSlideAnim =
+        Tween<Offset>(
+          begin: const Offset(0, 0.3),
+          end: Offset.zero,
+        ).animate(
+          CurvedAnimation(
+            parent: _staggerController,
+            curve: const Interval(0.25, 0.65, curve: Curves.easeOut),
+          ),
+        );
 
     // Input area: 0.5 – 1.0
     _inputFadeAnim = CurvedAnimation(
       parent: _staggerController,
-      curve: const Interval(0.5, 1.0, curve: Curves.easeOut),
+      curve: const Interval(0.5, 1, curve: Curves.easeOut),
     );
-    _inputSlideAnim = Tween<Offset>(begin: const Offset(0, 0.3), end: Offset.zero)
-        .animate(
+    _inputSlideAnim =
+        Tween<Offset>(
+          begin: const Offset(0, 0.3),
+          end: Offset.zero,
+        ).animate(
           CurvedAnimation(
             parent: _staggerController,
-            curve: const Interval(0.5, 1.0, curve: Curves.easeOut),
+            curve: const Interval(0.5, 1, curve: Curves.easeOut),
           ),
         );
 
@@ -97,7 +108,10 @@ class _DashboardEmptyStateState extends State<DashboardEmptyState>
       duration: const Duration(milliseconds: 2500),
     );
     _bounceAnim = Tween<double>(begin: 0, end: -10).animate(
-      CurvedAnimation(parent: _characterBounceController, curve: Curves.easeInOut),
+      CurvedAnimation(
+        parent: _characterBounceController,
+        curve: Curves.easeInOut,
+      ),
     );
 
     // Blob pulse (continuous)
@@ -105,10 +119,12 @@ class _DashboardEmptyStateState extends State<DashboardEmptyState>
       vsync: this,
       duration: const Duration(milliseconds: 3000),
     );
-    _blobScaleAnim = Tween<double>(
-      begin: 0.95,
-      end: 1.05,
-    ).animate(CurvedAnimation(parent: _blobPulseController, curve: Curves.easeInOut));
+    _blobScaleAnim = Tween<double>(begin: 0.95, end: 1.05).animate(
+      CurvedAnimation(
+        parent: _blobPulseController,
+        curve: Curves.easeInOut,
+      ),
+    );
 
     // Focus listener: scroll input into view when keyboard opens
     _focusNode.addListener(_onFocusChanged);
@@ -158,9 +174,12 @@ class _DashboardEmptyStateState extends State<DashboardEmptyState>
     final colors = context.colorScheme;
     final screenHeight = MediaQuery.sizeOf(context).height;
     final keyboardInset = MediaQuery.viewInsetsOf(context).bottom;
-    final verticalPadding = keyboardInset > 0 ? AppSizes.p16 : screenHeight * 0.1;
-    final scrollPhysics =
-        keyboardInset > 0 ? const NeverScrollableScrollPhysics() : const ClampingScrollPhysics();
+    final verticalPadding = keyboardInset > 0
+        ? AppSizes.p16
+        : screenHeight * 0.1;
+    final scrollPhysics = keyboardInset > 0
+        ? const NeverScrollableScrollPhysics()
+        : const ClampingScrollPhysics();
 
     return AnimatedPadding(
       duration: const Duration(milliseconds: 200),
@@ -230,17 +249,24 @@ class _DashboardEmptyStateState extends State<DashboardEmptyState>
           AnimatedBuilder(
             animation: _blobScaleAnim,
             builder: (context, child) {
-              return Transform.scale(scale: _blobScaleAnim.value, child: child);
+              return Transform.scale(
+                scale: _blobScaleAnim.value,
+                child: child,
+              );
             },
             child: Container(
               width: 240,
               height: 240,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: colors.tertiaryContainer.withValues(alpha: 0.2),
+                color: colors.tertiaryContainer.withValues(
+                  alpha: 0.2,
+                ),
                 boxShadow: [
                   BoxShadow(
-                    color: colors.tertiaryContainer.withValues(alpha: 0.15),
+                    color: colors.tertiaryContainer.withValues(
+                      alpha: 0.15,
+                    ),
                     blurRadius: 80,
                     spreadRadius: 20,
                   ),
@@ -275,7 +301,9 @@ class _DashboardEmptyStateState extends State<DashboardEmptyState>
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: colors.tertiaryContainer.withValues(alpha: 0.4),
+                        color: colors.tertiaryContainer.withValues(
+                          alpha: 0.4,
+                        ),
                         blurRadius: 24,
                         offset: const Offset(0, 8),
                       ),
@@ -336,7 +364,9 @@ class _DashboardEmptyStateState extends State<DashboardEmptyState>
           width: 48,
           height: 24,
           decoration: BoxDecoration(
-            border: Border(bottom: BorderSide(color: faceColor, width: 3.5)),
+            border: Border(
+              bottom: BorderSide(color: faceColor, width: 3.5),
+            ),
             borderRadius: const BorderRadius.only(
               bottomLeft: Radius.circular(24),
               bottomRight: Radius.circular(24),
@@ -372,10 +402,10 @@ class _DashboardEmptyStateState extends State<DashboardEmptyState>
           child: Container(
             width: 48,
             height: 32,
-          decoration: BoxDecoration(
-            color: const Color(0xFFFF0000),
-            borderRadius: BorderRadius.circular(12),
-          ),
+            decoration: BoxDecoration(
+              color: const Color(0xFFFF0000),
+              borderRadius: BorderRadius.circular(12),
+            ),
             child: const Center(
               child: Icon(
                 Icons.play_arrow_rounded,
@@ -406,8 +436,6 @@ class _DashboardEmptyStateState extends State<DashboardEmptyState>
             letterSpacing: 0.5,
           ),
         ),
-
-       
       ],
     );
   }
@@ -441,7 +469,9 @@ class _DashboardEmptyStateState extends State<DashboardEmptyState>
             decoration: InputDecoration(
               hintText: 'https://youtube-video-url.com/...',
               hintStyle: TextStyle(
-                color: colors.onSurfaceVariant.withValues(alpha: 0.85),
+                color: colors.onSurfaceVariant.withValues(
+                  alpha: 0.85,
+                ),
               ),
               suffixIcon: IconButton(
                 onPressed: _pasteFromClipboard,
@@ -451,7 +481,7 @@ class _DashboardEmptyStateState extends State<DashboardEmptyState>
                 ),
                 tooltip: 'Paste from clipboard',
               ),
-              border: OutlineInputBorder(
+              border: const OutlineInputBorder(
                 borderRadius: AppRadius.roundedL,
                 borderSide: BorderSide.none,
               ),
@@ -464,18 +494,26 @@ class _DashboardEmptyStateState extends State<DashboardEmptyState>
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: AppRadius.roundedL,
-                borderSide: BorderSide(color: colors.primary, width: 2),
+                borderSide: BorderSide(
+                  color: colors.primary,
+                  width: 2,
+                ),
               ),
               errorBorder: OutlineInputBorder(
                 borderRadius: AppRadius.roundedL,
-                borderSide: BorderSide(color: colors.error, width: 1.4),
+                borderSide: BorderSide(
+                  color: colors.error,
+                  width: 1.4,
+                ),
               ),
               focusedErrorBorder: OutlineInputBorder(
                 borderRadius: AppRadius.roundedL,
                 borderSide: BorderSide(color: colors.error, width: 2),
               ),
               filled: true,
-              fillColor: colors.surfaceContainerHighest.withValues(alpha: 0.35),
+              fillColor: colors.surfaceContainerHighest.withValues(
+                alpha: 0.35,
+              ),
               contentPadding: const EdgeInsets.symmetric(
                 horizontal: AppSizes.p24,
                 vertical: AppSizes.p20,
@@ -506,7 +544,10 @@ class _DashboardEmptyStateState extends State<DashboardEmptyState>
                   ),
                 ),
                 gapW8,
-                Icon(Icons.add_circle_rounded, color: colors.onPrimary),
+                Icon(
+                  Icons.add_circle_rounded,
+                  color: colors.onPrimary,
+                ),
               ],
             ),
           ),
@@ -517,8 +558,8 @@ class _DashboardEmptyStateState extends State<DashboardEmptyState>
 
   @override
   void dispose() {
-    _focusNode.removeListener(_onFocusChanged);
-    _focusNode.dispose();
+    _focusNode..removeListener(_onFocusChanged)
+    ..dispose();
     _scrollController.dispose();
     _urlController.dispose();
     _staggerController.dispose();

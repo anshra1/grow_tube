@@ -1,19 +1,20 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
-import 'package:flutter/services.dart';
-import 'package:shimmer/shimmer.dart';
 import 'package:levelup_tube/src/core/design_system/app_radius.dart';
 import 'package:levelup_tube/src/core/design_system/app_sizes.dart';
+import 'package:levelup_tube/src/core/di/injection_container.dart'
+    as di;
+import 'package:levelup_tube/src/core/extensions/context_extensions.dart';
 import 'package:levelup_tube/src/features/connectivity/presentation/bloc/connectivity_cubit.dart';
 import 'package:levelup_tube/src/features/connectivity/presentation/widgets/connectivity_toast_controller.dart';
-import 'package:levelup_tube/src/core/di/injection_container.dart' as di;
-import 'package:levelup_tube/src/core/extensions/context_extensions.dart';
 import 'package:levelup_tube/src/features/library/models/video.dart';
 import 'package:levelup_tube/src/features/library/viewmodels/library_bloc.dart';
 import 'package:levelup_tube/src/features/library/viewmodels/library_event.dart';
 import 'package:levelup_tube/src/features/library/views/widgets/delete_video_dialog.dart';
+import 'package:shimmer/shimmer.dart';
 
 class DashboardVideoCard extends StatelessWidget {
   const DashboardVideoCard({
@@ -24,14 +25,16 @@ class DashboardVideoCard extends StatelessWidget {
   });
 
   final Video video;
+
   /// Optional override for tap behavior.
   /// If null, defaults to LibraryVideoSelectedEvent dispatch.
   final VoidCallback? onTap;
+
   /// Optional override for long-press behavior.
   /// If null, defaults to showing the delete video dialog.
   final VoidCallback? onLongPress;
-  static final ConnectivityToastController _toastController =
-      di.sl<ConnectivityToastController>();
+  static final ConnectivityToastController _toastController = di
+      .sl<ConnectivityToastController>();
 
   String _formatDuration(int totalSeconds) {
     final minutes = totalSeconds ~/ 60;
@@ -42,24 +45,28 @@ class DashboardVideoCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final progress = video.durationSeconds > 0
-        ? (video.lastWatchedPositionSeconds / video.durationSeconds).clamp(0.0, 1.0)
+        ? (video.lastWatchedPositionSeconds / video.durationSeconds)
+              .clamp(0.0, 1.0)
         : 0.0;
 
     final percentage = (progress * 100).toInt();
 
-    final handleOptions = onLongPress ?? () {
-      showDialog(
-        context: context,
-        builder: (dialogContext) => DeleteVideoDialog(
-          videoTitle: video.title,
-          onDelete: () {
-            context.read<LibraryBloc>().add(
-              LibraryVideoDeletedEvent(video.id),
-            );
-          },
-        ),
-      );
-    };
+    final handleOptions =
+        onLongPress ??
+        () {
+          showDialog<void>(
+            
+            context: context,
+            builder: (dialogContext) => DeleteVideoDialog(
+              videoTitle: video.title,
+              onDelete: () {
+                context.read<LibraryBloc>().add(
+                  LibraryVideoDeletedEvent(video.id),
+                );
+              },
+            ),
+          );
+        };
 
     return InkWell(
       overlayColor: WidgetStateProperty.resolveWith((states) {
@@ -81,11 +88,13 @@ class DashboardVideoCard extends StatelessWidget {
           _toastController.nudgeOffline();
           return;
         }
-        context.read<LibraryBloc>().add(LibraryVideoSelectedEvent(video));
+        context.read<LibraryBloc>().add(
+          LibraryVideoSelectedEvent(video),
+        );
       },
       onLongPress: handleOptions,
       child: Padding(
-        padding: const EdgeInsets.only(left: 0, right: 0, top: 4, bottom: 4),
+        padding: const EdgeInsets.only(top: 4, bottom: 4),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -100,13 +109,19 @@ class DashboardVideoCard extends StatelessWidget {
                     child: CachedNetworkImage(
                       imageUrl: video.thumbnailUrl,
                       fit: BoxFit.cover,
-                      placeholder: (context, url) => Shimmer.fromColors(
-                        baseColor: context.colorScheme.surfaceContainerHighest,
-                        highlightColor: context.colorScheme.surface,
-                        child: Container(color: Colors.white),
-                      ),
+                      placeholder: (context, url) =>
+                          Shimmer.fromColors(
+                            baseColor: context
+                                .colorScheme
+                                .surfaceContainerHighest,
+                            highlightColor:
+                                context.colorScheme.surface,
+                            child: Container(color: Colors.white),
+                          ),
                       errorWidget: (context, url, error) => Container(
-                        color: context.colorScheme.surfaceContainerHighest,
+                        color: context
+                            .colorScheme
+                            .surfaceContainerHighest,
                       ),
                     ),
                   ),
@@ -177,9 +192,10 @@ class DashboardVideoCard extends StatelessWidget {
                                     .colorScheme
                                     .primary
                                     .withValues(alpha: 0.1),
-                                valueColor: AlwaysStoppedAnimation<Color>(
-                                  context.colorScheme.primary,
-                                ),
+                                valueColor:
+                                    AlwaysStoppedAnimation<Color>(
+                                      context.colorScheme.primary,
+                                    ),
                               ),
                             ),
                           ),

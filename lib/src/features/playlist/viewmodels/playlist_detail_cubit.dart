@@ -7,8 +7,8 @@ class PlaylistDetailCubit extends Cubit<PlaylistDetailState> {
   PlaylistDetailCubit({
     required this.playlistId,
     required PlaylistRepository repository,
-  })  : _repository = repository,
-        super(const PlaylistDetailInitialState());
+  }) : _repository = repository,
+       super(const PlaylistDetailInitialState());
 
   final int playlistId;
   final PlaylistRepository _repository;
@@ -28,7 +28,9 @@ class PlaylistDetailCubit extends Cubit<PlaylistDetailState> {
       }
 
       // Convert VideoModel → Video entity for UI consumption
-      final videos = playlist.videos.map((m) => m.toEntity()).toList();
+      final videos = playlist.videos
+          .map((m) => m.toEntity())
+          .toList();
 
       if (videos.isEmpty) {
         emit(PlaylistDetailEmptyState(playlist));
@@ -38,18 +40,24 @@ class PlaylistDetailCubit extends Cubit<PlaylistDetailState> {
       // Hero = selected video, or fall back to first video in playlist
       Video heroVideo;
       if (_selectedHeroId != null) {
-        heroVideo = videos.where((v) => v.youtubeId == _selectedHeroId).firstOrNull ?? videos.first;
+        heroVideo =
+            videos
+                .where((v) => v.youtubeId == _selectedHeroId)
+                .firstOrNull ??
+            videos.first;
       } else {
         heroVideo = videos.first;
       }
       _selectedHeroId = heroVideo.youtubeId;
 
-      emit(PlaylistDetailLoadedState(
-        playlist: playlist,
-        videos: videos,
-        heroVideo: heroVideo,
-      ));
-    } catch (e) {
+      emit(
+        PlaylistDetailLoadedState(
+          playlist: playlist,
+          videos: videos,
+          heroVideo: heroVideo,
+        ),
+      );
+    } on Object catch (e) {
       emit(PlaylistDetailErrorState(e.toString()));
     }
   }
@@ -59,21 +67,30 @@ class PlaylistDetailCubit extends Cubit<PlaylistDetailState> {
     final currentState = state;
     if (currentState is PlaylistDetailLoadedState) {
       _selectedHeroId = video.youtubeId;
-      emit(PlaylistDetailLoadedState(
-        playlist: currentState.playlist,
-        videos: currentState.videos,
-        heroVideo: video,
-        forcePlayTimestamp: DateTime.now().millisecondsSinceEpoch,
-      ));
+      emit(
+        PlaylistDetailLoadedState(
+          playlist: currentState.playlist,
+          videos: currentState.videos,
+          heroVideo: video,
+          forcePlayTimestamp: DateTime.now().millisecondsSinceEpoch,
+        ),
+      );
     }
   }
 
   /// Save watch progress (called by the player's heartbeat).
   /// The progress is saved to the shared VideoModel — same as library.
-  Future<void> updateProgress(String youtubeId, int positionSeconds) async {
+  Future<void> updateProgress(
+    String youtubeId,
+    int positionSeconds,
+  ) async {
     try {
-      await _repository.updateVideoProgress(youtubeId, positionSeconds);
-    } catch (e) {
+      await _repository.updateVideoProgress(
+        youtubeId,
+        positionSeconds,
+      );
+    } on Exception catch (e) {
+      emit(PlaylistDetailErrorState(e.toString()));
       // Progress save runs in the background, ignore errors to not interrupt UI
     }
     // Don't reload playlist here — that would reset the player.
@@ -83,9 +100,12 @@ class PlaylistDetailCubit extends Cubit<PlaylistDetailState> {
   /// Remove a video from this playlist (not from the library).
   Future<void> removeVideo(int videoModelId) async {
     try {
-      await _repository.removeVideoFromPlaylist(playlistId, videoModelId);
+      await _repository.removeVideoFromPlaylist(
+        playlistId,
+        videoModelId,
+      );
       await loadPlaylist();
-    } catch (e) {
+    }on Exception catch (e) {
       emit(PlaylistDetailErrorState(e.toString()));
       await loadPlaylist(); // Recover UI
     }
@@ -97,7 +117,7 @@ class PlaylistDetailCubit extends Cubit<PlaylistDetailState> {
     try {
       await _repository.addVideoToPlaylist(playlistId, url);
       await loadPlaylist();
-    } catch (e) {
+    } on Exception catch (e) {
       emit(PlaylistDetailErrorState(e.toString()));
       await loadPlaylist(); // Recover UI
     }

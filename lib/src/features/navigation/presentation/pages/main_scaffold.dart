@@ -12,10 +12,7 @@ import 'package:levelup_tube/src/features/settings/viewmodels/settings_cubit.dar
 import 'package:toastification/toastification.dart';
 
 class MainScaffold extends StatefulWidget {
-  const MainScaffold({
-    required this.navigationShell,
-    super.key,
-  });
+  const MainScaffold({required this.navigationShell, super.key});
 
   /// Provided by [StatefulShellRoute] — gives us the current branch index
   /// and the ability to switch branches while preserving state.
@@ -27,7 +24,6 @@ class MainScaffold extends StatefulWidget {
 
 class _MainScaffoldState extends State<MainScaffold>
     with WidgetsBindingObserver, ClipboardMonitorMixin {
-
   // ---------------------------------------------------------------------------
   // ClipboardMonitorMixin overrides
   // (Mixin lives here so clipboard detection works on ALL tabs, not just Home)
@@ -43,7 +39,7 @@ class _MainScaffoldState extends State<MainScaffold>
         return SlideTransition(
           position: Tween<Offset>(
             begin: const Offset(0, 1),
-            end: const Offset(0, 0),
+            end: Offset.zero,
           ).animate(animation),
           child: child,
         );
@@ -53,13 +49,15 @@ class _MainScaffoldState extends State<MainScaffold>
           url: url,
           onDismiss: () => toastification.dismiss(holder),
           onAdd: () {
-            context.read<LibraryBloc>().add(LibraryVideoAddedEvent(url));
+            context.read<LibraryBloc>().add(
+              LibraryVideoAddedEvent(url),
+            );
             toastification.dismiss(holder);
           },
           onWatch: () {
-            context
-                .read<LibraryBloc>()
-                .add(LibraryVideoAddedAndPlayRequested(url));
+            context.read<LibraryBloc>().add(
+              LibraryVideoAddedAndPlayRequested(url),
+            );
             toastification.dismiss(holder);
           },
         );
@@ -77,7 +75,7 @@ class _MainScaffoldState extends State<MainScaffold>
         return SlideTransition(
           position: Tween<Offset>(
             begin: const Offset(0, 1),
-            end: const Offset(0, 0),
+            end: Offset.zero,
           ).animate(animation),
           child: child,
         );
@@ -90,7 +88,9 @@ class _MainScaffoldState extends State<MainScaffold>
             toastification.dismiss(holder);
             // Push above the shell (full-screen, no bottom bar) using root navigator.
             // This avoids deep-link conflicts with the shell branch routing.
-            context.push('/playlists?importUrl=${Uri.encodeComponent(url)}');
+            context.push(
+              '/playlists?importUrl=${Uri.encodeComponent(url)}',
+            );
           },
         );
       },
@@ -119,18 +119,21 @@ class _MainScaffoldState extends State<MainScaffold>
     widget.navigationShell.goBranch(
       branchIndex,
       // If the user taps the currently active tab, scroll back to top.
-      initialLocation: branchIndex == widget.navigationShell.currentIndex,
+      initialLocation:
+          branchIndex == widget.navigationShell.currentIndex,
     );
   }
 
   void _showAddBottomSheet() {
-    showModalBottomSheet(
+    showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
       useSafeArea: true,
       builder: (_) => AddVideoBottomSheet(
         onAdd: (url) {
-          context.read<LibraryBloc>().add(LibraryVideoAddedEvent(url));
+          context.read<LibraryBloc>().add(
+            LibraryVideoAddedEvent(url),
+          );
         },
       ),
     );
@@ -149,15 +152,16 @@ class _MainScaffoldState extends State<MainScaffold>
         listenWhen: (previous, current) {
           if (previous is SettingsLoadedState &&
               current is SettingsLoadedState) {
-            return previous.defaultPlaylistId != current.defaultPlaylistId;
+            return previous.defaultPlaylistId !=
+                current.defaultPlaylistId;
           }
           return false;
         },
         listener: (context, state) {
           // Fire into LibraryBloc so the Home tab refreshes immediately.
-          context
-              .read<LibraryBloc>()
-              .add(const LibraryDefaultPlaylistChangedEvent());
+          context.read<LibraryBloc>().add(
+            const LibraryDefaultPlaylistChangedEvent(),
+          );
         },
         child: Scaffold(
           body: widget.navigationShell,

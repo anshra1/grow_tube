@@ -70,7 +70,6 @@ class AppTheme {
   static ThemeData light() {
     final scheme = ColorScheme.fromSeed(
       seedColor: AppColors.primary,
-      brightness: Brightness.light,
     );
 
     return ThemeData(

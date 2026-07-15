@@ -1,5 +1,5 @@
-import 'package:objectbox/objectbox.dart';
 import 'package:levelup_tube/src/features/library/models/video.dart';
+import 'package:objectbox/objectbox.dart';
 
 @Entity()
 class VideoModel {
@@ -49,6 +49,7 @@ class VideoModel {
   }
 
   /// Maps Entity -> Model
+  // ignore: prefer_constructors_over_static_methods
   static VideoModel fromEntity(Video entity) {
     return VideoModel(
       id: entity.id,

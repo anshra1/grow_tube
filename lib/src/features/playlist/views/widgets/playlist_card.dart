@@ -26,7 +26,12 @@ class PlaylistCard extends StatelessWidget {
       onTap: onTap,
       onLongPress: onLongPress,
       child: Padding(
-        padding: const EdgeInsets.only(left: 4, right: 4, top: 4, bottom: 4),
+        padding: const EdgeInsets.only(
+          left: 4,
+          right: 4,
+          top: 4,
+          bottom: 4,
+        ),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -43,11 +48,18 @@ class PlaylistCard extends StatelessWidget {
                           CachedNetworkImage(
                             imageUrl: playlist.thumbnailUrl!,
                             fit: BoxFit.cover,
-                            placeholder: (context, url) => Shimmer.fromColors(
-                              baseColor: context.colorScheme.surfaceContainerHighest,
-                              highlightColor: context.colorScheme.surfaceContainer,
-                              child: Container(color: Colors.white),
-                            ),
+                            placeholder: (context, url) =>
+                                Shimmer.fromColors(
+                                  baseColor: context
+                                      .colorScheme
+                                      .surfaceContainerHighest,
+                                  highlightColor: context
+                                      .colorScheme
+                                      .surfaceContainer,
+                                  child: Container(
+                                    color: Colors.white,
+                                  ),
+                                ),
                             errorWidget: (context, url, error) =>
                                 _placeholderBox(context),
                           ),
@@ -61,7 +73,9 @@ class PlaylistCard extends StatelessWidget {
                                 vertical: 2,
                               ),
                               decoration: BoxDecoration(
-                                color: Colors.black.withValues(alpha: 0.8),
+                                color: Colors.black.withValues(
+                                  alpha: 0.8,
+                                ),
                                 borderRadius: AppRadius.roundedS,
                               ),
                               child: Row(
@@ -134,7 +148,7 @@ class PlaylistCard extends StatelessWidget {
   }
 
   String _getSubtitle() {
-    String subtitle = 'Private • Playlist';
+    var subtitle = 'Private • Playlist';
     if (playlist.youtubePlaylistId != null) {
       subtitle = 'YouTube • Playlist';
     }
@@ -142,7 +156,7 @@ class PlaylistCard extends StatelessWidget {
   }
 
   Widget _placeholderBox(BuildContext context) {
-    return Container(
+    return ColoredBox(
       color: context.colorScheme.surfaceContainerHighest,
       child: Center(
         child: Icon(

@@ -2,11 +2,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:levelup_tube/src/core/constants/app_strings.dart';
 import 'package:levelup_tube/src/core/error/exception.dart';
 import 'package:levelup_tube/src/core/error/failure.dart';
+import 'package:levelup_tube/src/core/utils/youtube_url_parser.dart';
 import 'package:levelup_tube/src/features/library/models/video.dart';
-import 'package:levelup_tube/src/features/playlist/repositories/playlist_repository.dart';
 import 'package:levelup_tube/src/features/library/viewmodels/library_event.dart';
 import 'package:levelup_tube/src/features/library/viewmodels/library_state.dart';
-import 'package:levelup_tube/src/core/utils/youtube_url_parser.dart';
+import 'package:levelup_tube/src/features/playlist/repositories/playlist_repository.dart';
 
 class LibraryBloc extends Bloc<LibraryEvent, LibraryState> {
   LibraryBloc(this._repository) : super(const LibraryInitialState()) {
@@ -73,12 +73,25 @@ class LibraryBloc extends Bloc<LibraryEvent, LibraryState> {
       await _repository.addVideoToLibrary(event.url);
       final videoId = YoutubeUrlParser.extractVideoId(event.url);
       if (videoId == null) {
-        emit(LibraryFailureState(_mapFailureMessage(const ServerFailure(message: 'Invalid YouTube URL', statusCode: 400))));
+        emit(
+          LibraryFailureState(
+            _mapFailureMessage(
+              const ServerFailure(
+                message: 'Invalid YouTube URL',
+                statusCode: 400,
+              ),
+            ),
+          ),
+        );
         return;
       }
       await _refreshLibrary(emit);
-    } catch (e) {
-      emit(LibraryFailureState(_mapFailureMessage(_exceptionToFailure(e))));
+    } on Exception catch (e) {
+      emit(
+        LibraryFailureState(
+          _mapFailureMessage(_exceptionToFailure(e)),
+        ),
+      );
     }
   }
 
@@ -95,8 +108,16 @@ class LibraryBloc extends Bloc<LibraryEvent, LibraryState> {
     Emitter<LibraryState> emit,
   ) async {
     try {
-      await _repository.updateVideoProgress(event.youtubeId, event.positionSeconds);
-    } catch (e) {
+      await _repository.updateVideoProgress(
+        event.youtubeId,
+        event.positionSeconds,
+      );
+    } on Exception catch (e) {
+      emit(
+        LibraryFailureState(
+          _mapFailureMessage(_exceptionToFailure(e)),
+        ),
+      );
       // Progress save runs in the background and should not interrupt the UI
       // or show user-facing error toasts for stale callbacks.
     }
@@ -112,8 +133,12 @@ class LibraryBloc extends Bloc<LibraryEvent, LibraryState> {
     try {
       await _repository.addVideoToLibrary(event.url);
       await _refreshLibrary(emit);
-    } catch (e) {
-      emit(LibraryFailureState(_mapFailureMessage(_exceptionToFailure(e))));
+    } on Exception catch (e) {
+      emit(
+        LibraryFailureState(
+          _mapFailureMessage(_exceptionToFailure(e)),
+        ),
+      );
       // Recover the UI back to the loaded list so it doesn't stay deadlocked
       await _refreshLibrary(emit);
     }
@@ -129,8 +154,12 @@ class LibraryBloc extends Bloc<LibraryEvent, LibraryState> {
     try {
       await _repository.removeVideoFromLibrary(event.id);
       await _refreshLibrary(emit);
-    } catch (e) {
-      emit(LibraryFailureState(_mapFailureMessage(_exceptionToFailure(e))));
+    } on Exception catch (e) {
+      emit(
+        LibraryFailureState(
+          _mapFailureMessage(_exceptionToFailure(e)),
+        ),
+      );
       // Recover the UI back to the loaded list so it doesn't stay deadlocked
       await _refreshLibrary(emit);
     }
@@ -144,8 +173,8 @@ class LibraryBloc extends Bloc<LibraryEvent, LibraryState> {
   Future<void> _refreshLibrary(Emitter<LibraryState> emit) async {
     try {
       final library = await _repository.getDefaultLibrary();
-      final videos = library.videos.map((v) => v.toEntity()).toList();
-      videos.sort((a, b) => b.addedAt.compareTo(a.addedAt));
+      final videos = library.videos.map((v) => v.toEntity()).toList()
+      ..sort((a, b) => b.addedAt.compareTo(a.addedAt));
 
       if (videos.isEmpty) {
         _selectedHeroId = null;
@@ -157,30 +186,41 @@ class LibraryBloc extends Bloc<LibraryEvent, LibraryState> {
       // Otherwise fall back to the DB's last-played video.
       Video? heroVideo;
       if (_selectedHeroId != null) {
-        heroVideo = videos.where((v) => v.youtubeId == _selectedHeroId).firstOrNull;
+        heroVideo = videos
+            .where((v) => v.youtubeId == _selectedHeroId)
+            .firstOrNull;
       }
 
       if (heroVideo == null) {
-        final sortedForHero = List<Video>.from(videos);
-        sortedForHero.sort((a, b) {
-          if (a.lastPlayedAt != null && b.lastPlayedAt != null) {
-            return b.lastPlayedAt!.compareTo(a.lastPlayedAt!);
-          }
-          if (a.lastPlayedAt != null) return -1;
-          if (b.lastPlayedAt != null) return 1;
-          return b.addedAt.compareTo(a.addedAt);
-        });
+        final sortedForHero = List<Video>.from(videos)
+          ..sort((a, b) {
+            if (a.lastPlayedAt != null && b.lastPlayedAt != null) {
+              return b.lastPlayedAt!.compareTo(a.lastPlayedAt!);
+            }
+            if (a.lastPlayedAt != null) return -1;
+            if (b.lastPlayedAt != null) return 1;
+            return b.addedAt.compareTo(a.addedAt);
+          });
         heroVideo = sortedForHero.firstOrNull;
         // Sync _selectedHeroId so future refreshes stay on this video.
         _selectedHeroId = heroVideo?.youtubeId;
       }
 
-      emit(LibraryVideoLoadedState(libraryVideos: videos, lastPlayVideo: heroVideo));
-    } catch (e) {
-      emit(LibraryFailureState(_mapFailureMessage(_exceptionToFailure(e))));
+      emit(
+        LibraryVideoLoadedState(
+          libraryVideos: videos,
+          lastPlayVideo: heroVideo,
+        ),
+      );
+    } on Exception catch (e) {
+      emit(
+        LibraryFailureState(
+          _mapFailureMessage(_exceptionToFailure(e)),
+        ),
+      );
     }
   }
-  
+
   Failure _exceptionToFailure(dynamic e) {
     if (e is VideoException) {
       return VideoFailure(message: e.message, code: e.code);

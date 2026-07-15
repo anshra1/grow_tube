@@ -67,6 +67,7 @@ class PlaylistRepositoryImpl implements PlaylistRepository {
   final YoutubeApiService apiService;
   final AppLogger appLogger;
 
+  @override
   Future<List<PlaylistModel>> getAllPlaylists() async {
     appLogger.debug('PlaylistRepository: Fetching all playlists');
     try {
@@ -75,32 +76,34 @@ class PlaylistRepositoryImpl implements PlaylistRepository {
       final playlists = query.build().find();
       appLogger.debug('PlaylistRepository: Found ${playlists.length} playlists');
       return playlists;
-    } catch (e, st) {
+    } on Exception catch (e, st) {
       appLogger.handle(e, st, 'PlaylistRepository: Error fetching playlists');
       return [];
     }
   }
 
+  @override
   Future<PlaylistModel?> getPlaylist(int id) async {
     appLogger.debug('PlaylistRepository: Fetching playlist ID: $id');
     try {
       final playlist = playlistBox.get(id);
       if (playlist != null) {
+        // Force lazy loading of videos to avoid N+1 query problem
         // ignore: unused_local_variable
         final _ = playlist.videos.length; // force lazy loading
       }
       return playlist;
-    } catch (e, st) {
+    } on Exception catch (e, st) {
       appLogger.handle(e, st, 'PlaylistRepository: Error fetching playlist $id');
       return null;
     }
   }
 
+  @override
   Future<int> createCustomPlaylist(String title) async {
     final playlist = PlaylistModel(
       title: title.trim(),
       createdAt: DateTime.now(),
-      isSystemDefault: false,
     );
     return _savePlaylist(playlist);
   }
@@ -114,6 +117,7 @@ class PlaylistRepositoryImpl implements PlaylistRepository {
     }
   }
 
+  @override
   Future<int> importYoutubePlaylist(String playlistUrl) async {
     final playlistId = YoutubeUrlParser.extractPlaylistId(playlistUrl);
     if (playlistId == null) {
@@ -136,7 +140,7 @@ class PlaylistRepositoryImpl implements PlaylistRepository {
     }
 
     appLogger.info('PlaylistRepository: Fetching details for ${videoIds.length} videos');
-    final List<PlaylistVideoModel> videoModels = [];
+    final videoModels = <PlaylistVideoModel>[];
 
     for (final videoId in videoIds) {
       try {
@@ -150,7 +154,7 @@ class PlaylistRepositoryImpl implements PlaylistRepository {
           addedAt: DateTime.now(),
         );
         videoModels.add(model);
-      } catch (e) {
+      } on Exception catch (e) {
         appLogger.warning('PlaylistRepository: Skipping video $videoId — $e');
       }
     }
@@ -169,7 +173,6 @@ class PlaylistRepositoryImpl implements PlaylistRepository {
       thumbnailUrl: playlistMeta['thumbnailUrl'] as String?,
       description: playlistMeta['description'] as String?,
       videoCount: videoModels.length,
-      isSystemDefault: false,
     );
 
     final savedId = await _savePlaylist(playlist);
@@ -182,6 +185,7 @@ class PlaylistRepositoryImpl implements PlaylistRepository {
     return savedId;
   }
 
+  @override
   Future<bool> isPlaylistImported(String youtubePlaylistId) async {
     try {
       final count = playlistBox
@@ -189,12 +193,13 @@ class PlaylistRepositoryImpl implements PlaylistRepository {
           .build()
           .count();
       return count > 0;
-    } catch (e, st) {
+    } on Exception catch (e, st) {
       appLogger.handle(e, st, 'PlaylistRepository: Error checking imported playlist');
       return false;
     }
   }
 
+  @override
   Future<void> deletePlaylist(int id) async {
     appLogger.info('PlaylistRepository: Deleting playlist ID: $id');
     try {
@@ -214,7 +219,7 @@ class PlaylistRepositoryImpl implements PlaylistRepository {
       if (orphanedVideoIds.isNotEmpty) {
         videoBox.removeMany(orphanedVideoIds);
       }
-    } catch (e, st) {
+    } on Exception catch (e, st) {
       appLogger.handle(e, st, 'PlaylistRepository: Error deleting playlist');
     }
   }
@@ -258,6 +263,7 @@ class PlaylistRepositoryImpl implements PlaylistRepository {
     }
   }
 
+  @override
   Future<void> removeVideoFromPlaylist(int playlistId, int videoModelId) async {
     try {
       final playlist = playlistBox.get(playlistId);
@@ -273,11 +279,12 @@ class PlaylistRepositoryImpl implements PlaylistRepository {
       }
 
       playlistBox.put(playlist);
-    } catch (e, st) {
+    } on Exception catch (e, st) {
       appLogger.handle(e, st, 'PlaylistRepository: Error removing video from playlist');
     }
   }
 
+  @override
   Future<void> addVideoToPlaylist(int playlistId, String videoUrl) async {
     final videoId = YoutubeUrlParser.extractVideoId(videoUrl);
     if (videoId == null) {
@@ -297,6 +304,7 @@ class PlaylistRepositoryImpl implements PlaylistRepository {
     await _internalAddVideoToPlaylist(playlistId, model);
   }
 
+  @override
   Future<void> updateVideoProgress(String youtubeId, int positionSeconds) async {
     try {
       final query = videoBox
@@ -306,15 +314,16 @@ class PlaylistRepositoryImpl implements PlaylistRepository {
       query.close();
 
       if (video != null) {
-        video.lastWatchedPositionSeconds = positionSeconds;
-        video.lastPlayedAt = DateTime.now();
+        video..lastWatchedPositionSeconds = positionSeconds
+        ..lastPlayedAt = DateTime.now();
         videoBox.put(video);
       }
-    } catch (e, st) {
+    } on Exception catch (e, st) {
       appLogger.handle(e, st, 'PlaylistRepository: Error updating video progress');
     }
   }
 
+  @override
   Future<PlaylistModel> getOrCreateDefaultLibrary() async {
     final playlists = await getAllPlaylists();
     var defaultLib = playlists.where((p) => p.isSystemDefault).firstOrNull;
@@ -330,20 +339,23 @@ class PlaylistRepositoryImpl implements PlaylistRepository {
     return defaultLib;
   }
 
+  @override
   Future<void> addVideoToLibrary(String videoUrl) async {
     final defaultLib = await getOrCreateDefaultLibrary();
     await addVideoToPlaylist(defaultLib.id, videoUrl);
   }
 
+  @override
   Future<void> removeVideoFromLibrary(int videoModelId) async {
     final defaultLib = await getOrCreateDefaultLibrary();
     await removeVideoFromPlaylist(defaultLib.id, videoModelId);
   }
 
+  @override
   Future<PlaylistModel> getDefaultLibrary() async {
     return getOrCreateDefaultLibrary();
   }
-
+@override
   Future<void> setDefaultPlaylist(int playlistId) async {
     try {
       store.runInTransaction(TxMode.write, () {

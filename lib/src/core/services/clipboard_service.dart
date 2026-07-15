@@ -1,10 +1,11 @@
 import 'package:flutter/services.dart';
 
 class ClipboardService {
-  // Singleton pattern
-  static final ClipboardService _instance = ClipboardService._internal();
   factory ClipboardService() => _instance;
   ClipboardService._internal();
+  // Singleton pattern
+  static final ClipboardService _instance =
+      ClipboardService._internal();
 
   String? _lastProcessedUrl;
 
@@ -24,12 +25,12 @@ class ClipboardService {
     if (match != null && match.group(1) != null) {
       return match.group(1);
     }
-    
+
     // Fallback: check if the string itself is just an 11-char ID
     if (RegExp(r'^[a-zA-Z0-9_-]{11}$').hasMatch(url.trim())) {
       return url.trim();
     }
-    
+
     return null;
   }
 

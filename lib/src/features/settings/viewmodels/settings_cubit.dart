@@ -1,7 +1,7 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:levelup_tube/src/features/playlist/repositories/playlist_repository.dart';
 import 'package:levelup_tube/src/features/playlist/models/playlist_model.dart';
+import 'package:levelup_tube/src/features/playlist/repositories/playlist_repository.dart';
 
 // ---------------------------------------------------------------------------
 // State
@@ -65,7 +65,8 @@ class SettingsErrorState extends SettingsState {
 // ---------------------------------------------------------------------------
 
 class SettingsCubit extends Cubit<SettingsState> {
-  SettingsCubit(this._repository) : super(const SettingsInitialState());
+  SettingsCubit(this._repository)
+    : super(const SettingsInitialState());
 
   final PlaylistRepository _repository;
 
@@ -74,13 +75,16 @@ class SettingsCubit extends Cubit<SettingsState> {
     emit(const SettingsLoadingState());
     try {
       final playlists = await _repository.getAllPlaylists();
-      final defaultPlaylist =
-          playlists.where((p) => p.isSystemDefault).firstOrNull;
-      emit(SettingsLoadedState(
-        allPlaylists: playlists,
-        defaultPlaylistId: defaultPlaylist?.id,
-      ));
-    } catch (e) {
+      final defaultPlaylist = playlists
+          .where((p) => p.isSystemDefault)
+          .firstOrNull;
+      emit(
+        SettingsLoadedState(
+          allPlaylists: playlists,
+          defaultPlaylistId: defaultPlaylist?.id,
+        ),
+      );
+    } on Exception catch (e) {
       emit(SettingsErrorState(e.toString()));
     }
   }
@@ -93,7 +97,7 @@ class SettingsCubit extends Cubit<SettingsState> {
     try {
       await _repository.setDefaultPlaylist(playlistId);
       emit(currentState.copyWith(defaultPlaylistId: playlistId));
-    } catch (e) {
+    } on Exception catch (e) {
       emit(SettingsErrorState(e.toString()));
       // Recover back to the last good state
       emit(currentState);

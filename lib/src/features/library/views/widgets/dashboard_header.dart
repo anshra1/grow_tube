@@ -7,8 +7,8 @@ import 'package:levelup_tube/main.dart';
 import 'package:levelup_tube/src/core/constants/app_links.dart';
 import 'package:levelup_tube/src/core/constants/app_strings.dart';
 import 'package:levelup_tube/src/core/design_system/app_sizes.dart';
-import 'package:levelup_tube/src/core/theme/theme_cubit.dart';
 import 'package:levelup_tube/src/core/extensions/context_extensions.dart';
+import 'package:levelup_tube/src/core/theme/theme_cubit.dart';
 import 'package:talker_flutter/talker_flutter.dart';
 import 'package:toastification/toastification.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -21,7 +21,9 @@ class DashboardHeader extends StatefulWidget {
 }
 
 class _DashboardHeaderState extends State<DashboardHeader> {
-  static final Uri _privacyPolicyUri = Uri.parse(AppLinks.privacyPolicy);
+  static final Uri _privacyPolicyUri = Uri.parse(
+    AppLinks.privacyPolicy,
+  );
   Timer? _tapResetTimer;
   int _titleTapCount = 0;
 
@@ -31,9 +33,11 @@ class _DashboardHeaderState extends State<DashboardHeader> {
 
     if (_titleTapCount >= 3) {
       _titleTapCount = 0;
-      Navigator.of(
-        context,
-      ).push(MaterialPageRoute(builder: (context) => TalkerScreen(talker: talker)));
+      Navigator.of(context).push(
+        MaterialPageRoute<void>(
+          builder: (context) => TalkerScreen(talker: talker),
+        ),
+      );
       return;
     }
 
@@ -60,7 +64,9 @@ class _DashboardHeaderState extends State<DashboardHeader> {
         type: ToastificationType.error,
         style: ToastificationStyle.fillColored,
         title: const Text(AppStrings.dashboardError),
-        description: const Text(AppStrings.dashboardUnableToOpenPrivacyPolicy),
+        description: const Text(
+          AppStrings.dashboardUnableToOpenPrivacyPolicy,
+        ),
         autoCloseDuration: const Duration(seconds: 4),
         alignment: Alignment.bottomCenter,
       );
@@ -91,9 +97,12 @@ class _DashboardHeaderState extends State<DashboardHeader> {
             children: [
               BlocBuilder<ThemeCubit, ThemeState>(
                 builder: (context, state) {
-                  final (icon, tooltip) = _themeIconAndTooltip(state.mode);
+                  final (icon, tooltip) = _themeIconAndTooltip(
+                    state.mode,
+                  );
                   return IconButton(
-                    onPressed: () => context.read<ThemeCubit>().cycleThemeMode(),
+                    onPressed: () =>
+                        context.read<ThemeCubit>().cycleThemeMode(),
                     icon: Icon(icon),
                     tooltip: tooltip,
                   );

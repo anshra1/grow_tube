@@ -25,7 +25,12 @@ abstract class LoggingService {
   ///
   /// Optionally include an [error] object and [stackTrace] for
   /// error-level logs.
-  void log(LogLevel level, String message, {Object? error, StackTrace? stackTrace});
+  void log(
+    LogLevel level,
+    String message, {
+    Object? error,
+    StackTrace? stackTrace,
+  });
 
   /// Handles an exception/error with optional stack trace and message.
   ///
@@ -35,6 +40,51 @@ abstract class LoggingService {
   /// Sets the user identifier for crash reports and analytics.
   void setUserIdentifier(String userId);
 
-  /// Sets a custom key-value pair for additional context in logs.
+  /// Clears the user identifier.
+  void clearUserIdentifier();
+
+  /// Sets a custom key-value pair (string) for additional context in logs.
   void setCustomKey(String key, String value);
+
+  /// Sets a custom key-value pair (int) for additional context in logs.
+  void setCustomIntKey(String key, int value);
+
+  /// Sets a custom key-value pair (double) for additional context in logs.
+  void setCustomDoubleKey(String key, double value);
+
+  /// Sets a custom key-value pair (bool) for additional context in logs.
+  void setCustomBoolKey(String key, {required bool value});
+
+  /// Sets a custom key-value pair (list) for additional context in logs.
+  void setCustomListKey(String key, List<String> value);
+
+  /// Clears a custom key.
+  void clearCustomKey(String key);
+
+  /// Clears all custom keys.
+  void clearAllCustomKeys();
+
+  /// Enables or disables crash reporting.
+  Future<void> setCrashlyticsCollectionEnabled({
+    required bool enabled,
+  });
+
+  /// Checks if crash reporting is enabled.
+  Future<bool> isCrashlyticsCollectionEnabled();
+
+  /// Manually sends an error to Crashlytics.
+  Future<void> sendUnsentReports();
+
+  /// Deletes any unsent reports.
+  Future<void> deleteUnsentReports();
+
+  /// Records a fatal error to Crashlytics.
+  Future<void> recordFatalError(
+    Object error,
+    StackTrace stackTrace, {
+    String? reason,
+  });
+
+  /// Checks if Crashlytics is available.
+  bool get isCrashlyticsAvailable;
 }

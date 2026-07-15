@@ -1,7 +1,13 @@
+include: package:very_good_analysis/analysis_options.yaml
+
+format:
+  line_length: 70
 
 linter:
   rules:
     public_member_api_docs: false
-    lines_longer_than_80_chars: false
     one_member_abstracts: false
     sort_pub_dependencies: false
+analyzer:
+  errors:
+    lines_longer_than_80_chars: ignore

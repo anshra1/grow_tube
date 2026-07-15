@@ -1,5 +1,5 @@
-import 'package:objectbox/objectbox.dart';
 import 'package:levelup_tube/src/features/library/models/video.dart';
+import 'package:objectbox/objectbox.dart';
 
 @Entity()
 class PlaylistVideoModel {
@@ -18,7 +18,7 @@ class PlaylistVideoModel {
   @Id()
   int id;
 
-  /// Removed @Unique() here since a user might import the same video 
+  /// Removed @Unique() here since a user might import the same video
   /// into multiple different playlists. The uniqueness in a playlist is
   /// handled by the repository/datasource check before insertion.
   String youtubeId;

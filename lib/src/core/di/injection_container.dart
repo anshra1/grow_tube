@@ -31,13 +31,17 @@ Future<void> init() async {
   // ============================================================
   // Initialize Firebase First
   // ============================================================
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
 
   // ============================================================
   // External
   // ============================================================
   final docsDir = await getApplicationDocumentsDirectory();
-  final store = await openStore(directory: '${docsDir.path}/objectbox');
+  final store = await openStore(
+    directory: '${docsDir.path}/objectbox',
+  );
   sl.registerLazySingleton(() => store);
 
   final apiKey = AppConfig.requireYoutubeApiKey();
@@ -45,50 +49,55 @@ Future<void> init() async {
 
   // SharedPreferences
   final prefs = await SharedPreferences.getInstance();
-  sl.registerSingleton<SharedPreferences>(prefs);
-
-  sl.registerLazySingleton(() => ThemePreferences(sl()));
-  sl.registerLazySingleton(() => ThemeCubit(sl()));
-
-  // Services
-  sl.registerSingleton<Talker>(talker);
-
-  sl.registerLazySingleton<AppLogger>(
-    () => AppLogger(services: [TalkerLoggingService(sl()), CrashlyticsLoggingService()]),
-  );
+  sl
+    ..registerSingleton<SharedPreferences>(prefs)
+    ..registerLazySingleton(() => ThemePreferences(sl()))
+    ..registerLazySingleton(() => ThemeCubit(sl()))
+    // Services
+    ..registerSingleton<Talker>(talker)
+    ..registerLazySingleton<AppLogger>(
+      () => AppLogger(
+        services: [
+          TalkerLoggingService(sl()),
+          CrashlyticsLoggingService(),
+        ],
+      ),
+    );
 
   // MIGRATION SCRIPT
   await MigrationService.run(store, prefs, sl());
 
-  sl.registerLazySingleton(() => ConnectivityToastController());
-  sl.registerLazySingleton(
-    () => InternetConnection.createInstance(checkInterval: const Duration(seconds: 3)),
-  );
-  sl.registerLazySingleton(() => InternetConnectionService(sl()));
-
-  // ============================================================
-  // Repositories
-  // ============================================================
-  sl.registerLazySingleton<Box<PlaylistModel>>(() => sl<Store>().box<PlaylistModel>());
-  sl.registerLazySingleton<Box<PlaylistVideoModel>>(
-    () => sl<Store>().box<PlaylistVideoModel>(),
-  );
-
-  sl.registerLazySingleton<PlaylistRepository>(
-    () => PlaylistRepositoryImpl(
-      playlistBox: sl(),
-      videoBox: sl(),
-      store: sl(),
-      apiService: sl(),
-      appLogger: sl(),
-    ),
-  );
-
-  // ============================================================
-  // Blocs
-  // ============================================================
-  sl.registerFactory(() => LibraryBloc(sl()));
-  sl.registerFactory(() => ConnectivityCubit(sl()));
-  sl.registerFactory(() => PlaylistCubit(sl()));
-  sl.registerFactory(() => SettingsCubit(sl()));
+  sl
+    ..registerLazySingleton(ConnectivityToastController.new)
+    ..registerLazySingleton(
+      () => InternetConnection.createInstance(
+        checkInterval: const Duration(seconds: 3),
+      ),
+    )
+    ..registerLazySingleton(() => InternetConnectionService(sl()))
+    // ============================================================
+    // Repositories
+    // ============================================================
+    ..registerLazySingleton<Box<PlaylistModel>>(
+      () => sl<Store>().box<PlaylistModel>(),
+    )
+    ..registerLazySingleton<Box<PlaylistVideoModel>>(
+      () => sl<Store>().box<PlaylistVideoModel>(),
+    )
+    ..registerLazySingleton<PlaylistRepository>(
+      () => PlaylistRepositoryImpl(
+        playlistBox: sl(),
+        videoBox: sl(),
+        store: sl(),
+        apiService: sl(),
+        appLogger: sl(),
+      ),
+    )
+    // ============================================================
+    // Blocs
+    // ============================================================
+    ..registerFactory(() => LibraryBloc(sl()))
+    ..registerFactory(() => ConnectivityCubit(sl()))
+    ..registerFactory(() => PlaylistCubit(sl()))
+    ..registerFactory(() => SettingsCubit(sl()));
 }

@@ -55,7 +55,74 @@ class TalkerLoggingService implements LoggingService {
   }
 
   @override
+  void clearUserIdentifier() {
+    _talker.info('User identifier cleared');
+  }
+
+  @override
   void setCustomKey(String key, String value) {
     _talker.verbose('Custom key set: $key = $value');
   }
+
+  @override
+  void setCustomIntKey(String key, int value) {
+    _talker.verbose('Custom int key set: $key = $value');
+  }
+
+  @override
+  void setCustomDoubleKey(String key, double value) {
+    _talker.verbose('Custom double key set: $key = $value');
+  }
+
+  @override
+  void setCustomBoolKey(String key, {required bool value}) {
+    _talker.verbose('Custom bool key set: $key = $value');
+  }
+
+  @override
+  void setCustomListKey(String key, List<String> value) {
+    _talker.verbose('Custom list key set: $key = [${value.join(', ')}]');
+  }
+
+  @override
+  void clearCustomKey(String key) {
+    _talker.verbose('Custom key cleared: $key');
+  }
+
+  @override
+  void clearAllCustomKeys() {
+    _talker.verbose('All custom keys cleared');
+  }
+
+  @override
+  Future<void> setCrashlyticsCollectionEnabled({required bool enabled}) async {
+    _talker.info('Crashlytics collection ${enabled ? 'enabled' : 'disabled'}');
+  }
+
+  @override
+  Future<bool> isCrashlyticsCollectionEnabled() async {
+    return false;
+  }
+
+  @override
+  Future<void> sendUnsentReports() async {
+    _talker.info('Sending unsent reports (Talker only, no network request)');
+  }
+
+  @override
+  Future<void> deleteUnsentReports() async {
+    _talker.info('Deleting unsent reports (Talker only)');
+  }
+
+  @override
+  Future<void> recordFatalError(Object error, StackTrace stackTrace, {String? reason}) async {
+    if (reason != null) {
+      _talker.critical('Fatal error: $reason', error, stackTrace);
+    } else {
+      _talker.handle(error, stackTrace);
+    }
+  }
+
+  @override
+  bool get isCrashlyticsAvailable => false;
 }
