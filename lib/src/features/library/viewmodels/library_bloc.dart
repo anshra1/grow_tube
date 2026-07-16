@@ -140,6 +140,7 @@ class LibraryBloc extends Bloc<LibraryEvent, LibraryState> {
   Future<void> _refreshLibrary(Emitter<LibraryState> emit) async {
     try {
       final library = await _repository.getDefaultLibrary();
+
       final videos = library.videos.map((v) => v.toEntity()).toList()
       ..sort((a, b) => b.addedAt.compareTo(a.addedAt));
 
@@ -168,6 +169,7 @@ class LibraryBloc extends Bloc<LibraryEvent, LibraryState> {
             if (b.lastPlayedAt != null) return 1;
             return b.addedAt.compareTo(a.addedAt);
           });
+          
         heroVideo = sortedForHero.firstOrNull;
         // Sync _selectedHeroId so future refreshes stay on this video.
         _selectedHeroId = heroVideo?.youtubeId;
