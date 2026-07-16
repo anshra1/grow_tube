@@ -48,6 +48,8 @@ class PlaylistCard extends StatelessWidget {
                           CachedNetworkImage(
                             imageUrl: playlist.thumbnailUrl!,
                             fit: BoxFit.cover,
+                            memCacheWidth: 480,
+                            memCacheHeight: 270,
                             placeholder: (context, url) =>
                                 Shimmer.fromColors(
                                   baseColor: context

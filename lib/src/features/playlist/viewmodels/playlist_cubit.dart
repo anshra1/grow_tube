@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:levelup_tube/src/core/error/exception.dart';
 import 'package:levelup_tube/src/features/playlist/models/playlist_model.dart';
 import 'package:levelup_tube/src/features/playlist/repositories/playlist_repository.dart';
 import 'package:levelup_tube/src/features/playlist/viewmodels/playlist_state.dart';
@@ -19,8 +20,8 @@ class PlaylistCubit extends Cubit<PlaylistState> {
       } else {
         emit(PlaylistLoadedState(playlists));
       }
-    } on Object catch (e) {
-      emit(PlaylistErrorState(e.toString()));
+    } on Exception catch (e) {
+      emit(PlaylistErrorState(_exceptionMessage(e)));
     }
   }
 
@@ -31,8 +32,8 @@ class PlaylistCubit extends Cubit<PlaylistState> {
       // Wait for the screen transition to finish before showing the importing state
       await Future<void>.delayed(const Duration(milliseconds: 500));
       await importPlaylist(url);
-    } on Object catch (e) {
-      emit(PlaylistErrorState(e.toString()));
+    } on Exception catch (e) {
+      emit(PlaylistErrorState(_exceptionMessage(e)));
       await loadPlaylists(); // recover UI
     }
   }
@@ -49,8 +50,8 @@ class PlaylistCubit extends Cubit<PlaylistState> {
     try {
       await _repository.createCustomPlaylist(title);
       await loadPlaylists();
-    } on Object catch (e) {
-      emit(PlaylistErrorState(e.toString()));
+    } on Exception catch (e) {
+      emit(PlaylistErrorState(_exceptionMessage(e)));
       await loadPlaylists(); // recover UI
     }
   }
@@ -66,8 +67,8 @@ class PlaylistCubit extends Cubit<PlaylistState> {
     try {
       await _repository.importYoutubePlaylist(url);
       await loadPlaylists();
-    } on Object catch (e) {
-      emit(PlaylistErrorState(e.toString()));
+    } on Exception catch (e) {
+      emit(PlaylistErrorState(_exceptionMessage(e)));
       await loadPlaylists(); // recover UI
     }
   }
@@ -77,9 +78,16 @@ class PlaylistCubit extends Cubit<PlaylistState> {
     try {
       await _repository.deletePlaylist(id);
       await loadPlaylists();
-    } on Object catch (e) {
-      emit(PlaylistErrorState(e.toString()));
+    } on Exception catch (e) {
+      emit(PlaylistErrorState(_exceptionMessage(e)));
       await loadPlaylists(); // recover UI
     }
+  }
+
+  String _exceptionMessage(Object exception) {
+    if (exception is AppException && exception.message.isNotEmpty) {
+      return exception.message;
+    }
+    return 'Something went wrong. Please try again.';
   }
 }

@@ -38,6 +38,8 @@ class DashboardVideoPlayer extends StatefulWidget {
 class _DashboardVideoPlayerState extends State<DashboardVideoPlayer>
     with SingleTickerProviderStateMixin {
   YoutubePlayerController? _controller;
+  late FullscreenVideoCubit _fullscreenVideoCubit;
+  late LibraryBloc _libraryBloc;
   StreamSubscription<YoutubePlayerValue>? _errorSubscription;
   Timer? _heartbeatTimer;
   final OverlayPortalController _overlayController =
@@ -47,6 +49,15 @@ class _DashboardVideoPlayerState extends State<DashboardVideoPlayer>
 
   late final AnimationController _animController;
   late final Animation<double> _fadeAnimation;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Keep inherited dependencies for callbacks that can run during dispose,
+    // when looking them up through context is no longer safe.
+    _fullscreenVideoCubit = context.read<FullscreenVideoCubit>();
+    _libraryBloc = context.read<LibraryBloc>();
+  }
 
   @override
   void initState() {
@@ -218,7 +229,7 @@ class _DashboardVideoPlayerState extends State<DashboardVideoPlayer>
     if (!_overlayController.isShowing) {
       // 1. Enter Fullscreen (mounts the overlay)
       setState(_overlayController.toggle);
-      context.read<FullscreenVideoCubit>().enterFullscreen();
+      _fullscreenVideoCubit.enterFullscreen();
 
       // 2. Instantly jump to black (hide the player while it stretches to landscape)
       _animController.value = 1.0;
@@ -258,7 +269,7 @@ class _DashboardVideoPlayerState extends State<DashboardVideoPlayer>
       if (mounted) {
         setState(_overlayController.toggle);
         _animController.value = 0.0;
-        context.read<FullscreenVideoCubit>().exitFullscreen();
+        _fullscreenVideoCubit.exitFullscreen();
       }
     }
   }
@@ -284,7 +295,7 @@ class _DashboardVideoPlayerState extends State<DashboardVideoPlayer>
         if (widget.onProgressUpdate != null) {
           widget.onProgressUpdate!(targetId, position);
         } else {
-          context.read<LibraryBloc>().add(
+          _libraryBloc.add(
             LibraryVideoProgressUpdatedEvent(
               youtubeId: targetId,
               positionSeconds: position,
@@ -297,7 +308,7 @@ class _DashboardVideoPlayerState extends State<DashboardVideoPlayer>
 
   @override
   void dispose() {
-    context.read<FullscreenVideoCubit>().exitFullscreen();
+    _fullscreenVideoCubit.exitFullscreen();
     _animController.dispose();
     _heartbeatTimer?.cancel();
     _errorSubscription?.cancel();

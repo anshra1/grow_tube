@@ -18,6 +18,8 @@ class ClipboardService {
   /// Validates a string to see if it's a YouTube URL and extracts the ID.
   /// Returns the video ID if valid, otherwise null.
   String? extractYouTubeId(String url) {
+    // False positive in Dart 3.10
+    // ignore: deprecated_member_use
     final regExp = RegExp(
       r'(?:youtube\.com\/(?:watch\?v=|embed\/|v\/|shorts\/|live\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})',
     );
@@ -27,6 +29,8 @@ class ClipboardService {
     }
 
     // Fallback: check if the string itself is just an 11-char ID
+    // False positive in Dart 3.10
+    // ignore: deprecated_member_use
     if (RegExp(r'^[a-zA-Z0-9_-]{11}$').hasMatch(url.trim())) {
       return url.trim();
     }
@@ -37,6 +41,8 @@ class ClipboardService {
   /// Validates a string to see if it's a YouTube playlist URL and extracts the ID.
   /// Returns the playlist ID if valid, otherwise null.
   String? extractYouTubePlaylistId(String url) {
+    // False positive in Dart 3.10
+    // ignore: deprecated_member_use
     final regExp = RegExp(
       r'(?:youtube\.com\/(?:playlist\?|watch\?.*&)list=)([a-zA-Z0-9_-]+)',
     );

@@ -1,8 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:levelup_tube/src/core/constants/app_strings.dart';
 import 'package:levelup_tube/src/core/error/exception.dart';
-import 'package:levelup_tube/src/core/error/failure.dart';
-import 'package:levelup_tube/src/core/utils/youtube_url_parser.dart';
 import 'package:levelup_tube/src/features/library/models/video.dart';
 import 'package:levelup_tube/src/features/library/viewmodels/library_event.dart';
 import 'package:levelup_tube/src/features/library/viewmodels/library_state.dart';
@@ -71,27 +68,9 @@ class LibraryBloc extends Bloc<LibraryEvent, LibraryState> {
   ) async {
     try {
       await _repository.addVideoToLibrary(event.url);
-      final videoId = YoutubeUrlParser.extractVideoId(event.url);
-      if (videoId == null) {
-        emit(
-          LibraryFailureState(
-            _mapFailureMessage(
-              const ServerFailure(
-                message: 'Invalid YouTube URL',
-                statusCode: 400,
-              ),
-            ),
-          ),
-        );
-        return;
-      }
       await _refreshLibrary(emit);
     } on Exception catch (e) {
-      emit(
-        LibraryFailureState(
-          _mapFailureMessage(_exceptionToFailure(e)),
-        ),
-      );
+      emit(LibraryFailureState(_exceptionMessage(e)));
     }
   }
 
@@ -113,11 +92,7 @@ class LibraryBloc extends Bloc<LibraryEvent, LibraryState> {
         event.positionSeconds,
       );
     } on Exception catch (e) {
-      emit(
-        LibraryFailureState(
-          _mapFailureMessage(_exceptionToFailure(e)),
-        ),
-      );
+      emit(LibraryFailureState(_exceptionMessage(e)));
       // Progress save runs in the background and should not interrupt the UI
       // or show user-facing error toasts for stale callbacks.
     }
@@ -134,11 +109,7 @@ class LibraryBloc extends Bloc<LibraryEvent, LibraryState> {
       await _repository.addVideoToLibrary(event.url);
       await _refreshLibrary(emit);
     } on Exception catch (e) {
-      emit(
-        LibraryFailureState(
-          _mapFailureMessage(_exceptionToFailure(e)),
-        ),
-      );
+      emit(LibraryFailureState(_exceptionMessage(e)));
       // Recover the UI back to the loaded list so it doesn't stay deadlocked
       await _refreshLibrary(emit);
     }
@@ -155,11 +126,7 @@ class LibraryBloc extends Bloc<LibraryEvent, LibraryState> {
       await _repository.removeVideoFromLibrary(event.id);
       await _refreshLibrary(emit);
     } on Exception catch (e) {
-      emit(
-        LibraryFailureState(
-          _mapFailureMessage(_exceptionToFailure(e)),
-        ),
-      );
+      emit(LibraryFailureState(_exceptionMessage(e)));
       // Recover the UI back to the loaded list so it doesn't stay deadlocked
       await _refreshLibrary(emit);
     }
@@ -213,63 +180,14 @@ class LibraryBloc extends Bloc<LibraryEvent, LibraryState> {
         ),
       );
     } on Exception catch (e) {
-      emit(
-        LibraryFailureState(
-          _mapFailureMessage(_exceptionToFailure(e)),
-        ),
-      );
+      emit(LibraryFailureState(_exceptionMessage(e)));
     }
   }
 
-  Failure _exceptionToFailure(dynamic e) {
-    if (e is VideoException) {
-      return VideoFailure(message: e.message, code: e.code);
+  String _exceptionMessage(Object exception) {
+    if (exception is AppException && exception.message.isNotEmpty) {
+      return exception.message;
     }
-    return ServerFailure(message: e.toString(), statusCode: 500);
-  }
-
-  String _mapFailureMessage(Failure failure) {
-    if (failure is VideoFailure) {
-      switch (failure.code) {
-        case 'invalidUrl':
-          return 'Please enter a valid YouTube URL.';
-        case 'videoUnavailable':
-          return 'Video not found. It may be private or deleted.';
-        case 'duplicate':
-          return 'This video is already in your library.';
-        case 'offline':
-          return AppStrings.actionOfflineMessage;
-        case 'rateLimited':
-          return 'YouTube API limit reached. Try again later.';
-        case 'forbidden':
-          return 'Access denied. Check your YouTube API key.';
-        case 'serverError':
-          return 'YouTube is having trouble. Please try again.';
-      }
-      if (failure.message.isNotEmpty) {
-        return failure.message;
-      }
-    }
-
-    if (failure is ConnectionFailure) {
-      return AppStrings.actionOfflineMessage;
-    }
-    if (failure is ValidationFailure) {
-      return failure.message;
-    }
-    if (failure is AuthFailure) {
-      return 'Authentication failed. Please sign in again.';
-    }
-    if (failure is CacheFailure) {
-      return 'Could not access local storage. Please try again.';
-    }
-    if (failure is ServerFailure) {
-      return 'Server error. Please try again later.';
-    }
-    if (failure is UnknownFailure) {
-      return 'Something went wrong. Please try again.';
-    }
-
     return 'Something went wrong. Please try again.';
   }
 }

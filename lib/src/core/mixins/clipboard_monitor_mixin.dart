@@ -35,9 +35,7 @@ mixin ClipboardMonitorMixin<T extends StatefulWidget>
     if (text == null) return;
 
     // Check for Playlist first
-    final playlistId = _clipboardService.extractYouTubePlaylistId(
-      text,
-    );
+    final playlistId = _clipboardService.extractYouTubePlaylistId(text);
     if (playlistId != null) {
       talker.debug(
         'ClipboardMonitorMixin: Clipboard text: $text, playlistId: $playlistId',
@@ -45,12 +43,11 @@ mixin ClipboardMonitorMixin<T extends StatefulWidget>
 
       var isAlreadyImported = false;
       try {
-        isAlreadyImported = await sl<PlaylistRepository>()
-            .isPlaylistImported(playlistId);
-      } on Exception catch (e) {
-        talker.error(
-          'ClipboardMonitorMixin: DB Error checking playlistId: $e',
+        isAlreadyImported = await sl<PlaylistRepository>().isPlaylistImported(
+          playlistId,
         );
+      } on Exception catch (e) {
+        talker.error('ClipboardMonitorMixin: DB Error checking playlistId: $e');
         isAlreadyImported = true; // safe default
       }
 
@@ -88,8 +85,7 @@ mixin ClipboardMonitorMixin<T extends StatefulWidget>
     // DB is the authoritative source — always check it first
     var isAlreadyAdded = true; // safe default
     try {
-      final library = await sl<PlaylistRepository>()
-          .getDefaultLibrary();
+      final library = await sl<PlaylistRepository>().getDefaultLibrary();
       final video = library.videos
           .where((v) => v.youtubeId == videoId)
           .firstOrNull;
@@ -101,10 +97,8 @@ mixin ClipboardMonitorMixin<T extends StatefulWidget>
       } else {
         isAlreadyAdded = false;
       }
-    }on Exception catch (e) {
-      talker.error(
-        'ClipboardMonitorMixin: DB Error checking videoId: $e',
-      );
+    } on Exception catch (e) {
+      talker.error('ClipboardMonitorMixin: DB Error checking videoId: $e');
     }
 
     if (isAlreadyAdded) {
@@ -123,9 +117,7 @@ mixin ClipboardMonitorMixin<T extends StatefulWidget>
     }
 
     if (mounted) {
-      talker.debug(
-        'ClipboardMonitorMixin: Showing popup for $videoId',
-      );
+      talker.debug('ClipboardMonitorMixin: Showing popup for $videoId');
       onClipboardUrlDetected(text, videoId);
     }
   }

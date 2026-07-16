@@ -42,6 +42,7 @@ final class LibraryVideoLoadedState extends LibraryState {
 /// A state representing an error that occurred during a library operation, holding the error message.
 final class LibraryFailureState extends LibraryState {
   const LibraryFailureState(this.message);
+  
   final String message;
 
   @override

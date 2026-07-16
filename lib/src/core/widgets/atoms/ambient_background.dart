@@ -41,6 +41,7 @@ class AmbientBackground extends StatelessWidget {
             child: CachedNetworkImage(
               imageUrl: url,
               fit: BoxFit.cover,
+              memCacheWidth: 200, // Small size is perfect for heavy blur and vastly improves performance
               errorWidget: (context, url, error) => const SizedBox.shrink(),
             ),
           ),

@@ -55,7 +55,6 @@ class DashboardVideoCard extends StatelessWidget {
         onLongPress ??
         () {
           showDialog<void>(
-            
             context: context,
             builder: (dialogContext) => DeleteVideoDialog(
               videoTitle: video.title,
@@ -109,6 +108,8 @@ class DashboardVideoCard extends StatelessWidget {
                     child: CachedNetworkImage(
                       imageUrl: video.thumbnailUrl,
                       fit: BoxFit.cover,
+                      memCacheWidth: 480,
+                      memCacheHeight: 270,
                       placeholder: (context, url) =>
                           Shimmer.fromColors(
                             baseColor: context

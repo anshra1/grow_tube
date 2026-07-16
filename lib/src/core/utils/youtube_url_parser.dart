@@ -1,4 +1,6 @@
 class YoutubeUrlParser {
+  // False positive in Dart 3.10
+  // ignore: deprecated_member_use
   static final _videoIdRegex = RegExp(
     r'(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?|live|shorts)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})',
   );
@@ -6,6 +8,8 @@ class YoutubeUrlParser {
   /// Regex to extract playlist ID from YouTube playlist URLs.
   /// Matches: youtube.com/playlist?list=PLxxxxxx
   ///          youtube.com/watch?v=xxx&list=PLxxxxxx
+  // False positive in Dart 3.10
+  // ignore: deprecated_member_use
   static final _playlistIdRegex = RegExp(
     r'(?:youtube\.com\/(?:playlist\?|watch\?.*&)list=)([a-zA-Z0-9_-]+)',
   );
@@ -13,6 +17,8 @@ class YoutubeUrlParser {
   /// Extracts the YouTube video ID from a URL.
   static String? extractVideoId(String url) {
     // Try direct 11-char ID (e.g. pasted from share)
+    // False positive in Dart 3.10
+    // ignore: deprecated_member_use
     if (RegExp(r'^[a-zA-Z0-9_-]{11}$').hasMatch(url.trim())) {
       return url.trim();
     }

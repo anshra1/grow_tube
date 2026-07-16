@@ -2,13 +2,13 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "grow_tube",
+            "name": "grow_tube (Debug)",
             "request": "launch",
             "type": "dart",
             "toolArgs": [
-                "--dart-define=YOUTUBE_API_KEY=AIzaSyDuMfvPDlZRIDMRYPrtzfB--Mxd3Y7gQTg",
-                "--no-enable-impeller"
+                "--dart-define=YOUTUBE_API_KEY=AIzaSyDuMfvPDlZRIDMRYPrtzfB--Mxd3Y7gQTg"
             ]
-        }
+        },
+        
     ]
 }

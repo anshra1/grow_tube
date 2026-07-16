@@ -293,6 +293,8 @@ class YoutubeApiService {
 
   /// Parses ISO 8601 duration (e.g. `PT1H2M10S`) to total seconds.
   static int _parseIsoDuration(String iso) {
+    // False positive in Dart 3.10
+    // ignore: deprecated_member_use
     final regex = RegExp(r'PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?');
     final match = regex.firstMatch(iso);
     if (match == null) return 0;
