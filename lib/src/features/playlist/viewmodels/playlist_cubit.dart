@@ -83,7 +83,8 @@ class PlaylistCubit extends Cubit<PlaylistState> {
       await loadPlaylists(); // recover UI
     }
   }
-
+   // Set playlist as pinned or not.
+  // ignore: avoid_positional_boolean_parameters  
   Future<void> setPlaylistPinned(int playlistId, bool isPinned) async {
     try {
       await _repository.setPlaylistPinned(playlistId, isPinned);

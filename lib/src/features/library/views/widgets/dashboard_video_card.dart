@@ -5,15 +5,13 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
 import 'package:levelup_tube/src/core/design_system/app_radius.dart';
 import 'package:levelup_tube/src/core/design_system/app_sizes.dart';
-import 'package:levelup_tube/src/core/di/injection_container.dart'
-    as di;
+import 'package:levelup_tube/src/core/di/injection_container.dart' as di;
 import 'package:levelup_tube/src/core/extensions/context_extensions.dart';
 import 'package:levelup_tube/src/features/connectivity/presentation/bloc/connectivity_cubit.dart';
 import 'package:levelup_tube/src/features/connectivity/presentation/widgets/connectivity_toast_controller.dart';
 import 'package:levelup_tube/src/features/library/models/video.dart';
-import 'package:levelup_tube/src/features/library/viewmodels/library_bloc.dart';
-import 'package:levelup_tube/src/features/library/viewmodels/library_event.dart';
 import 'package:levelup_tube/src/features/library/views/widgets/delete_video_dialog.dart';
+import 'package:levelup_tube/src/features/playlist/viewmodels/playlist_detail_cubit.dart';
 import 'package:shimmer/shimmer.dart';
 
 class DashboardVideoCard extends StatelessWidget {
@@ -49,8 +47,10 @@ class DashboardVideoCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final progress = video.durationSeconds > 0
-        ? (video.lastWatchedPositionSeconds / video.durationSeconds)
-              .clamp(0.0, 1.0)
+        ? (video.lastWatchedPositionSeconds / video.durationSeconds).clamp(
+            0.0,
+            1.0,
+          )
         : 0.0;
 
     final percentage = (progress * 100).toInt();
@@ -63,9 +63,7 @@ class DashboardVideoCard extends StatelessWidget {
             builder: (dialogContext) => DeleteVideoDialog(
               videoTitle: video.title,
               onDelete: () {
-                context.read<LibraryBloc>().add(
-                  LibraryVideoDeletedEvent(video.id),
-                );
+                context.read<PlaylistDetailCubit>().removeVideo(video.id);
               },
             ),
           );
@@ -91,9 +89,7 @@ class DashboardVideoCard extends StatelessWidget {
           _toastController.nudgeOffline();
           return;
         }
-        context.read<LibraryBloc>().add(
-          LibraryVideoSelectedEvent(video),
-        );
+        context.read<PlaylistDetailCubit>().selectVideo(video);
       },
       onLongPress: handleOptions,
       child: Padding(
@@ -114,19 +110,13 @@ class DashboardVideoCard extends StatelessWidget {
                       fit: BoxFit.cover,
                       memCacheWidth: 480,
                       memCacheHeight: 270,
-                      placeholder: (context, url) =>
-                          Shimmer.fromColors(
-                            baseColor: context
-                                .colorScheme
-                                .surfaceContainerHighest,
-                            highlightColor:
-                                context.colorScheme.surface,
-                            child: Container(color: Colors.white),
-                          ),
+                      placeholder: (context, url) => Shimmer.fromColors(
+                        baseColor: context.colorScheme.surfaceContainerHighest,
+                        highlightColor: context.colorScheme.surface,
+                        child: Container(color: Colors.white),
+                      ),
                       errorWidget: (context, url, error) => Container(
-                        color: context
-                            .colorScheme
-                            .surfaceContainerHighest,
+                        color: context.colorScheme.surfaceContainerHighest,
                       ),
                     ),
                   ),
@@ -193,14 +183,11 @@ class DashboardVideoCard extends StatelessWidget {
                               child: LinearProgressIndicator(
                                 value: progress,
                                 minHeight: 4,
-                                backgroundColor: context
-                                    .colorScheme
-                                    .primary
+                                backgroundColor: context.colorScheme.primary
                                     .withValues(alpha: 0.1),
-                                valueColor:
-                                    AlwaysStoppedAnimation<Color>(
-                                      context.colorScheme.primary,
-                                    ),
+                                valueColor: AlwaysStoppedAnimation<Color>(
+                                  context.colorScheme.primary,
+                                ),
                               ),
                             ),
                           ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:levelup_tube/src/features/library/views/add_video.dart';
 import 'package:levelup_tube/src/features/library/views/dashboard_page.dart';
 import 'package:levelup_tube/src/features/navigation/pages/main_scaffold.dart';
 import 'package:levelup_tube/src/features/playlist/views/playlist_detail_page.dart';
@@ -16,12 +17,10 @@ final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>(
 final GlobalKey<NavigatorState> _homeNavigatorKey = GlobalKey<NavigatorState>(
   debugLabel: 'home',
 );
-final GlobalKey<NavigatorState> _playlistsNavigatorKey = GlobalKey<NavigatorState>(
-  debugLabel: 'playlists',
-);
-final GlobalKey<NavigatorState> _settingsNavigatorKey = GlobalKey<NavigatorState>(
-  debugLabel: 'settings',
-);
+final GlobalKey<NavigatorState> _playlistsNavigatorKey =
+    GlobalKey<NavigatorState>(debugLabel: 'playlists');
+final GlobalKey<NavigatorState> _settingsNavigatorKey =
+    GlobalKey<NavigatorState>(debugLabel: 'settings');
 
 class AppRouter {
   static final router = GoRouter(
@@ -38,7 +37,10 @@ class AppRouter {
           StatefulShellBranch(
             navigatorKey: _homeNavigatorKey,
             routes: [
-              GoRoute(path: '/', builder: (context, state) => const DashboardPage()),
+              GoRoute(
+                path: '/',
+                builder: (context, state) => const DashboardPage(),
+              ),
             ],
           ),
 
@@ -63,6 +65,16 @@ class AppRouter {
                     },
                   ),
                 ],
+              ),
+            ],
+          ),
+
+          // Branch 2 — Add Video
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/add-video',
+                builder: (context, state) => const AddVideo(),
               ),
             ],
           ),

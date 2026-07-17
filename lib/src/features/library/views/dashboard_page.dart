@@ -4,16 +4,11 @@ import 'package:levelup_tube/src/core/constants/app_strings.dart';
 import 'package:levelup_tube/src/core/design_system/app_radius.dart';
 import 'package:levelup_tube/src/core/design_system/app_sizes.dart';
 import 'package:levelup_tube/src/core/extensions/context_extensions.dart';
-import 'package:levelup_tube/src/core/widgets/template/app_scaffold.dart';
-import 'package:levelup_tube/src/features/library/viewmodels/library_bloc.dart';
-import 'package:levelup_tube/src/features/library/viewmodels/library_event.dart';
-import 'package:levelup_tube/src/features/library/viewmodels/library_state.dart';
 import 'package:levelup_tube/src/features/library/models/video.dart';
 import 'package:levelup_tube/src/features/library/views/widgets/dashboard_empty_state.dart';
-import 'package:levelup_tube/src/features/library/views/widgets/dashboard_video_list.dart';
-import 'package:levelup_tube/src/features/library/views/widgets/dashboard_video_list_shimmer.dart';
-import 'package:levelup_tube/src/features/library/views/widgets/dashboard_video_player.dart';
-import 'package:shimmer/shimmer.dart';
+import 'package:levelup_tube/src/features/library/views/widgets/video_list_with_player.dart';
+import 'package:levelup_tube/src/features/playlist/viewmodels/playlist_detail_cubit.dart';
+import 'package:levelup_tube/src/features/playlist/viewmodels/playlist_detail_state.dart';
 import 'package:toastification/toastification.dart';
 
 class DashboardPage extends StatelessWidget {
@@ -21,7 +16,7 @@ class DashboardPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const AppScaffold(body: _DashboardContent());
+    return const _DashboardContent();
   }
 }
 
@@ -30,13 +25,14 @@ class _DashboardContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<LibraryBloc, LibraryState>(
+    final cubit = context.read<PlaylistDetailCubit>();
+    return BlocListener<PlaylistDetailCubit, PlaylistDetailState>(
       listener: (context, state) {
-        if (state is LibraryFailureState) {
+        if (state is PlaylistDetailError) {
           toastification.show(
             context: context,
             type: ToastificationType.error,
-            style: ToastificationStyle.fillColored,
+            style: ToastificationStyle.flatColored,
             title: const Text(AppStrings.dashboardError),
             description: Text(state.message),
             autoCloseDuration: const Duration(seconds: 4),
@@ -44,83 +40,28 @@ class _DashboardContent extends StatelessWidget {
           );
         }
       },
-      child: Column(
-        children: [
-          const SizedBox(height: AppSizes.p8),
-          Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: AppSizes.p8,
+      child: BlocBuilder<PlaylistDetailCubit, PlaylistDetailState>(
+        builder: (context, state) {
+          return switch (state) {
+            PlaylistDetailInitial() || PlaylistDetailLoading() =>
+              const VideoListWithPlayer(isLoading: true, isEmpty: false),
+            PlaylistDetailEmpty() => VideoListWithPlayer(
+              isLoading: false,
+              isEmpty: true,
+              emptyWidget: DashboardEmptyState(onAddVideo: cubit.addVideo),
+              heroPadding: const EdgeInsets.symmetric(horizontal: AppSizes.p8),
+              heroShimmerRadius: AppRadius.roundedXL,
             ),
-            // Smart Player Component
-            child: BlocBuilder<LibraryBloc, LibraryState>(
-              buildWhen: (previous, current) {
-                return current is LibraryVideoLoadedState ||
-                    current is LibraryInitialState ||
-                    current is LibraryEmptyState;
-              },
-              builder: (context, state) {
-                return switch (state) {
-                  LibraryInitialState() => AspectRatio(
-                    aspectRatio: 16 / 9,
-                    child: Shimmer.fromColors(
-                      baseColor:
-                          context.colorScheme.surfaceContainerHighest,
-                      highlightColor: context.colorScheme.surface,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: context.colorScheme.surface,
-                          borderRadius: AppRadius.roundedXL,
-                        ),
-                      ),
-                    ),
-                  ),
-                  LibraryVideoLoadedState()
-                      when state.lastPlayVideo != null =>
-                    DashboardVideoPlayer(
-                      video: state.lastPlayVideo!,
-                      forcePlayTimestamp: state.forcePlayTimestamp,
-                    ),
-                  _ => const SizedBox.shrink(),
-                };
-              },
-            ),
-          ),
-          const SizedBox(height: AppSizes.p16),
-          Expanded(
-            // Smart List Component
-            child: BlocBuilder<LibraryBloc, LibraryState>(
-              buildWhen: (previous, current) {
-                return current is LibraryVideoLoadedState ||
-                    current is LibraryEmptyState ||
-                    current is LibraryInitialState;
-              },
-              builder: (context, state) {
-                return switch (state) {
-                  LibraryInitialState() =>
-                    const DashboardVideoListShimmer(),
-                  LibraryEmptyState() => DashboardEmptyState(
-                    onAddVideo: (url) {
-                      context.read<LibraryBloc>().add(
-                        LibraryVideoAddedEvent(url),
-                      );
-                    },
-                  ),
-                  LibraryVideoLoadedState() => DashboardVideoList(
-                    videos: state.libraryVideos,
-                    onOptionsTap: (video) =>
-                        _showVideoOptionsBottomSheet(context, video),
-                  ),
-                  _ => const SizedBox.shrink(),
-                };
-              },
-            ),
-          ),
-        ],
+            PlaylistDetailLoaded() => _LoadedDashboardBody(),
+            _ => const SizedBox.shrink(),
+          };
+        },
       ),
     );
   }
 
   void _showVideoOptionsBottomSheet(BuildContext context, Video video) {
+    final cubit = context.read<PlaylistDetailCubit>();
     showModalBottomSheet<void>(
       context: context,
       useSafeArea: true,
@@ -135,12 +76,7 @@ class _DashboardContent extends StatelessWidget {
               title: Text(video.isPinned ? 'Unpin' : 'Pin'),
               onTap: () {
                 Navigator.pop(bottomSheetContext);
-                context.read<LibraryBloc>().add(
-                  LibraryVideoPinnedEvent(
-                    id: video.id,
-                    isPinned: !video.isPinned,
-                  ),
-                );
+                cubit.setVideoPinned(video.id, !video.isPinned);
               },
             ),
             ListTile(
@@ -148,12 +84,119 @@ class _DashboardContent extends StatelessWidget {
               title: const Text('Delete'),
               onTap: () {
                 Navigator.pop(bottomSheetContext);
-                context.read<LibraryBloc>().add(LibraryVideoDeletedEvent(video.id));
+                _showDeleteVideoDialog(context, video);
               },
             ),
           ],
         ),
       ),
+    );
+  }
+
+  void _showDeleteVideoDialog(BuildContext context, Video video) {
+    final cubit = context.read<PlaylistDetailCubit>();
+    showDialog<void>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        insetPadding: const EdgeInsets.all(AppSizes.p16),
+        shape: const RoundedRectangleBorder(borderRadius: AppRadius.roundedXL),
+        backgroundColor: context.colorScheme.surface,
+        surfaceTintColor: Colors.transparent,
+        title: Text(
+          AppStrings.dashboardDeleteTitle,
+          style: context.textTheme.titleLarge?.copyWith(
+            fontWeight: FontWeight.bold,
+            color: context.colorScheme.onSurface,
+          ),
+          textAlign: TextAlign.center,
+        ),
+        content: Text.rich(
+          TextSpan(
+            children: [
+              const TextSpan(text: AppStrings.dashboardDeleteConfirm),
+              const TextSpan(text: ' '),
+              TextSpan(
+                text: '"${video.title}"',
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
+              const TextSpan(text: '?'),
+            ],
+          ),
+          maxLines: 3,
+          overflow: TextOverflow.ellipsis,
+          style: context.textTheme.bodyMedium?.copyWith(
+            color: context.colorScheme.onSurfaceVariant,
+          ),
+          textAlign: TextAlign.center,
+        ),
+        actionsPadding: const EdgeInsets.fromLTRB(
+          AppSizes.p16,
+          0,
+          AppSizes.p16,
+          AppSizes.p16,
+        ),
+        actionsAlignment: MainAxisAlignment.spaceEvenly,
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(),
+            child: Text(
+              AppStrings.commonCancel,
+              style: TextStyle(color: context.colorScheme.onSurfaceVariant),
+            ),
+          ),
+          TextButton(
+            onPressed: () {
+              cubit.removeVideo(video.id);
+              Navigator.of(dialogContext).pop();
+            },
+            style: TextButton.styleFrom(
+              foregroundColor: context.colorScheme.error,
+            ),
+            child: const Text(
+              AppStrings.commonDelete,
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _LoadedDashboardBody extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+     context.read<PlaylistDetailCubit>();
+    // Use BlocSelector for each independent part of the state
+    final videosState = context
+        .select<PlaylistDetailCubit, PlaylistVideosState?>(
+          (cubit) => cubit.state is PlaylistDetailLoaded
+              ? (cubit.state as PlaylistDetailLoaded).videosState
+              : null,
+        );
+    final heroVideoState = context.select<PlaylistDetailCubit, HeroVideoState?>(
+      (cubit) => cubit.state is PlaylistDetailLoaded
+          ? (cubit.state as PlaylistDetailLoaded).heroVideoState
+          : null,
+    );
+
+    if (videosState == null || heroVideoState == null) {
+      return const SizedBox.shrink();
+    }
+
+    return VideoListWithPlayer(
+      isLoading: false,
+      isEmpty: false,
+      videos: videosState.videos,
+      heroVideo: heroVideoState.heroVideo,
+      forcePlayTimestamp: heroVideoState.forcePlayTimestamp,
+      onOptionsTap: (video) {
+        context
+            .findAncestorWidgetOfExactType<_DashboardContent>()!
+            ._showVideoOptionsBottomSheet(context, video);
+      },
+      heroPadding: const EdgeInsets.symmetric(horizontal: AppSizes.p8),
+      heroShimmerRadius: AppRadius.roundedXL,
     );
   }
 }

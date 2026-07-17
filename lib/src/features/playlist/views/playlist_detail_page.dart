@@ -6,17 +6,14 @@ import 'package:levelup_tube/src/core/extensions/context_extensions.dart';
 import 'package:levelup_tube/src/core/widgets/template/app_scaffold.dart';
 import 'package:levelup_tube/src/features/library/models/video.dart';
 import 'package:levelup_tube/src/features/library/views/widgets/add_video_bottom_sheet.dart';
-import 'package:levelup_tube/src/features/library/views/widgets/dashboard_video_list.dart';
-import 'package:levelup_tube/src/features/library/views/widgets/dashboard_video_list_shimmer.dart';
-import 'package:levelup_tube/src/features/library/views/widgets/dashboard_video_player.dart';
+import 'package:levelup_tube/src/features/library/views/widgets/video_list_with_player.dart';
 import 'package:levelup_tube/src/features/playlist/repositories/playlist_repository.dart';
 import 'package:levelup_tube/src/features/playlist/viewmodels/playlist_detail_cubit.dart';
 import 'package:levelup_tube/src/features/playlist/viewmodels/playlist_detail_state.dart';
-import 'package:shimmer/shimmer.dart';
 
 class PlaylistDetailPage extends StatelessWidget {
   const PlaylistDetailPage({required this.playlistId, super.key});
-  final int playlistId;
+  final int? playlistId;
 
   @override
   Widget build(BuildContext context) {
@@ -37,19 +34,17 @@ class _PlaylistDetailContent extends StatelessWidget {
   Widget build(BuildContext context) {
     return AppScaffold(
       appBar: AppBar(
-        title: BlocBuilder<PlaylistDetailCubit, PlaylistDetailState>(
-          buildWhen: (prev, curr) =>
-              curr is PlaylistDetailLoadedState ||
-              curr is PlaylistDetailEmptyState,
-          builder: (context, state) {
-            final title = switch (state) {
-              PlaylistDetailLoadedState(:final playlist) =>
-                playlist.title,
-              PlaylistDetailEmptyState(:final playlist) =>
-                playlist.title,
-              _ => 'Playlist',
+        title: BlocSelector<PlaylistDetailCubit, PlaylistDetailState, String?>(
+          selector: (state) {
+            return switch (state) {
+              PlaylistDetailLoaded(:final videosState) =>
+                videosState.playlist.title,
+              PlaylistDetailEmpty(:final playlist) => playlist.title,
+              _ => null,
             };
-            return Text(title);
+          },
+          builder: (context, title) {
+            return Text(title ?? 'Playlist');
           },
         ),
       ),
@@ -71,90 +66,20 @@ class _PlaylistDetailContent extends StatelessWidget {
         foregroundColor: context.colorScheme.onPrimary,
         child: const Icon(AppIcons.add),
       ),
-      body: Column(
-        children: [
-          const SizedBox(height: 8),
-          // Hero Player — REUSE DashboardVideoPlayer
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child:
-                BlocBuilder<PlaylistDetailCubit, PlaylistDetailState>(
-                  buildWhen: (prev, curr) =>
-                      curr is PlaylistDetailLoadedState ||
-                      curr is PlaylistDetailInitialState ||
-                      curr is PlaylistDetailEmptyState,
-                  builder: (context, state) {
-                    return switch (state) {
-                      PlaylistDetailInitialState() => AspectRatio(
-                        aspectRatio: 16 / 9,
-                        child: Shimmer.fromColors(
-                          baseColor: context
-                              .colorScheme
-                              .surfaceContainerHighest,
-                          highlightColor:
-                              context.colorScheme.surfaceContainer,
-                          child: Container(color: Colors.white),
-                        ),
-                      ),
-                      PlaylistDetailLoadedState()
-                          when state.heroVideo != null =>
-                        DashboardVideoPlayer(
-                          video: state.heroVideo!,
-                          forcePlayTimestamp:
-                              state.forcePlayTimestamp,
-                          onProgressUpdate:
-                              (playlistVideoId, positionSeconds) {
-                                context
-                                    .read<PlaylistDetailCubit>()
-                                    .updateProgress(
-                                      playlistVideoId,
-                                      positionSeconds,
-                                    );
-                              },
-                        ),
-                      _ => const SizedBox.shrink(),
-                    };
-                  },
-                ),
-          ),
-          const SizedBox(height: 16),
-          // Video List — REUSE DashboardVideoList with onVideoTap override
-          Expanded(
-            child: BlocBuilder<PlaylistDetailCubit, PlaylistDetailState>(
-              buildWhen: (prev, curr) =>
-                  curr is PlaylistDetailLoadedState ||
-                  curr is PlaylistDetailEmptyState ||
-                  curr is PlaylistDetailInitialState,
-              builder: (context, state) {
-                return switch (state) {
-                  PlaylistDetailInitialState() =>
-                    const DashboardVideoListShimmer(),
-                  PlaylistDetailEmptyState() => const Center(
-                    child: Text('No videos in this playlist'),
-                  ),
-                  PlaylistDetailLoadedState() => DashboardVideoList(
-                    videos: state.videos,
-                    // CRITICAL: Override onVideoTap to use PlaylistDetailCubit
-                    // instead of the default LibraryBloc behavior
-                    onVideoTap: (video) {
-                      context.read<PlaylistDetailCubit>().selectVideo(
-                        video,
-                      );
-                    },
-                    // Override onVideoLongPress to remove from playlist
-                    // instead of deleting from library
-                    onVideoLongPress: (video) {
-                      _showRemoveFromPlaylistDialog(context, video);
-                    },
-                    onOptionsTap: (video) =>
-                        _showVideoOptionsBottomSheet(context, video),
-                  ),
-                  _ => const SizedBox.shrink(),
-                };
-              },
+      body: BlocBuilder<PlaylistDetailCubit, PlaylistDetailState>(
+        builder: (context, state) {
+          return switch (state) {
+            PlaylistDetailInitial() || PlaylistDetailLoading() =>
+              const VideoListWithPlayer(isLoading: true, isEmpty: false),
+            PlaylistDetailEmpty() => const VideoListWithPlayer(
+              isLoading: false,
+              isEmpty: true,
+              emptyWidget: Center(child: Text('No videos in this playlist')),
             ),
-          ),
-        ],
+            PlaylistDetailLoaded() => _LoadedPlaylistBody(),
+            PlaylistDetailError(:final message) => Center(child: Text(message)),
+          };
+        },
       ),
     );
   }
@@ -194,10 +119,7 @@ class _PlaylistDetailContent extends StatelessWidget {
     );
   }
 
-  void _showRemoveFromPlaylistDialog(
-    BuildContext context,
-    Video video,
-  ) {
+  void _showRemoveFromPlaylistDialog(BuildContext context, Video video) {
     showDialog<void>(
       context: context,
       builder: (dialogContext) => AlertDialog(
@@ -213,15 +135,62 @@ class _PlaylistDetailContent extends StatelessWidget {
           ),
           FilledButton(
             onPressed: () {
-              context.read<PlaylistDetailCubit>().removeVideo(
-                video.id,
-              );
+              context.read<PlaylistDetailCubit>().removeVideo(video.id);
               Navigator.pop(dialogContext);
             },
             child: const Text('Remove'),
           ),
         ],
       ),
+    );
+  }
+}
+
+class _LoadedPlaylistBody extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    // Use BlocSelector for each independent part of the state
+    final videosState = context
+        .select<PlaylistDetailCubit, PlaylistVideosState?>(
+          (cubit) => cubit.state is PlaylistDetailLoaded
+              ? (cubit.state as PlaylistDetailLoaded).videosState
+              : null,
+        );
+    final heroVideoState = context.select<PlaylistDetailCubit, HeroVideoState?>(
+      (cubit) => cubit.state is PlaylistDetailLoaded
+          ? (cubit.state as PlaylistDetailLoaded).heroVideoState
+          : null,
+    );
+
+    if (videosState == null || heroVideoState == null) {
+      return const SizedBox.shrink();
+    }
+
+    return VideoListWithPlayer(
+      isLoading: false,
+      isEmpty: false,
+      videos: videosState.videos,
+      heroVideo: heroVideoState.heroVideo,
+      forcePlayTimestamp: heroVideoState.forcePlayTimestamp,
+      onVideoTap: (video) {
+        context.read<PlaylistDetailCubit>().selectVideo(video);
+      },
+      onVideoLongPress: (video) {
+        context
+            .findAncestorWidgetOfExactType<_PlaylistDetailContent>()!
+            ._showRemoveFromPlaylistDialog(context, video);
+      },
+      onOptionsTap: (video) {
+        context
+            .findAncestorWidgetOfExactType<_PlaylistDetailContent>()!
+            ._showVideoOptionsBottomSheet(context, video);
+      },
+      onProgressUpdate: (playlistVideoId, positionSeconds) {
+        context.read<PlaylistDetailCubit>().updateProgress(
+          playlistVideoId,
+          positionSeconds,
+        );
+      },
     );
   }
 }

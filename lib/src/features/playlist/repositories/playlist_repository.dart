@@ -1,3 +1,6 @@
+//
+// ignore_for_file: avoid_positional_boolean_parameters
+
 import 'package:levelup_tube/objectbox.g.dart';
 import 'package:levelup_tube/src/core/error/exception.dart';
 import 'package:levelup_tube/src/core/services/logging_service/app_logger.dart';
@@ -56,6 +59,9 @@ abstract class PlaylistRepository {
 
   /// Pins or unpins one playlist-owned video row.
   Future<void> setVideoPinned(int playlistVideoId, bool isPinned);
+
+  /// Marks a specific playlist-owned video as the last played one by updating its lastPlayedAt timestamp.
+  Future<void> markVideoAsLastPlayed(int playlistVideoId);
 }
 
 class PlaylistRepositoryImpl implements PlaylistRepository {
@@ -354,6 +360,23 @@ class PlaylistRepositoryImpl implements PlaylistRepository {
         e,
         st,
         'PlaylistRepository: Error updating video progress',
+      );
+    }
+  }
+
+  @override
+  Future<void> markVideoAsLastPlayed(int playlistVideoId) async {
+    try {
+      final video = videoBox.get(playlistVideoId);
+      if (video != null) {
+        video.lastPlayedAt = DateTime.now();
+        videoBox.put(video);
+      }
+    } on Exception catch (e, st) {
+      appLogger.handle(
+        e,
+        st,
+        'PlaylistRepository: Error marking video as last played',
       );
     }
   }

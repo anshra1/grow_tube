@@ -15,7 +15,6 @@ import 'package:levelup_tube/src/core/theme/theme_preferences.dart';
 import 'package:levelup_tube/src/features/connectivity/data/internet_connection_service.dart';
 import 'package:levelup_tube/src/features/connectivity/presentation/bloc/connectivity_cubit.dart';
 import 'package:levelup_tube/src/features/connectivity/presentation/widgets/connectivity_toast_controller.dart';
-import 'package:levelup_tube/src/features/library/viewmodels/library_bloc.dart';
 import 'package:levelup_tube/src/features/playlist/models/playlist_model.dart';
 import 'package:levelup_tube/src/features/playlist/models/playlist_video_model.dart';
 import 'package:levelup_tube/src/features/playlist/repositories/playlist_repository.dart';
@@ -31,17 +30,13 @@ Future<void> init() async {
   // ============================================================
   // Initialize Firebase First
   // ============================================================
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   // ============================================================
   // External
   // ============================================================
   final docsDir = await getApplicationDocumentsDirectory();
-  final store = await openStore(
-    directory: '${docsDir.path}/objectbox',
-  );
+  final store = await openStore(directory: '${docsDir.path}/objectbox');
   sl.registerLazySingleton(() => store);
 
   final apiKey = AppConfig.requireYoutubeApiKey();
@@ -57,10 +52,7 @@ Future<void> init() async {
     ..registerSingleton<Talker>(talker)
     ..registerLazySingleton<AppLogger>(
       () => AppLogger(
-        services: [
-          TalkerLoggingService(sl()),
-          CrashlyticsLoggingService(),
-        ],
+        services: [TalkerLoggingService(sl()), CrashlyticsLoggingService()],
       ),
     );
 
@@ -96,7 +88,6 @@ Future<void> init() async {
     // ============================================================
     // Blocs
     // ============================================================
-    ..registerFactory(() => LibraryBloc(sl()))
     ..registerFactory(() => ConnectivityCubit(sl()))
     ..registerFactory(() => PlaylistCubit(sl()))
     ..registerFactory(() => SettingsCubit(sl()));

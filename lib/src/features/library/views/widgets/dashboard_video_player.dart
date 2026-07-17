@@ -10,9 +10,8 @@ import 'package:levelup_tube/main.dart';
 import 'package:levelup_tube/src/core/design_system/app_radius.dart';
 import 'package:levelup_tube/src/features/connectivity/presentation/bloc/connectivity_cubit.dart';
 import 'package:levelup_tube/src/features/library/models/video.dart';
-import 'package:levelup_tube/src/features/library/viewmodels/library_bloc.dart';
-import 'package:levelup_tube/src/features/library/viewmodels/library_event.dart';
 import 'package:levelup_tube/src/features/navigation/cubit/fullscreen_video_cubit.dart';
+import 'package:levelup_tube/src/features/playlist/viewmodels/playlist_detail_cubit.dart';
 import 'package:talker_flutter/talker_flutter.dart';
 import 'package:toastification/toastification.dart';
 import 'package:youtube_player_iframe/youtube_player_iframe.dart';
@@ -31,24 +30,22 @@ class DashboardVideoPlayer extends StatefulWidget {
   onProgressUpdate;
 
   @override
-  State<DashboardVideoPlayer> createState() =>
-      _DashboardVideoPlayerState();
+  State<DashboardVideoPlayer> createState() => _DashboardVideoPlayerState();
 }
 
 class _DashboardVideoPlayerState extends State<DashboardVideoPlayer>
     with SingleTickerProviderStateMixin {
   YoutubePlayerController? _controller;
   late FullscreenVideoCubit _fullscreenVideoCubit;
-  late LibraryBloc _libraryBloc;
   StreamSubscription<YoutubePlayerValue>? _errorSubscription;
   Timer? _heartbeatTimer;
-  final OverlayPortalController _overlayController =
-      OverlayPortalController();
+  final OverlayPortalController _overlayController = OverlayPortalController();
   final _youtubePlayerKey = GlobalKey();
   StreamSubscription<ConnectivityStatus>? _connectivitySubscription;
 
   late final AnimationController _animController;
   late final Animation<double> _fadeAnimation;
+  late PlaylistDetailCubit _playlistDetailCubit;
 
   @override
   void didChangeDependencies() {
@@ -56,7 +53,7 @@ class _DashboardVideoPlayerState extends State<DashboardVideoPlayer>
     // Keep inherited dependencies for callbacks that can run during dispose,
     // when looking them up through context is no longer safe.
     _fullscreenVideoCubit = context.read<FullscreenVideoCubit>();
-    _libraryBloc = context.read<LibraryBloc>();
+    _playlistDetailCubit = context.read<PlaylistDetailCubit>();
   }
 
   @override
@@ -163,16 +160,14 @@ class _DashboardVideoPlayerState extends State<DashboardVideoPlayer>
         .stream
         .distinct()
         .listen((status) {
-          if (status == ConnectivityStatus.online &&
-              _controller == null) {
+          if (status == ConnectivityStatus.online && _controller == null) {
             _reinitializeController();
           }
         });
   }
 
   void _maybeInitializeController() {
-    if (context.read<ConnectivityCubit>().state !=
-        ConnectivityStatus.online) {
+    if (context.read<ConnectivityCubit>().state != ConnectivityStatus.online) {
       return;
     }
     _initializeController();
@@ -239,9 +234,7 @@ class _DashboardVideoPlayerState extends State<DashboardVideoPlayer>
         DeviceOrientation.landscapeLeft,
         DeviceOrientation.landscapeRight,
       ]);
-      await SystemChrome.setEnabledSystemUIMode(
-        SystemUiMode.immersiveSticky,
-      );
+      await SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
 
       // 4. Wait for hardware rotation to complete
       await Future<void>.delayed(const Duration(milliseconds: 300));
@@ -258,9 +251,7 @@ class _DashboardVideoPlayerState extends State<DashboardVideoPlayer>
       await SystemChrome.setPreferredOrientations([
         DeviceOrientation.portraitUp,
       ]);
-      await SystemChrome.setEnabledSystemUIMode(
-        SystemUiMode.edgeToEdge,
-      );
+      await SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
 
       // 3. Wait for hardware rotation to complete
       await Future<void>.delayed(const Duration(milliseconds: 300));
@@ -276,9 +267,7 @@ class _DashboardVideoPlayerState extends State<DashboardVideoPlayer>
 
   void _startHeartbeat() {
     _heartbeatTimer?.cancel();
-    _heartbeatTimer = Timer.periodic(const Duration(seconds: 60), (
-      _,
-    ) {
+    _heartbeatTimer = Timer.periodic(const Duration(seconds: 20), (_) {
       _saveProgress();
     });
   }
@@ -295,11 +284,9 @@ class _DashboardVideoPlayerState extends State<DashboardVideoPlayer>
         if (widget.onProgressUpdate != null) {
           widget.onProgressUpdate!(targetPlaylistVideoId, position);
         } else {
-          _libraryBloc.add(
-            LibraryVideoProgressUpdatedEvent(
-              playlistVideoId: targetPlaylistVideoId,
-              positionSeconds: position,
-            ),
+          await _playlistDetailCubit.updateProgress(
+            targetPlaylistVideoId,
+            position,
           );
         }
       }
@@ -343,10 +330,7 @@ class _DashboardVideoPlayerState extends State<DashboardVideoPlayer>
         // When fullscreen, leave behind an empty 16:9 box in the structural list
         // so the UI beneath it doesn't snap upwards.
         child: _overlayController.isShowing
-            ? const AspectRatio(
-                aspectRatio: 16 / 9,
-                child: SizedBox(),
-              )
+            ? const AspectRatio(aspectRatio: 16 / 9, child: SizedBox())
             : Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -381,9 +365,7 @@ class _DashboardVideoPlayerState extends State<DashboardVideoPlayer>
                             const SizedBox(width: 4),
                             Text(
                               'Landscape',
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .labelSmall
+                              style: Theme.of(context).textTheme.labelSmall
                                   ?.copyWith(
                                     color: Theme.of(
                                       context,
