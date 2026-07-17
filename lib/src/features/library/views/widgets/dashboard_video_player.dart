@@ -27,7 +27,7 @@ class DashboardVideoPlayer extends StatefulWidget {
 
   final Video video;
   final int? forcePlayTimestamp;
-  final void Function(String youtubeId, int positionSeconds)?
+  final void Function(int playlistVideoId, int positionSeconds)?
   onProgressUpdate;
 
   @override
@@ -79,8 +79,8 @@ class _DashboardVideoPlayerState extends State<DashboardVideoPlayer>
   void didUpdateWidget(covariant DashboardVideoPlayer oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (_controller == null) return;
-    if (widget.video.youtubeId != oldWidget.video.youtubeId) {
-      _saveProgress(youtubeId: oldWidget.video.youtubeId);
+    if (widget.video.id != oldWidget.video.id) {
+      _saveProgress(playlistVideoId: oldWidget.video.id);
 
       final startPos = widget.video.isCompleted
           ? 0.0
@@ -283,21 +283,21 @@ class _DashboardVideoPlayerState extends State<DashboardVideoPlayer>
     });
   }
 
-  Future<void> _saveProgress({String? youtubeId}) async {
+  Future<void> _saveProgress({int? playlistVideoId}) async {
     try {
       final controller = _controller;
       if (controller == null) return;
       final positionTime = await controller.currentTime;
       final position = positionTime.toInt();
-      final targetId = youtubeId ?? widget.video.youtubeId;
+      final targetPlaylistVideoId = playlistVideoId ?? widget.video.id;
 
       if (position > 0 && mounted) {
         if (widget.onProgressUpdate != null) {
-          widget.onProgressUpdate!(targetId, position);
+          widget.onProgressUpdate!(targetPlaylistVideoId, position);
         } else {
           _libraryBloc.add(
             LibraryVideoProgressUpdatedEvent(
-              youtubeId: targetId,
+              playlistVideoId: targetPlaylistVideoId,
               positionSeconds: position,
             ),
           );

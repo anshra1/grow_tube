@@ -21,6 +21,7 @@ class DashboardVideoCard extends StatelessWidget {
     required this.video,
     this.onTap,
     this.onLongPress,
+    this.onOptionsTap,
     super.key,
   });
 
@@ -33,6 +34,9 @@ class DashboardVideoCard extends StatelessWidget {
   /// Optional override for long-press behavior.
   /// If null, defaults to showing the delete video dialog.
   final VoidCallback? onLongPress;
+
+  /// Optional override for the existing three-dot control.
+  final VoidCallback? onOptionsTap;
   static final ConnectivityToastController _toastController = di
       .sl<ConnectivityToastController>();
 
@@ -222,11 +226,21 @@ class DashboardVideoCard extends StatelessWidget {
             ),
             // More Options Icon
             GestureDetector(
-              onTap: handleOptions,
-              child: Icon(
-                Icons.more_vert,
-                color: context.colorScheme.onSurface,
-                size: 20,
+              onTap: onOptionsTap ?? handleOptions,
+              child: Column(
+                children: [
+                  if (video.isPinned)
+                    Icon(
+                      Icons.push_pin,
+                      color: context.colorScheme.primary,
+                      size: 18,
+                    ),
+                  Icon(
+                    Icons.more_vert,
+                    color: context.colorScheme.onSurface,
+                    size: 20,
+                  ),
+                ],
               ),
             ),
           ],

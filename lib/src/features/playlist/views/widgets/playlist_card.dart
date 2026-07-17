@@ -122,6 +122,14 @@ class PlaylistCard extends StatelessWidget {
                       color: context.colorScheme.onSurface,
                     ),
                   ),
+                  if (playlist.isPinned) ...[
+                    const Gap(4),
+                    Icon(
+                      Icons.push_pin,
+                      color: context.colorScheme.primary,
+                      size: 18,
+                    ),
+                  ],
                   const Gap(4),
                   Text(
                     _getSubtitle(),

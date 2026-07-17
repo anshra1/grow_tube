@@ -18,7 +18,7 @@ class PlaylistCubit extends Cubit<PlaylistState> {
       if (playlists.isEmpty) {
         emit(const PlaylistEmptyState());
       } else {
-        emit(PlaylistLoadedState(playlists));
+        emit(PlaylistLoadedState(_pinnedFirst(playlists)));
       }
     } on Exception catch (e) {
       emit(PlaylistErrorState(_exceptionMessage(e)));
@@ -83,6 +83,21 @@ class PlaylistCubit extends Cubit<PlaylistState> {
       await loadPlaylists(); // recover UI
     }
   }
+
+  Future<void> setPlaylistPinned(int playlistId, bool isPinned) async {
+    try {
+      await _repository.setPlaylistPinned(playlistId, isPinned);
+      await loadPlaylists();
+    } on Exception catch (e) {
+      emit(PlaylistErrorState(_exceptionMessage(e)));
+      await loadPlaylists();
+    }
+  }
+
+  List<PlaylistModel> _pinnedFirst(List<PlaylistModel> playlists) => [
+    ...playlists.where((playlist) => playlist.isPinned),
+    ...playlists.where((playlist) => !playlist.isPinned),
+  ];
 
   String _exceptionMessage(Object exception) {
     if (exception is AppException && exception.message.isNotEmpty) {

@@ -103,11 +103,11 @@ class _PlaylistDetailContent extends StatelessWidget {
                           forcePlayTimestamp:
                               state.forcePlayTimestamp,
                           onProgressUpdate:
-                              (youtubeId, positionSeconds) {
+                              (playlistVideoId, positionSeconds) {
                                 context
                                     .read<PlaylistDetailCubit>()
                                     .updateProgress(
-                                      youtubeId,
+                                      playlistVideoId,
                                       positionSeconds,
                                     );
                               },
@@ -146,6 +146,8 @@ class _PlaylistDetailContent extends StatelessWidget {
                     onVideoLongPress: (video) {
                       _showRemoveFromPlaylistDialog(context, video);
                     },
+                    onOptionsTap: (video) =>
+                        _showVideoOptionsBottomSheet(context, video),
                   ),
                   _ => const SizedBox.shrink(),
                 };
@@ -153,6 +155,41 @@ class _PlaylistDetailContent extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  void _showVideoOptionsBottomSheet(BuildContext context, Video video) {
+    showModalBottomSheet<void>(
+      context: context,
+      useSafeArea: true,
+      builder: (bottomSheetContext) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: Icon(
+                video.isPinned ? Icons.push_pin_outlined : Icons.push_pin,
+              ),
+              title: Text(video.isPinned ? 'Unpin' : 'Pin'),
+              onTap: () {
+                Navigator.pop(bottomSheetContext);
+                context.read<PlaylistDetailCubit>().setVideoPinned(
+                  video.id,
+                  !video.isPinned,
+                );
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.playlist_remove),
+              title: const Text('Remove from Playlist'),
+              onTap: () {
+                Navigator.pop(bottomSheetContext);
+                _showRemoveFromPlaylistDialog(context, video);
+              },
+            ),
+          ],
+        ),
       ),
     );
   }

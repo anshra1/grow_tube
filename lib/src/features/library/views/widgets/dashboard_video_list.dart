@@ -8,6 +8,7 @@ class DashboardVideoList extends StatelessWidget {
     required this.videos,
     this.onVideoTap,
     this.onVideoLongPress,
+    this.onOptionsTap,
     super.key,
   });
 
@@ -18,6 +19,8 @@ class DashboardVideoList extends StatelessWidget {
   /// Optional override for individual video long-press.
   /// If null, each card uses its default behavior (delete dialog).
   final void Function(Video)? onVideoLongPress;
+  /// Optional override for the existing three-dot control.
+  final void Function(Video)? onOptionsTap;
 
   @override
   Widget build(BuildContext context) {
@@ -36,6 +39,9 @@ class DashboardVideoList extends StatelessWidget {
             video: video,
             onTap: onVideoTap != null ? () => onVideoTap!(video) : null,
             onLongPress: onVideoLongPress != null ? () => onVideoLongPress!(video) : null,
+            onOptionsTap: onOptionsTap != null
+                ? () => onOptionsTap!(video)
+                : null,
           ),
         );
       },

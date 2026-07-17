@@ -33,8 +33,8 @@ abstract class PlaylistRepository {
   /// Adds a video to a specific playlist by fetching its metadata via its YouTube URL.
   Future<void> addVideoToPlaylist(int playlistId, String videoUrl);
 
-  /// Updates the watch progress (in seconds) for a specific video across all playlists.
-  Future<void> updateVideoProgress(String youtubeId, int positionSeconds);
+  /// Updates the watch progress for one playlist-owned video row.
+  Future<void> updateVideoProgress(int playlistVideoId, int positionSeconds);
 
   /// Retrieves the default "My Library" playlist, creating it if it doesn't exist yet.
   Future<PlaylistModel> getOrCreateDefaultLibrary();
@@ -50,6 +50,12 @@ abstract class PlaylistRepository {
 
   /// Sets a specific playlist as the system-wide default, unsetting the flag on all others.
   Future<void> setDefaultPlaylist(int playlistId);
+
+  /// Pins or unpins one playlist without changing any other playlist fields.
+  Future<void> setPlaylistPinned(int playlistId, bool isPinned);
+
+  /// Pins or unpins one playlist-owned video row.
+  Future<void> setVideoPinned(int playlistVideoId, bool isPinned);
 }
 
 class PlaylistRepositoryImpl implements PlaylistRepository {
@@ -258,28 +264,18 @@ class PlaylistRepositoryImpl implements PlaylistRepository {
         throw DatabaseException('Playlist $playlistId not found');
       }
 
-      PlaylistVideoModel dbVideo;
-      final existing = videoBox
-          .query(PlaylistVideoModel_.youtubeId.equals(video.youtubeId))
-          .build()
-          .findFirst();
-
-      if (existing != null) {
-        dbVideo = existing;
-      } else {
-        final newId = videoBox.put(video);
-        video.id = newId;
-        dbVideo = video;
-      }
-
       final alreadyLinked = playlist.videos.any(
-        (v) => v.youtubeId == dbVideo.youtubeId,
+        (v) => v.youtubeId == video.youtubeId,
       );
       if (alreadyLinked) {
         return;
       }
 
-      playlist.videos.add(dbVideo);
+      // A playlist owns its own video row. The same YouTube video may exist
+      // in another playlist, but its progress and last-played state are local.
+      final newId = videoBox.put(video);
+      video.id = newId;
+      playlist.videos.add(video);
       playlist.videoCount = playlist.videos.length;
       playlistBox.put(playlist);
     } catch (e, st) {
@@ -341,15 +337,11 @@ class PlaylistRepositoryImpl implements PlaylistRepository {
 
   @override
   Future<void> updateVideoProgress(
-    String youtubeId,
+    int playlistVideoId,
     int positionSeconds,
   ) async {
     try {
-      final query = videoBox
-          .query(PlaylistVideoModel_.youtubeId.equals(youtubeId))
-          .build();
-      final video = query.findFirst();
-      query.close();
+      final video = videoBox.get(playlistVideoId);
 
       if (video != null) {
         video
@@ -424,6 +416,30 @@ class PlaylistRepositoryImpl implements PlaylistRepository {
         'PlaylistRepository: Error setting default playlist',
       );
       throw DatabaseException(e.toString());
+    }
+  }
+
+  @override
+  Future<void> setPlaylistPinned(int playlistId, bool isPinned) async {
+    try {
+      final playlist = playlistBox.get(playlistId);
+      if (playlist == null) return;
+      playlist.isPinned = isPinned;
+      playlistBox.put(playlist);
+    } on Exception catch (e, st) {
+      appLogger.handle(e, st, 'PlaylistRepository: Error pinning playlist');
+    }
+  }
+
+  @override
+  Future<void> setVideoPinned(int playlistVideoId, bool isPinned) async {
+    try {
+      final video = videoBox.get(playlistVideoId);
+      if (video == null) return;
+      video.isPinned = isPinned;
+      videoBox.put(video);
+    } on Exception catch (e, st) {
+      appLogger.handle(e, st, 'PlaylistRepository: Error pinning video');
     }
   }
 }

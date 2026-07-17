@@ -16,6 +16,9 @@ class LibraryBloc extends Bloc<LibraryEvent, LibraryState> {
     // Removes a video from the local database
     on<LibraryVideoDeletedEvent>(_onVideoDeleted);
 
+    // Pins or unpins a video in the current default playlist.
+    on<LibraryVideoPinnedEvent>(_onVideoPinned);
+
     // Silently updates the progress and last played timestamp of a video
     on<LibraryVideoProgressUpdatedEvent>(_onProgressUpdated);
 
@@ -29,9 +32,9 @@ class LibraryBloc extends Bloc<LibraryEvent, LibraryState> {
     on<LibraryDefaultPlaylistChangedEvent>(_onDefaultPlaylistChanged);
   }
 
-  /// Tracks the YouTube ID of the video explicitly chosen by the user.
+  /// Tracks the playlist-owned video ID explicitly chosen by the user.
   /// When set, [_refreshLibrary] uses this instead of the repository's last played.
-  String? _selectedHeroId;
+  int? _selectedHeroId;
 
   final PlaylistRepository _repository;
 
@@ -41,7 +44,7 @@ class LibraryBloc extends Bloc<LibraryEvent, LibraryState> {
   ) async {
     final state = this.state;
     if (state is LibraryVideoLoadedState) {
-      _selectedHeroId = event.video.youtubeId;
+      _selectedHeroId = event.video.id;
       emit(
         LibraryVideoLoadedState(
           libraryVideos: state.libraryVideos,
@@ -88,7 +91,7 @@ class LibraryBloc extends Bloc<LibraryEvent, LibraryState> {
   ) async {
     try {
       await _repository.updateVideoProgress(
-        event.youtubeId,
+        event.playlistVideoId,
         event.positionSeconds,
       );
     } on Exception catch (e) {
@@ -132,6 +135,19 @@ class LibraryBloc extends Bloc<LibraryEvent, LibraryState> {
     }
   }
 
+  Future<void> _onVideoPinned(
+    LibraryVideoPinnedEvent event,
+    Emitter<LibraryState> emit,
+  ) async {
+    try {
+      await _repository.setVideoPinned(event.id, event.isPinned);
+      await _refreshLibrary(emit);
+    } on Exception catch (e) {
+      emit(LibraryFailureState(_exceptionMessage(e)));
+      await _refreshLibrary(emit);
+    }
+  }
+
   /// Helper to fetch videos + hero and emit appropriate state.
   ///
   /// If the user has explicitly selected a video ([_selectedHeroId] is set),
@@ -141,10 +157,10 @@ class LibraryBloc extends Bloc<LibraryEvent, LibraryState> {
     try {
       final library = await _repository.getDefaultLibrary();
 
-      final videos = library.videos.map((v) => v.toEntity()).toList()
-      ..sort((a, b) => b.addedAt.compareTo(a.addedAt));
+      final normalVideos = library.videos.map((v) => v.toEntity()).toList()
+        ..sort((a, b) => b.addedAt.compareTo(a.addedAt));
 
-      if (videos.isEmpty) {
+      if (normalVideos.isEmpty) {
         _selectedHeroId = null;
         emit(const LibraryEmptyState());
         return;
@@ -154,13 +170,13 @@ class LibraryBloc extends Bloc<LibraryEvent, LibraryState> {
       // Otherwise fall back to the DB's last-played video.
       Video? heroVideo;
       if (_selectedHeroId != null) {
-        heroVideo = videos
-            .where((v) => v.youtubeId == _selectedHeroId)
+        heroVideo = normalVideos
+            .where((v) => v.id == _selectedHeroId)
             .firstOrNull;
       }
 
       if (heroVideo == null) {
-        final sortedForHero = List<Video>.from(videos)
+        final sortedForHero = List<Video>.from(normalVideos)
           ..sort((a, b) {
             if (a.lastPlayedAt != null && b.lastPlayedAt != null) {
               return b.lastPlayedAt!.compareTo(a.lastPlayedAt!);
@@ -172,12 +188,12 @@ class LibraryBloc extends Bloc<LibraryEvent, LibraryState> {
           
         heroVideo = sortedForHero.firstOrNull;
         // Sync _selectedHeroId so future refreshes stay on this video.
-        _selectedHeroId = heroVideo?.youtubeId;
+        _selectedHeroId = heroVideo?.id;
       }
 
       emit(
         LibraryVideoLoadedState(
-          libraryVideos: videos,
+          libraryVideos: _pinnedFirst(normalVideos),
           lastPlayVideo: heroVideo,
         ),
       );
@@ -185,6 +201,11 @@ class LibraryBloc extends Bloc<LibraryEvent, LibraryState> {
       emit(LibraryFailureState(_exceptionMessage(e)));
     }
   }
+
+  List<Video> _pinnedFirst(List<Video> videos) => [
+    ...videos.where((video) => video.isPinned),
+    ...videos.where((video) => !video.isPinned),
+  ];
 
   String _exceptionMessage(Object exception) {
     if (exception is AppException && exception.message.isNotEmpty) {

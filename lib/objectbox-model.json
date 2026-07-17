@@ -61,7 +61,7 @@
     },
     {
       "id": "2:1747732836037110316",
-      "lastPropertyId": "8:199409539475203119",
+      "lastPropertyId": "9:7052101240848382711",
       "name": "PlaylistModel",
       "properties": [
         {
@@ -104,6 +104,11 @@
           "id": "8:199409539475203119",
           "name": "isSystemDefault",
           "type": 1
+        },
+        {
+          "id": "9:7052101240848382711",
+          "name": "isPinned",
+          "type": 1
         }
       ],
       "relations": [
@@ -116,7 +121,7 @@
     },
     {
       "id": "3:726241950308333869",
-      "lastPropertyId": "9:2581805604101822468",
+      "lastPropertyId": "10:3389916046029107257",
       "name": "PlaylistVideoModel",
       "properties": [
         {
@@ -164,6 +169,11 @@
           "id": "9:2581805604101822468",
           "name": "lastPlayedAt",
           "type": 12
+        },
+        {
+          "id": "10:3389916046029107257",
+          "name": "isPinned",
+          "type": 1
         }
       ],
       "relations": []

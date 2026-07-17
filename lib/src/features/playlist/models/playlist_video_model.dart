@@ -13,6 +13,7 @@ class PlaylistVideoModel {
     this.id = 0,
     this.lastWatchedPositionSeconds = 0,
     this.lastPlayedAt,
+    this.isPinned = false,
   });
 
   @Id()
@@ -35,6 +36,9 @@ class PlaylistVideoModel {
   @Property(type: PropertyType.dateNano)
   DateTime? lastPlayedAt;
 
+  /// Keeps this playlist-owned video row at the top of its video list.
+  bool isPinned;
+
   /// Maps Model -> Entity so the UI can consume it exactly like a normal video.
   Video toEntity() {
     return Video(
@@ -47,6 +51,7 @@ class PlaylistVideoModel {
       lastWatchedPositionSeconds: lastWatchedPositionSeconds,
       addedAt: addedAt,
       lastPlayedAt: lastPlayedAt,
+      isPinned: isPinned,
     );
   }
 }

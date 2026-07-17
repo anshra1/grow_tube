@@ -14,7 +14,7 @@ class PlaylistDetailCubit extends Cubit<PlaylistDetailState> {
   final PlaylistRepository _repository;
 
   /// Tracks which video the user explicitly selected as hero.
-  String? _selectedHeroId;
+  int? _selectedHeroId;
 
   /// Load the playlist and its videos.
   Future<void> loadPlaylist() async {
@@ -28,27 +28,39 @@ class PlaylistDetailCubit extends Cubit<PlaylistDetailState> {
       }
 
       // Convert VideoModel → Video entity for UI consumption
-      final videos = playlist.videos
+      final normalVideos = playlist.videos
           .map((m) => m.toEntity())
           .toList();
 
-      if (videos.isEmpty) {
+      if (normalVideos.isEmpty) {
         emit(PlaylistDetailEmptyState(playlist));
         return;
       }
 
-      // Hero = selected video, or fall back to first video in playlist
+      // Hero = selected video, then the most recently played video in this
+      // playlist, or the first video when this playlist has no history.
       Video heroVideo;
       if (_selectedHeroId != null) {
         heroVideo =
-            videos
-                .where((v) => v.youtubeId == _selectedHeroId)
+            normalVideos
+                .where((v) => v.id == _selectedHeroId)
                 .firstOrNull ??
-            videos.first;
+            normalVideos.first;
       } else {
-        heroVideo = videos.first;
+        final lastPlayedVideo = normalVideos
+            .where((v) => v.lastPlayedAt != null)
+            .fold<Video?>(null, (latest, video) {
+              if (latest == null ||
+                  video.lastPlayedAt!.isAfter(latest.lastPlayedAt!)) {
+                return video;
+              }
+              return latest;
+            });
+        heroVideo = lastPlayedVideo ?? normalVideos.first;
       }
-      _selectedHeroId = heroVideo.youtubeId;
+      _selectedHeroId = heroVideo.id;
+
+      final videos = _pinnedFirst(normalVideos);
 
       emit(
         PlaylistDetailLoadedState(
@@ -66,7 +78,7 @@ class PlaylistDetailCubit extends Cubit<PlaylistDetailState> {
   void selectVideo(Video video) {
     final currentState = state;
     if (currentState is PlaylistDetailLoadedState) {
-      _selectedHeroId = video.youtubeId;
+      _selectedHeroId = video.id;
       emit(
         PlaylistDetailLoadedState(
           playlist: currentState.playlist,
@@ -79,14 +91,14 @@ class PlaylistDetailCubit extends Cubit<PlaylistDetailState> {
   }
 
   /// Save watch progress (called by the player's heartbeat).
-  /// The progress is saved to the shared VideoModel — same as library.
+  /// The progress is saved to this playlist's own video row.
   Future<void> updateProgress(
-    String youtubeId,
+    int playlistVideoId,
     int positionSeconds,
   ) async {
     try {
       await _repository.updateVideoProgress(
-        youtubeId,
+        playlistVideoId,
         positionSeconds,
       );
     } on Exception catch (e) {
@@ -122,4 +134,19 @@ class PlaylistDetailCubit extends Cubit<PlaylistDetailState> {
       await loadPlaylist(); // Recover UI
     }
   }
+
+  Future<void> setVideoPinned(int videoId, bool isPinned) async {
+    try {
+      await _repository.setVideoPinned(videoId, isPinned);
+      await loadPlaylist();
+    } on Exception catch (e) {
+      emit(PlaylistDetailErrorState(e.toString()));
+      await loadPlaylist();
+    }
+  }
+
+  List<Video> _pinnedFirst(List<Video> videos) => [
+    ...videos.where((video) => video.isPinned),
+    ...videos.where((video) => !video.isPinned),
+  ];
 }

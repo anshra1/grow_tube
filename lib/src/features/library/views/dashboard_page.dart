@@ -8,6 +8,7 @@ import 'package:levelup_tube/src/core/widgets/template/app_scaffold.dart';
 import 'package:levelup_tube/src/features/library/viewmodels/library_bloc.dart';
 import 'package:levelup_tube/src/features/library/viewmodels/library_event.dart';
 import 'package:levelup_tube/src/features/library/viewmodels/library_state.dart';
+import 'package:levelup_tube/src/features/library/models/video.dart';
 import 'package:levelup_tube/src/features/library/views/widgets/dashboard_empty_state.dart';
 import 'package:levelup_tube/src/features/library/views/widgets/dashboard_video_list.dart';
 import 'package:levelup_tube/src/features/library/views/widgets/dashboard_video_list_shimmer.dart';
@@ -106,6 +107,8 @@ class _DashboardContent extends StatelessWidget {
                   ),
                   LibraryVideoLoadedState() => DashboardVideoList(
                     videos: state.libraryVideos,
+                    onOptionsTap: (video) =>
+                        _showVideoOptionsBottomSheet(context, video),
                   ),
                   _ => const SizedBox.shrink(),
                 };
@@ -113,6 +116,43 @@ class _DashboardContent extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  void _showVideoOptionsBottomSheet(BuildContext context, Video video) {
+    showModalBottomSheet<void>(
+      context: context,
+      useSafeArea: true,
+      builder: (bottomSheetContext) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: Icon(
+                video.isPinned ? Icons.push_pin_outlined : Icons.push_pin,
+              ),
+              title: Text(video.isPinned ? 'Unpin' : 'Pin'),
+              onTap: () {
+                Navigator.pop(bottomSheetContext);
+                context.read<LibraryBloc>().add(
+                  LibraryVideoPinnedEvent(
+                    id: video.id,
+                    isPinned: !video.isPinned,
+                  ),
+                );
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.delete_outline),
+              title: const Text('Delete'),
+              onTap: () {
+                Navigator.pop(bottomSheetContext);
+                context.read<LibraryBloc>().add(LibraryVideoDeletedEvent(video.id));
+              },
+            ),
+          ],
+        ),
       ),
     );
   }

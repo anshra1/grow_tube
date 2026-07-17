@@ -160,6 +160,19 @@ class _PlaylistsPageContent extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
+            ListTile(
+              leading: Icon(
+                playlist.isPinned ? Icons.push_pin_outlined : Icons.push_pin,
+              ),
+              title: Text(playlist.isPinned ? 'Unpin' : 'Pin'),
+              onTap: () {
+                Navigator.pop(bottomSheetContext);
+                context.read<PlaylistCubit>().setPlaylistPinned(
+                  playlist.id,
+                  !playlist.isPinned,
+                );
+              },
+            ),
             if (!playlist.isSystemDefault) ...[
               ListTile(
                 leading: const Icon(Icons.edit_outlined),

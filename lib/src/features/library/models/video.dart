@@ -18,6 +18,7 @@ abstract class Video with _$Video {
     required int lastWatchedPositionSeconds,
     required DateTime addedAt,
     DateTime? lastPlayedAt,
+    @Default(false) bool isPinned,
   }) = _Video;
   const Video._();
 

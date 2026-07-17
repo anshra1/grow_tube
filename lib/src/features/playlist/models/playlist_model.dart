@@ -12,6 +12,7 @@ class PlaylistModel {
     this.description,
     this.videoCount = 0,
     this.isSystemDefault = false,
+    this.isPinned = false,
   });
 
   @Id()
@@ -40,6 +41,9 @@ class PlaylistModel {
 
   /// Identifies if this is a system-generated playlist (like "My Library")
   bool isSystemDefault;
+
+  /// Keeps this playlist at the top of the playlists page.
+  bool isPinned;
 
   /// The ObjectBox ToMany relation to VideoModel.
   /// This is the CORE relationship — a playlist contains many videos.

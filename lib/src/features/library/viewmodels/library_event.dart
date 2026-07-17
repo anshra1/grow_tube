@@ -31,18 +31,29 @@ final class LibraryVideoDeletedEvent extends LibraryEvent {
   List<Object?> get props => [id];
 }
 
+/// Triggered when a video is pinned or unpinned in the default playlist.
+final class LibraryVideoPinnedEvent extends LibraryEvent {
+  const LibraryVideoPinnedEvent({required this.id, required this.isPinned});
+
+  final int id;
+  final bool isPinned;
+
+  @override
+  List<Object?> get props => [id, isPinned];
+}
+
 /// Triggered when a video's watch progress changes.
 final class LibraryVideoProgressUpdatedEvent extends LibraryEvent {
   const LibraryVideoProgressUpdatedEvent({
-    required this.youtubeId,
+    required this.playlistVideoId,
     required this.positionSeconds,
   });
   
-  final String youtubeId;
+  final int playlistVideoId;
   final int positionSeconds;
 
   @override
-  List<Object?> get props => [youtubeId, positionSeconds];
+  List<Object?> get props => [playlistVideoId, positionSeconds];
 }
 
 /// Triggered when the clipboard monitor adds a video and requests to play it.

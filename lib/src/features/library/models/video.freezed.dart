@@ -14,7 +14,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$Video {
 
- int get id; String get youtubeId; String get title; String get channelName; String get thumbnailUrl; int get durationSeconds; int get lastWatchedPositionSeconds; DateTime get addedAt; DateTime? get lastPlayedAt;
+ int get id; String get youtubeId; String get title; String get channelName; String get thumbnailUrl; int get durationSeconds; int get lastWatchedPositionSeconds; DateTime get addedAt; DateTime? get lastPlayedAt; bool get isPinned;
 /// Create a copy of Video
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -25,16 +25,16 @@ $VideoCopyWith<Video> get copyWith => _$VideoCopyWithImpl<Video>(this as Video, 
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is Video&&(identical(other.id, id) || other.id == id)&&(identical(other.youtubeId, youtubeId) || other.youtubeId == youtubeId)&&(identical(other.title, title) || other.title == title)&&(identical(other.channelName, channelName) || other.channelName == channelName)&&(identical(other.thumbnailUrl, thumbnailUrl) || other.thumbnailUrl == thumbnailUrl)&&(identical(other.durationSeconds, durationSeconds) || other.durationSeconds == durationSeconds)&&(identical(other.lastWatchedPositionSeconds, lastWatchedPositionSeconds) || other.lastWatchedPositionSeconds == lastWatchedPositionSeconds)&&(identical(other.addedAt, addedAt) || other.addedAt == addedAt)&&(identical(other.lastPlayedAt, lastPlayedAt) || other.lastPlayedAt == lastPlayedAt));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is Video&&(identical(other.id, id) || other.id == id)&&(identical(other.youtubeId, youtubeId) || other.youtubeId == youtubeId)&&(identical(other.title, title) || other.title == title)&&(identical(other.channelName, channelName) || other.channelName == channelName)&&(identical(other.thumbnailUrl, thumbnailUrl) || other.thumbnailUrl == thumbnailUrl)&&(identical(other.durationSeconds, durationSeconds) || other.durationSeconds == durationSeconds)&&(identical(other.lastWatchedPositionSeconds, lastWatchedPositionSeconds) || other.lastWatchedPositionSeconds == lastWatchedPositionSeconds)&&(identical(other.addedAt, addedAt) || other.addedAt == addedAt)&&(identical(other.lastPlayedAt, lastPlayedAt) || other.lastPlayedAt == lastPlayedAt)&&(identical(other.isPinned, isPinned) || other.isPinned == isPinned));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,id,youtubeId,title,channelName,thumbnailUrl,durationSeconds,lastWatchedPositionSeconds,addedAt,lastPlayedAt);
+int get hashCode => Object.hash(runtimeType,id,youtubeId,title,channelName,thumbnailUrl,durationSeconds,lastWatchedPositionSeconds,addedAt,lastPlayedAt,isPinned);
 
 @override
 String toString() {
-  return 'Video(id: $id, youtubeId: $youtubeId, title: $title, channelName: $channelName, thumbnailUrl: $thumbnailUrl, durationSeconds: $durationSeconds, lastWatchedPositionSeconds: $lastWatchedPositionSeconds, addedAt: $addedAt, lastPlayedAt: $lastPlayedAt)';
+  return 'Video(id: $id, youtubeId: $youtubeId, title: $title, channelName: $channelName, thumbnailUrl: $thumbnailUrl, durationSeconds: $durationSeconds, lastWatchedPositionSeconds: $lastWatchedPositionSeconds, addedAt: $addedAt, lastPlayedAt: $lastPlayedAt, isPinned: $isPinned)';
 }
 
 
@@ -45,7 +45,7 @@ abstract mixin class $VideoCopyWith<$Res>  {
   factory $VideoCopyWith(Video value, $Res Function(Video) _then) = _$VideoCopyWithImpl;
 @useResult
 $Res call({
- int id, String youtubeId, String title, String channelName, String thumbnailUrl, int durationSeconds, int lastWatchedPositionSeconds, DateTime addedAt, DateTime? lastPlayedAt
+ int id, String youtubeId, String title, String channelName, String thumbnailUrl, int durationSeconds, int lastWatchedPositionSeconds, DateTime addedAt, DateTime? lastPlayedAt, bool isPinned
 });
 
 
@@ -62,7 +62,7 @@ class _$VideoCopyWithImpl<$Res>
 
 /// Create a copy of Video
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? youtubeId = null,Object? title = null,Object? channelName = null,Object? thumbnailUrl = null,Object? durationSeconds = null,Object? lastWatchedPositionSeconds = null,Object? addedAt = null,Object? lastPlayedAt = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? youtubeId = null,Object? title = null,Object? channelName = null,Object? thumbnailUrl = null,Object? durationSeconds = null,Object? lastWatchedPositionSeconds = null,Object? addedAt = null,Object? lastPlayedAt = freezed,Object? isPinned = null,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int,youtubeId: null == youtubeId ? _self.youtubeId : youtubeId // ignore: cast_nullable_to_non_nullable
@@ -73,7 +73,8 @@ as String,durationSeconds: null == durationSeconds ? _self.durationSeconds : dur
 as int,lastWatchedPositionSeconds: null == lastWatchedPositionSeconds ? _self.lastWatchedPositionSeconds : lastWatchedPositionSeconds // ignore: cast_nullable_to_non_nullable
 as int,addedAt: null == addedAt ? _self.addedAt : addedAt // ignore: cast_nullable_to_non_nullable
 as DateTime,lastPlayedAt: freezed == lastPlayedAt ? _self.lastPlayedAt : lastPlayedAt // ignore: cast_nullable_to_non_nullable
-as DateTime?,
+as DateTime?,isPinned: null == isPinned ? _self.isPinned : isPinned // ignore: cast_nullable_to_non_nullable
+as bool,
   ));
 }
 
@@ -158,10 +159,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id,  String youtubeId,  String title,  String channelName,  String thumbnailUrl,  int durationSeconds,  int lastWatchedPositionSeconds,  DateTime addedAt,  DateTime? lastPlayedAt)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id,  String youtubeId,  String title,  String channelName,  String thumbnailUrl,  int durationSeconds,  int lastWatchedPositionSeconds,  DateTime addedAt,  DateTime? lastPlayedAt,  bool isPinned)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Video() when $default != null:
-return $default(_that.id,_that.youtubeId,_that.title,_that.channelName,_that.thumbnailUrl,_that.durationSeconds,_that.lastWatchedPositionSeconds,_that.addedAt,_that.lastPlayedAt);case _:
+return $default(_that.id,_that.youtubeId,_that.title,_that.channelName,_that.thumbnailUrl,_that.durationSeconds,_that.lastWatchedPositionSeconds,_that.addedAt,_that.lastPlayedAt,_that.isPinned);case _:
   return orElse();
 
 }
@@ -179,10 +180,10 @@ return $default(_that.id,_that.youtubeId,_that.title,_that.channelName,_that.thu
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id,  String youtubeId,  String title,  String channelName,  String thumbnailUrl,  int durationSeconds,  int lastWatchedPositionSeconds,  DateTime addedAt,  DateTime? lastPlayedAt)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id,  String youtubeId,  String title,  String channelName,  String thumbnailUrl,  int durationSeconds,  int lastWatchedPositionSeconds,  DateTime addedAt,  DateTime? lastPlayedAt,  bool isPinned)  $default,) {final _that = this;
 switch (_that) {
 case _Video():
-return $default(_that.id,_that.youtubeId,_that.title,_that.channelName,_that.thumbnailUrl,_that.durationSeconds,_that.lastWatchedPositionSeconds,_that.addedAt,_that.lastPlayedAt);case _:
+return $default(_that.id,_that.youtubeId,_that.title,_that.channelName,_that.thumbnailUrl,_that.durationSeconds,_that.lastWatchedPositionSeconds,_that.addedAt,_that.lastPlayedAt,_that.isPinned);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -199,10 +200,10 @@ return $default(_that.id,_that.youtubeId,_that.title,_that.channelName,_that.thu
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id,  String youtubeId,  String title,  String channelName,  String thumbnailUrl,  int durationSeconds,  int lastWatchedPositionSeconds,  DateTime addedAt,  DateTime? lastPlayedAt)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id,  String youtubeId,  String title,  String channelName,  String thumbnailUrl,  int durationSeconds,  int lastWatchedPositionSeconds,  DateTime addedAt,  DateTime? lastPlayedAt,  bool isPinned)?  $default,) {final _that = this;
 switch (_that) {
 case _Video() when $default != null:
-return $default(_that.id,_that.youtubeId,_that.title,_that.channelName,_that.thumbnailUrl,_that.durationSeconds,_that.lastWatchedPositionSeconds,_that.addedAt,_that.lastPlayedAt);case _:
+return $default(_that.id,_that.youtubeId,_that.title,_that.channelName,_that.thumbnailUrl,_that.durationSeconds,_that.lastWatchedPositionSeconds,_that.addedAt,_that.lastPlayedAt,_that.isPinned);case _:
   return null;
 
 }
@@ -214,7 +215,7 @@ return $default(_that.id,_that.youtubeId,_that.title,_that.channelName,_that.thu
 
 
 class _Video extends Video {
-  const _Video({required this.id, required this.youtubeId, required this.title, required this.channelName, required this.thumbnailUrl, required this.durationSeconds, required this.lastWatchedPositionSeconds, required this.addedAt, this.lastPlayedAt}): super._();
+  const _Video({required this.id, required this.youtubeId, required this.title, required this.channelName, required this.thumbnailUrl, required this.durationSeconds, required this.lastWatchedPositionSeconds, required this.addedAt, this.lastPlayedAt, this.isPinned = false}): super._();
   
 
 @override final  int id;
@@ -226,6 +227,7 @@ class _Video extends Video {
 @override final  int lastWatchedPositionSeconds;
 @override final  DateTime addedAt;
 @override final  DateTime? lastPlayedAt;
+@override@JsonKey() final  bool isPinned;
 
 /// Create a copy of Video
 /// with the given fields replaced by the non-null parameter values.
@@ -237,16 +239,16 @@ _$VideoCopyWith<_Video> get copyWith => __$VideoCopyWithImpl<_Video>(this, _$ide
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Video&&(identical(other.id, id) || other.id == id)&&(identical(other.youtubeId, youtubeId) || other.youtubeId == youtubeId)&&(identical(other.title, title) || other.title == title)&&(identical(other.channelName, channelName) || other.channelName == channelName)&&(identical(other.thumbnailUrl, thumbnailUrl) || other.thumbnailUrl == thumbnailUrl)&&(identical(other.durationSeconds, durationSeconds) || other.durationSeconds == durationSeconds)&&(identical(other.lastWatchedPositionSeconds, lastWatchedPositionSeconds) || other.lastWatchedPositionSeconds == lastWatchedPositionSeconds)&&(identical(other.addedAt, addedAt) || other.addedAt == addedAt)&&(identical(other.lastPlayedAt, lastPlayedAt) || other.lastPlayedAt == lastPlayedAt));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Video&&(identical(other.id, id) || other.id == id)&&(identical(other.youtubeId, youtubeId) || other.youtubeId == youtubeId)&&(identical(other.title, title) || other.title == title)&&(identical(other.channelName, channelName) || other.channelName == channelName)&&(identical(other.thumbnailUrl, thumbnailUrl) || other.thumbnailUrl == thumbnailUrl)&&(identical(other.durationSeconds, durationSeconds) || other.durationSeconds == durationSeconds)&&(identical(other.lastWatchedPositionSeconds, lastWatchedPositionSeconds) || other.lastWatchedPositionSeconds == lastWatchedPositionSeconds)&&(identical(other.addedAt, addedAt) || other.addedAt == addedAt)&&(identical(other.lastPlayedAt, lastPlayedAt) || other.lastPlayedAt == lastPlayedAt)&&(identical(other.isPinned, isPinned) || other.isPinned == isPinned));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,id,youtubeId,title,channelName,thumbnailUrl,durationSeconds,lastWatchedPositionSeconds,addedAt,lastPlayedAt);
+int get hashCode => Object.hash(runtimeType,id,youtubeId,title,channelName,thumbnailUrl,durationSeconds,lastWatchedPositionSeconds,addedAt,lastPlayedAt,isPinned);
 
 @override
 String toString() {
-  return 'Video(id: $id, youtubeId: $youtubeId, title: $title, channelName: $channelName, thumbnailUrl: $thumbnailUrl, durationSeconds: $durationSeconds, lastWatchedPositionSeconds: $lastWatchedPositionSeconds, addedAt: $addedAt, lastPlayedAt: $lastPlayedAt)';
+  return 'Video(id: $id, youtubeId: $youtubeId, title: $title, channelName: $channelName, thumbnailUrl: $thumbnailUrl, durationSeconds: $durationSeconds, lastWatchedPositionSeconds: $lastWatchedPositionSeconds, addedAt: $addedAt, lastPlayedAt: $lastPlayedAt, isPinned: $isPinned)';
 }
 
 
@@ -257,7 +259,7 @@ abstract mixin class _$VideoCopyWith<$Res> implements $VideoCopyWith<$Res> {
   factory _$VideoCopyWith(_Video value, $Res Function(_Video) _then) = __$VideoCopyWithImpl;
 @override @useResult
 $Res call({
- int id, String youtubeId, String title, String channelName, String thumbnailUrl, int durationSeconds, int lastWatchedPositionSeconds, DateTime addedAt, DateTime? lastPlayedAt
+ int id, String youtubeId, String title, String channelName, String thumbnailUrl, int durationSeconds, int lastWatchedPositionSeconds, DateTime addedAt, DateTime? lastPlayedAt, bool isPinned
 });
 
 
@@ -274,7 +276,7 @@ class __$VideoCopyWithImpl<$Res>
 
 /// Create a copy of Video
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? youtubeId = null,Object? title = null,Object? channelName = null,Object? thumbnailUrl = null,Object? durationSeconds = null,Object? lastWatchedPositionSeconds = null,Object? addedAt = null,Object? lastPlayedAt = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? youtubeId = null,Object? title = null,Object? channelName = null,Object? thumbnailUrl = null,Object? durationSeconds = null,Object? lastWatchedPositionSeconds = null,Object? addedAt = null,Object? lastPlayedAt = freezed,Object? isPinned = null,}) {
   return _then(_Video(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int,youtubeId: null == youtubeId ? _self.youtubeId : youtubeId // ignore: cast_nullable_to_non_nullable
@@ -285,7 +287,8 @@ as String,durationSeconds: null == durationSeconds ? _self.durationSeconds : dur
 as int,lastWatchedPositionSeconds: null == lastWatchedPositionSeconds ? _self.lastWatchedPositionSeconds : lastWatchedPositionSeconds // ignore: cast_nullable_to_non_nullable
 as int,addedAt: null == addedAt ? _self.addedAt : addedAt // ignore: cast_nullable_to_non_nullable
 as DateTime,lastPlayedAt: freezed == lastPlayedAt ? _self.lastPlayedAt : lastPlayedAt // ignore: cast_nullable_to_non_nullable
-as DateTime?,
+as DateTime?,isPinned: null == isPinned ? _self.isPinned : isPinned // ignore: cast_nullable_to_non_nullable
+as bool,
   ));
 }
 
