@@ -274,7 +274,10 @@ class PlaylistRepositoryImpl implements PlaylistRepository {
         (v) => v.youtubeId == video.youtubeId,
       );
       if (alreadyLinked) {
-        return;
+        throw const VideoException(
+          'Video already in playlist',
+          code: 'already_exists',
+        );
       }
 
       // A playlist owns its own video row. The same YouTube video may exist
@@ -285,7 +288,7 @@ class PlaylistRepositoryImpl implements PlaylistRepository {
       playlist.videoCount = playlist.videos.length;
       playlistBox.put(playlist);
     } catch (e, st) {
-      if (e is DatabaseException) rethrow;
+      if (e is DatabaseException || e is VideoException) rethrow;
       appLogger.handle(
         e,
         st,
@@ -325,6 +328,20 @@ class PlaylistRepositoryImpl implements PlaylistRepository {
     final videoId = YoutubeUrlParser.extractVideoId(videoUrl);
     if (videoId == null) {
       throw const VideoException('Invalid YouTube URL', code: 'invalidUrl');
+    }
+
+    // Check if video is already in playlist before making API call
+    final playlist = playlistBox.get(playlistId);
+    if (playlist == null) {
+      throw DatabaseException('Playlist $playlistId not found');
+    }
+
+    final alreadyLinked = playlist.videos.any((v) => v.youtubeId == videoId);
+    if (alreadyLinked) {
+      throw const VideoException(
+        'Video already in playlist',
+        code: 'already_exists',
+      );
     }
 
     final data = await apiService.fetchVideoDetails(videoId);

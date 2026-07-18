@@ -1,7 +1,7 @@
 import 'package:equatable/equatable.dart';
 import 'package:levelup_tube/src/features/playlist/models/playlist_model.dart';
 
-abstract class SettingsState extends Equatable {
+sealed class SettingsState extends Equatable {
   const SettingsState();
 }
 

@@ -40,6 +40,11 @@ final class PlaylistDetailLoading extends PlaylistDetailState {
   const PlaylistDetailLoading();
 }
 
+// adding success state
+final class PlaylistDetailAddSuccess extends PlaylistDetailState {
+  const PlaylistDetailAddSuccess();
+}
+
 final class PlaylistDetailEmpty extends PlaylistDetailState {
   const PlaylistDetailEmpty(this.playlist);
   final PlaylistModel playlist;

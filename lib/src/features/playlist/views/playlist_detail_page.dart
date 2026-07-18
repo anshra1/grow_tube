@@ -78,6 +78,8 @@ class _PlaylistDetailContent extends StatelessWidget {
             ),
             PlaylistDetailLoaded() => _LoadedPlaylistBody(),
             PlaylistDetailError(:final message) => Center(child: Text(message)),
+            // TODO: Handle this case.
+            PlaylistDetailAddSuccess() => throw UnimplementedError(),
           };
         },
       ),

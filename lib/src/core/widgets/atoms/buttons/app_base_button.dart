@@ -122,8 +122,32 @@ class AppBaseButton extends StatelessWidget {
             padding: effectivePadding,
             shape: effectiveShape,
           ).copyWith(
-            backgroundColor: resolveColor(backgroundColor),
-            foregroundColor: resolveColor(foregroundColor),
+            backgroundColor: WidgetStateProperty.resolveWith((states) {
+              if (states.contains(WidgetState.disabled)) {
+                // Gray out background when disabled
+                final theme = Theme.of(context);
+                return theme.colorScheme.onSurface.withOpacity(0.12);
+              }
+              // Use provided background color when enabled
+              if (backgroundColor is Color) return backgroundColor as Color;
+              if (backgroundColor is WidgetStateProperty<Color?>) {
+                return (backgroundColor as WidgetStateProperty<Color?>).resolve(states);
+              }
+              return null;
+            }),
+            foregroundColor: WidgetStateProperty.resolveWith((states) {
+              if (states.contains(WidgetState.disabled)) {
+                // Gray out text when disabled
+                final theme = Theme.of(context);
+                return theme.colorScheme.onSurface.withOpacity(0.38);
+              }
+              // Use provided foreground color when enabled
+              if (foregroundColor is Color) return foregroundColor as Color;
+              if (foregroundColor is WidgetStateProperty<Color?>) {
+                return (foregroundColor as WidgetStateProperty<Color?>).resolve(states);
+              }
+              return null;
+            }),
             side: resolveBorder(borderSide),
           ),
       child: isLoading ? _buildLoadingIndicator(context) : _buildContent(),

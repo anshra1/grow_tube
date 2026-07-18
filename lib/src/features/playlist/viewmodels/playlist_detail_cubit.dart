@@ -133,6 +133,18 @@ class PlaylistDetailCubit extends Cubit<PlaylistDetailState> {
     }
   }
 
+  // add video to playlist
+  Future<void> addVideoToPlaylist(int playlistId, String url) async {
+    emit(const PlaylistDetailLoading());
+
+    try {
+      await _repository.addVideoToPlaylist(playlistId, url);
+      emit(const PlaylistDetailAddSuccess());
+    } on Exception catch (e) {
+      emit(PlaylistDetailError(_exceptionMessage(e)));
+    }
+  }
+
   /// Add a video to this playlist (or to library if it's the default playlist).
   Future<void> addVideo(String url) async {
     try {
@@ -163,13 +175,14 @@ class PlaylistDetailCubit extends Cubit<PlaylistDetailState> {
       if (currentState is PlaylistDetailLoaded &&
           currentState.videosState.videos.isNotEmpty) {
         // The new video should be first since we sort by addedAt desc
-     await   selectVideo(currentState.videosState.videos.first);
+        await selectVideo(currentState.videosState.videos.first);
       }
     } on Exception catch (e) {
       emit(PlaylistDetailError(_exceptionMessage(e)));
       await loadPlaylist(); // Recover UI
     }
   }
+
   // Set video as pinned or not.
   // ignore: avoid_positional_boolean_parameters
   Future<void> setVideoPinned(int videoId, bool isPinned) async {
