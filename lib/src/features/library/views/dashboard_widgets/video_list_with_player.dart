@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:levelup_tube/src/core/extensions/context_extensions.dart';
 import 'package:levelup_tube/src/features/library/models/video.dart';
-import 'package:levelup_tube/src/features/library/views/widgets/dashboard_video_list.dart';
-import 'package:levelup_tube/src/features/library/views/widgets/dashboard_video_list_shimmer.dart';
-import 'package:levelup_tube/src/features/library/views/widgets/dashboard_video_player.dart';
+import 'package:levelup_tube/src/features/library/views/dashboard_widgets/dashboard_video_list.dart';
+import 'package:levelup_tube/src/features/library/views/dashboard_widgets/dashboard_video_list_shimmer.dart';
+import 'package:levelup_tube/src/features/library/views/dashboard_widgets/dashboard_video_player.dart';
 import 'package:shimmer/shimmer.dart';
 
 class VideoListWithPlayer extends StatelessWidget {

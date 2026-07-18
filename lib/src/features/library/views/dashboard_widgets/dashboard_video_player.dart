@@ -35,6 +35,7 @@ class DashboardVideoPlayer extends StatefulWidget {
 
 class _DashboardVideoPlayerState extends State<DashboardVideoPlayer>
     with SingleTickerProviderStateMixin {
+      
   YoutubePlayerController? _controller;
   late FullscreenVideoCubit _fullscreenVideoCubit;
   StreamSubscription<YoutubePlayerValue>? _errorSubscription;

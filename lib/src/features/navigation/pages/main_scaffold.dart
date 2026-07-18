@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:levelup_tube/src/core/mixins/clipboard_monitor_mixin.dart';
-import 'package:levelup_tube/src/features/library/views/widgets/clipboard_playlist_prompt.dart';
-import 'package:levelup_tube/src/features/library/views/widgets/clipboard_video_prompt.dart';
+import 'package:levelup_tube/src/features/library/views/dashboard_widgets/clipboard_playlist_prompt.dart';
+import 'package:levelup_tube/src/features/library/views/dashboard_widgets/clipboard_video_prompt.dart';
 import 'package:levelup_tube/src/features/navigation/cubit/fullscreen_video_cubit.dart';
 import 'package:levelup_tube/src/features/playlist/viewmodels/playlist_detail_cubit.dart';
 import 'package:levelup_tube/src/features/settings/viewmodels/setting_state.dart';
@@ -96,7 +96,7 @@ class _MainScaffoldState extends State<MainScaffold>
 
   void _onDestinationSelected(int index) {
     if (index == 3) {
-      context.read<SettingsCubit>().loadSettings();
+      context.read<SettingsCubit>().loadAllPlaylist();
     }
     // For all tabs, switch the shell branch preserving navigator state.
     widget.navigationShell.goBranch(
@@ -128,8 +128,7 @@ class _MainScaffoldState extends State<MainScaffold>
     return BlocListener<SettingsCubit, SettingsState>(
       // Only react when the loaded default playlist ID actually changes.
       listenWhen: (previous, current) {
-        if (previous is SettingsLoadedState &&
-            current is SettingsLoadedState) {
+        if (previous is SettingsLoadedState && current is SettingsLoadedState) {
           return previous.defaultPlaylistId != current.defaultPlaylistId;
         }
         return false;

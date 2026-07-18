@@ -23,7 +23,7 @@ class _SettingsPageState extends State<SettingsPage> {
   @override
   void initState() {
     super.initState();
-    context.read<SettingsCubit>().loadSettings();
+    context.read<SettingsCubit>().loadAllPlaylist();
   }
 
   Future<void> _handlePrivacyTap() async {

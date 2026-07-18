@@ -9,7 +9,7 @@ class SettingsCubit extends Cubit<SettingsState> {
 
   final PlaylistRepository _repository;
 
-  Future<void> loadSettings() async {
+  Future<void> loadAllPlaylist() async {
     emit(const SettingsLoadingState());
     try {
       final playlists = await _repository.getAllPlaylists();
