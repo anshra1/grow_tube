@@ -113,11 +113,11 @@ class AppBaseButton extends StatelessWidget {
       }
     }
 
-    return ElevatedButton(
+    return FilledButton(
       onPressed: effectiveOnPressed,
       focusNode: focusNode,
       style:
-          ElevatedButton.styleFrom(
+          FilledButton.styleFrom(
             elevation: effectiveElevation,
             padding: effectivePadding,
             shape: effectiveShape,

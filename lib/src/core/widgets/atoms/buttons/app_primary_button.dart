@@ -13,8 +13,8 @@ class AppPrimaryButton extends StatelessWidget {
     this.leading,
     this.trailing,
     this.state = AppButtonState.enabled,
-    this.shape = AppButtonShape.rounded,
-    this.elevation = 2.0,
+    this.shape = AppButtonShape.pill,
+    this.elevation = 0.0,
     this.borderRadius,
     this.padding,
   });

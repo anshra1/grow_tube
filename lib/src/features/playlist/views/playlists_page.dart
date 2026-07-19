@@ -11,8 +11,8 @@ import 'package:levelup_tube/src/features/playlist/models/playlist_model.dart';
 import 'package:levelup_tube/src/features/playlist/viewmodels/playlist_cubit.dart';
 import 'package:levelup_tube/src/features/playlist/viewmodels/playlist_state.dart';
 import 'package:levelup_tube/src/features/playlist/views/edit_playlist_page.dart';
-import 'package:levelup_tube/src/features/playlist/views/widgets/add_playlist_bottom_sheet.dart';
-import 'package:levelup_tube/src/features/playlist/views/widgets/playlist_card.dart';
+import 'package:levelup_tube/src/features/playlist/views/playlist_page_widgets/add_playlist_bottom_sheet.dart';
+import 'package:levelup_tube/src/features/playlist/views/playlist_page_widgets/playlist_card.dart';
 import 'package:toastification/toastification.dart';
 
 class PlaylistsPage extends StatelessWidget {
