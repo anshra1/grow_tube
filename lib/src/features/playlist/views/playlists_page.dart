@@ -184,7 +184,7 @@ class _PlaylistsPageContent extends StatelessWidget {
                     context,
                     MaterialPageRoute<void>(
                       builder: (_) =>
-                          EditPlaylistPage(playlistId: playlist.id),
+                          EditPlaylistPage(playlistModel: playlist),
                     ),
                   );
                 },

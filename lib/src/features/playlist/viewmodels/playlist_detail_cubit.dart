@@ -133,7 +133,7 @@ class PlaylistDetailCubit extends Cubit<PlaylistDetailState> {
     }
   }
 
-  // add video to playlist
+  // add video to playlist only for add video  
   Future<void> addVideoToPlaylist(int playlistId, String url) async {
     emit(const PlaylistDetailLoading());
 

@@ -38,49 +38,51 @@ class VideoListWithPlayer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        const SizedBox(height: 8),
-        // Hero Player
-        Padding(
-          padding: heroPadding,
-          child: isLoading
-              ? AspectRatio(
-                  aspectRatio: 16 / 9,
-                  child: Shimmer.fromColors(
-                    baseColor: context.colorScheme.surfaceContainerHighest,
-                    highlightColor: context.colorScheme.surfaceContainer,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: context.colorScheme.surface,
-                        borderRadius: heroShimmerRadius,
+    return SafeArea(
+      child: Column(
+        children: [
+          const SizedBox(height: 8),
+          // Hero Player
+          Padding(
+            padding: heroPadding,
+            child: isLoading
+                ? AspectRatio(
+                    aspectRatio: 16 / 9,
+                    child: Shimmer.fromColors(
+                      baseColor: context.colorScheme.surfaceContainerHighest,
+                      highlightColor: context.colorScheme.surfaceContainer,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: context.colorScheme.surface,
+                          borderRadius: heroShimmerRadius,
+                        ),
                       ),
                     ),
+                  )
+                : heroVideo != null
+                ? DashboardVideoPlayer(
+                    video: heroVideo!,
+                    forcePlayTimestamp: forcePlayTimestamp,
+                    onProgressUpdate: onProgressUpdate,
+                  )
+                : const SizedBox.shrink(),
+          ),
+          const SizedBox(height: 16),
+          // Video List
+          Expanded(
+            child: isLoading
+                ? const DashboardVideoListShimmer()
+                : isEmpty
+                ? emptyWidget ?? const SizedBox.shrink()
+                : DashboardVideoList(
+                    videos: videos,
+                    onVideoTap: onVideoTap,
+                    onVideoLongPress: onVideoLongPress,
+                    onOptionsTap: onOptionsTap,
                   ),
-                )
-              : heroVideo != null
-              ? DashboardVideoPlayer(
-                  video: heroVideo!,
-                  forcePlayTimestamp: forcePlayTimestamp,
-                  onProgressUpdate: onProgressUpdate,
-                )
-              : const SizedBox.shrink(),
-        ),
-        const SizedBox(height: 16),
-        // Video List
-        Expanded(
-          child: isLoading
-              ? const DashboardVideoListShimmer()
-              : isEmpty
-              ? emptyWidget ?? const SizedBox.shrink()
-              : DashboardVideoList(
-                  videos: videos,
-                  onVideoTap: onVideoTap,
-                  onVideoLongPress: onVideoLongPress,
-                  onOptionsTap: onOptionsTap,
-                ),
-        ),
-      ],
+          ),
+        ],
+      ),
     );
   }
 }

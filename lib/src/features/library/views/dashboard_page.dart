@@ -59,6 +59,7 @@ class _DashboardContent extends StatelessWidget {
       ),
     );
   }
+  
 
   void _showVideoOptionsBottomSheet(BuildContext context, Video video) {
     final cubit = context.read<PlaylistDetailCubit>();
@@ -161,6 +162,7 @@ class _DashboardContent extends StatelessWidget {
       ),
     );
   }
+
 }
 
 class _LoadedDashboardBody extends StatelessWidget {
