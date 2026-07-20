@@ -139,7 +139,12 @@ class PlaylistDetailCubit extends Cubit<PlaylistDetailState> {
   /// The progress is saved to this playlist's own video row and UI is updated in real-time.
   Future<void> updateProgress(int playlistVideoId, int positionSeconds) async {
     try {
-      await _repository.updateVideoProgress(playlistVideoId, positionSeconds);
+      final isCurrentHero = _selectedHeroId == playlistVideoId;
+      await _repository.updateVideoProgress(
+        playlistVideoId, 
+        positionSeconds,
+        updateLastPlayed: isCurrentHero,
+      );
 
       // Debouncing logic: Only update UI if:
       // 1. At least 2 seconds have passed since last emit, OR
@@ -160,7 +165,7 @@ class PlaylistDetailCubit extends Cubit<PlaylistDetailState> {
             if (video.id == playlistVideoId) {
               return video.copyWith(
                 lastWatchedPositionSeconds: positionSeconds,
-                lastPlayedAt: DateTime.now(),
+                lastPlayedAt: isCurrentHero ? DateTime.now() : video.lastPlayedAt,
               );
             }
             return video;

@@ -37,7 +37,7 @@ abstract class PlaylistRepository {
   Future<void> addVideoToPlaylist(int playlistId, String videoUrl);
 
   /// Updates the watch progress for one playlist-owned video row.
-  Future<void> updateVideoProgress(int playlistVideoId, int positionSeconds);
+  Future<void> updateVideoProgress(int playlistVideoId, int positionSeconds, {bool updateLastPlayed = true});
 
   /// Retrieves the default "My Library" playlist, creating it if it doesn't exist yet.
   Future<PlaylistModel> getOrCreateDefaultLibrary();
@@ -361,8 +361,9 @@ class PlaylistRepositoryImpl implements PlaylistRepository {
   @override
   Future<void> updateVideoProgress(
     int playlistVideoId,
-    int positionSeconds,
-  ) async {
+    int positionSeconds, {
+    bool updateLastPlayed = true,
+  }) async {
     try {
       appLogger.debug('PlaylistRepository: Updating progress for video $playlistVideoId to $positionSeconds seconds');
       
@@ -371,9 +372,10 @@ class PlaylistRepositoryImpl implements PlaylistRepository {
       if (video != null) {
         appLogger.debug('PlaylistRepository: Found video - youtubeId: ${video.youtubeId}, old position: ${video.lastWatchedPositionSeconds}');
         
-        video
-          ..lastWatchedPositionSeconds = positionSeconds
-          ..lastPlayedAt = DateTime.now();
+        video.lastWatchedPositionSeconds = positionSeconds;
+        if (updateLastPlayed) {
+          video.lastPlayedAt = DateTime.now();
+        }
         videoBox.put(video);
         
         appLogger.debug('PlaylistRepository: Progress saved successfully for video $playlistVideoId');
