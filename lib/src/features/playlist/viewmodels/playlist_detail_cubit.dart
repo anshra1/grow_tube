@@ -15,6 +15,10 @@ class PlaylistDetailCubit extends Cubit<PlaylistDetailState> {
   /// Tracks which video the user explicitly selected as hero.
   int? _selectedHeroId;
 
+  /// Debouncing variables to prevent excessive state emissions
+  DateTime _lastProgressEmit = DateTime.now();
+  int _lastEmittedPosition = 0;
+
   /// If true, we're managing the default library playlist
   bool get _isDefaultLibrary => playlistId == null;
 
@@ -107,15 +111,51 @@ class PlaylistDetailCubit extends Cubit<PlaylistDetailState> {
   }
 
   /// Save watch progress (called by the player's heartbeat).
-  /// The progress is saved to this playlist's own video row.
+  /// The progress is saved to this playlist's own video row and UI is updated in real-time.
   Future<void> updateProgress(int playlistVideoId, int positionSeconds) async {
     try {
       await _repository.updateVideoProgress(playlistVideoId, positionSeconds);
+
+      // Debouncing logic: Only update UI if:
+      // 1. At least 2 seconds have passed since last emit, OR
+      // 2. Progress changed by at least 30 seconds (significant jump)
+      final now = DateTime.now();
+      final timeSinceLastEmit = now.difference(_lastProgressEmit).inSeconds;
+      final positionDiff = (positionSeconds - _lastEmittedPosition).abs();
+
+      if (timeSinceLastEmit >= 2 || positionDiff >= 30) {
+        _lastProgressEmit = now;
+        _lastEmittedPosition = positionSeconds;
+
+        // Update UI state without reloading playlist
+        final currentState = state;
+        if (currentState is PlaylistDetailLoaded) {
+          // Find and update the specific video
+          final updatedVideos = currentState.videosState.videos.map((video) {
+            if (video.id == playlistVideoId) {
+              return video.copyWith(
+                lastWatchedPositionSeconds: positionSeconds,
+                lastPlayedAt: DateTime.now(),
+              );
+            }
+            return video;
+          }).toList();
+
+          // Emit new state with updated videos
+          emit(
+            PlaylistDetailLoaded(
+              videosState: PlaylistVideosState(
+                playlist: currentState.videosState.playlist,
+                videos: updatedVideos,
+              ),
+              heroVideoState: currentState.heroVideoState,
+            ),
+          );
+        }
+      }
     } on Exception catch (_) {
       // Progress save runs in the background, ignore errors to not interrupt UI
     }
-    // Don't reload playlist here — that would reset the player.
-    // Progress is silently saved and will be visible when playlist reloads.
   }
 
   /// Remove a video from this playlist (or from library if it's the default playlist).
@@ -133,7 +173,7 @@ class PlaylistDetailCubit extends Cubit<PlaylistDetailState> {
     }
   }
 
-  // add video to playlist only for add video  
+  // add video to playlist only for add video
   Future<void> addVideoToPlaylist(int playlistId, String url) async {
     emit(const PlaylistDetailLoading());
 

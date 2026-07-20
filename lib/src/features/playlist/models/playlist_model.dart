@@ -9,6 +9,7 @@ class PlaylistModel {
     this.id = 0,
     this.youtubePlaylistId,
     this.thumbnailUrl,
+    this.localThumbnailPath,
     this.description,
     this.videoCount = 0,
     this.isSystemDefault = false,
@@ -28,6 +29,9 @@ class PlaylistModel {
 
   /// Cached thumbnail URL — first video's thumbnail or YouTube playlist thumbnail.
   String? thumbnailUrl;
+
+  /// Local file path for custom playlist thumbnail.
+  String? localThumbnailPath;
 
   /// Optional description from YouTube or user.
   String? description;

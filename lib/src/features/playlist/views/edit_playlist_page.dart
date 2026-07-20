@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:levelup_tube/src/core/design_system/app_sizes.dart';
@@ -6,11 +8,36 @@ import 'package:levelup_tube/src/core/widgets/template/app_scaffold.dart';
 import 'package:levelup_tube/src/features/playlist/models/playlist_model.dart';
 import 'package:levelup_tube/src/features/playlist/views/edit_playlist_page_widgets/edit_icon_widget.dart';
 import 'package:levelup_tube/src/features/playlist/views/edit_playlist_page_widgets/thumbnail_widget.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:uuid/uuid.dart';
 
-class EditPlaylistPage extends StatelessWidget {
+class EditPlaylistPage extends StatefulWidget {
   const EditPlaylistPage({required this.playlistModel, super.key});
 
   final PlaylistModel playlistModel;
+
+  @override
+  State<EditPlaylistPage> createState() => _EditPlaylistPageState();
+}
+
+class _EditPlaylistPageState extends State<EditPlaylistPage> {
+  int? imageFilePath;
+
+
+
+Future<String> saveImageToLocalStorage(File imageFile) async {
+  final directory = await getApplicationDocumentsDirectory();
+  final uuid = const Uuid().v4();
+  final filePath = '${directory.path}/thumbnails/$uuid.jpg';
+
+  // Create directory if it doesn't exist
+  final file = File(filePath);
+  await file.parent.create(recursive: true);
+
+  // Copy the image file to the new path
+  await imageFile.copy(filePath);
+  return filePath;
+}
 
   @override
   Widget build(BuildContext context) {
@@ -29,7 +56,7 @@ class EditPlaylistPage extends StatelessWidget {
             Stack(
               children: [
                 // Thumbnail with placeholder
-                ThumbnailWidget(playlistModel: playlistModel),
+                ThumbnailWidget(playlistModel: widget.playlistModel),
                 // Edit icon in bottom-right
                 Positioned(
                   bottom: 8,
@@ -53,7 +80,8 @@ class EditPlaylistPage extends StatelessWidget {
             ),
             const Gap(32),
             AppPrimaryButton(
-              onPressed: () {                 // Handle save action
+              onPressed: () {
+                // Handle save action
               },
               child: const Text('Save'),
             ),
