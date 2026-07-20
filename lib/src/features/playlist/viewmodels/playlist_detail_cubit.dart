@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:levelup_tube/main.dart';
 import 'package:levelup_tube/src/core/error/exception.dart';
 import 'package:levelup_tube/src/features/library/models/video.dart';
 import 'package:levelup_tube/src/features/playlist/repositories/playlist_repository.dart';
@@ -30,14 +31,24 @@ class PlaylistDetailCubit extends Cubit<PlaylistDetailState> {
       final playlist = _isDefaultLibrary
           ? await _repository.getDefaultLibrary()
           : await _repository.getPlaylist(playlistId!);
+
       if (playlist == null) {
         emit(const PlaylistDetailError('Playlist not found.'));
         return;
       }
 
       // Convert VideoModel → Video entity for UI consumption
-      final normalVideos = playlist.videos.map((m) => m.toEntity()).toList()
-        ..sort((a, b) => b.addedAt.compareTo(a.addedAt));
+      final normalVideos = playlist.videos.map((m) {
+        final entity = m.toEntity();
+        talker.debug(
+          'PlaylistDetailCubit: Loaded video - '
+          'id: ${entity.id}, '
+          'youtubeId: ${entity.youtubeId}, '
+          'lastWatchedPositionSeconds: ${entity.lastWatchedPositionSeconds}, '
+          'lastPlayedAt: ${entity.lastPlayedAt}',
+        );
+        return entity;
+      }).toList()..sort((a, b) => b.addedAt.compareTo(a.addedAt));
 
       if (normalVideos.isEmpty) {
         emit(PlaylistDetailEmpty(playlist));
@@ -95,11 +106,25 @@ class PlaylistDetailCubit extends Cubit<PlaylistDetailState> {
       // Check if this is the same video as current hero
       final isSameVideo = currentState.heroVideoState.heroVideo?.id == video.id;
 
+      // Update the in-memory video state with new lastPlayedAt
+      final updatedVideos = currentState.videosState.videos.map((v) {
+        if (v.id == video.id) {
+          return v.copyWith(lastPlayedAt: DateTime.now());
+        }
+        return v;
+      }).toList();
+
+      // Also update the hero video with new lastPlayedAt
+      final updatedHeroVideo = video.copyWith(lastPlayedAt: DateTime.now());
+
       emit(
         PlaylistDetailLoaded(
-          videosState: currentState.videosState,
+          videosState: PlaylistVideosState(
+            playlist: currentState.videosState.playlist,
+            videos: updatedVideos,
+          ),
           heroVideoState: HeroVideoState(
-            heroVideo: video,
+            heroVideo: updatedHeroVideo,
             // Only set forcePlayTimestamp if tapping the same video
             forcePlayTimestamp: isSameVideo
                 ? DateTime.now().millisecondsSinceEpoch

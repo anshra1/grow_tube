@@ -364,13 +364,21 @@ class PlaylistRepositoryImpl implements PlaylistRepository {
     int positionSeconds,
   ) async {
     try {
+      appLogger.debug('PlaylistRepository: Updating progress for video $playlistVideoId to $positionSeconds seconds');
+      
       final video = videoBox.get(playlistVideoId);
 
       if (video != null) {
+        appLogger.debug('PlaylistRepository: Found video - youtubeId: ${video.youtubeId}, old position: ${video.lastWatchedPositionSeconds}');
+        
         video
           ..lastWatchedPositionSeconds = positionSeconds
           ..lastPlayedAt = DateTime.now();
         videoBox.put(video);
+        
+        appLogger.debug('PlaylistRepository: Progress saved successfully for video $playlistVideoId');
+      } else {
+        appLogger.debug('PlaylistRepository: Video $playlistVideoId not found');
       }
     } on Exception catch (e, st) {
       appLogger.handle(

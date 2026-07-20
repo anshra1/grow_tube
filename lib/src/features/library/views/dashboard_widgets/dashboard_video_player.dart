@@ -12,7 +12,6 @@ import 'package:levelup_tube/src/features/connectivity/presentation/bloc/connect
 import 'package:levelup_tube/src/features/library/models/video.dart';
 import 'package:levelup_tube/src/features/navigation/cubit/fullscreen_video_cubit.dart';
 import 'package:levelup_tube/src/features/playlist/viewmodels/playlist_detail_cubit.dart';
-import 'package:talker_flutter/talker_flutter.dart';
 import 'package:toastification/toastification.dart';
 import 'package:youtube_player_iframe/youtube_player_iframe.dart';
 
@@ -35,7 +34,6 @@ class DashboardVideoPlayer extends StatefulWidget {
 
 class _DashboardVideoPlayerState extends State<DashboardVideoPlayer>
     with SingleTickerProviderStateMixin {
-      
   YoutubePlayerController? _controller;
   late FullscreenVideoCubit _fullscreenVideoCubit;
   StreamSubscription<YoutubePlayerValue>? _errorSubscription;
@@ -84,10 +82,9 @@ class _DashboardVideoPlayerState extends State<DashboardVideoPlayer>
           ? 0.0
           : widget.video.lastWatchedPositionSeconds.toDouble();
 
-      talker.log(
+      talker.info(
         'VideoPlayer: Switching to video ${widget.video.youtubeId} '
         '(startPos: $startPos)',
-        logLevel: LogLevel.info,
       );
 
       // User explicitly tapped a video → auto-play it.
@@ -146,10 +143,18 @@ class _DashboardVideoPlayerState extends State<DashboardVideoPlayer>
       // Simply unpause
       await _controller!.playVideo();
     } else {
-      // Broken state (unknown/unstarted)
+      // Broken state (unknown/unstarted) - load from saved position
+      final startPos = widget.video.isCompleted
+          ? 0.0
+          : widget.video.lastWatchedPositionSeconds.toDouble();
+
+      talker.info(
+        'VideoPlayer: Reloading from unknown state with startPos: $startPos',
+      );
+
       await _controller!.loadVideoById(
         videoId: widget.video.youtubeId,
-        startSeconds: 0,
+        startSeconds: startPos,
       );
     }
   }
@@ -185,14 +190,21 @@ class _DashboardVideoPlayerState extends State<DashboardVideoPlayer>
   }
 
   void _initializeController() {
+    talker.info(
+      'VideoPlayer: Video details - '
+      'id: ${widget.video.id}, '
+      'youtubeId: ${widget.video.youtubeId}, '
+      'lastWatchedPositionSeconds: ${widget.video.lastWatchedPositionSeconds}, '
+      'isCompleted: ${widget.video.isCompleted}',
+    );
+
     final startPos = widget.video.isCompleted
         ? 0.0
         : widget.video.lastWatchedPositionSeconds.toDouble();
 
-    talker.log(
+    talker.info(
       'VideoPlayer: Initializing with video ${widget.video.youtubeId} '
       '(startPos: $startPos)',
-      logLevel: LogLevel.info,
     );
 
     final controller = YoutubePlayerController(
@@ -211,12 +223,22 @@ class _DashboardVideoPlayerState extends State<DashboardVideoPlayer>
       startSeconds: startPos,
     );
 
-    _errorSubscription = controller.listen((value) {
+    _errorSubscription = controller.listen((value) async {
       if (value.error != YoutubeError.none) {
         talker.error(
           'VideoPlayer: YouTube error ${value.error.code} '
           '(${value.error.name}) for video ${widget.video.youtubeId}',
         );
+      }
+
+      // Log player state and position for debugging
+      try {
+        final position = await controller.currentTime;
+        talker.debug(
+          'VideoPlayer: State: ${value.playerState}, Current position: ${position}',
+        );
+      } catch (e) {
+        // Ignore errors getting position
       }
     });
   }
