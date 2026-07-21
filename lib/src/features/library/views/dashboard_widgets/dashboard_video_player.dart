@@ -224,6 +224,14 @@ class _DashboardVideoPlayerState extends State<DashboardVideoPlayer>
     );
 
     _errorSubscription = controller.listen((value) async {
+      // --- ADDED EXPLICIT PRINTS TO SEE WHAT WE GET ---
+      print('====== YOUTUBE PLAYER UPDATE ======');
+      print('Error Code: ${value.error.code} | Name: ${value.error.name}');
+      print('Player State: ${value.playerState.name}');
+      print('Video Title: ${value.metaData.title}');
+      print('Video ID: ${value.metaData.videoId}');
+      print('===================================');
+
       if (value.error != YoutubeError.none) {
         talker.error(
           'VideoPlayer: YouTube error ${value.error.code} '
@@ -238,7 +246,7 @@ class _DashboardVideoPlayerState extends State<DashboardVideoPlayer>
           'VideoPlayer: State: ${value.playerState}, Current position: $position',
         );
       } catch (e) {
-        // Ignore errors getting position
+        print('Error getting position: $e');
       }
     });
   }

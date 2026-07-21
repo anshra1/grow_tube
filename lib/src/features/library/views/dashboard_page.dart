@@ -9,6 +9,9 @@ import 'package:levelup_tube/src/features/library/views/dashboard_widgets/dashbo
 import 'package:levelup_tube/src/features/library/views/dashboard_widgets/video_list_with_player.dart';
 import 'package:levelup_tube/src/features/playlist/viewmodels/playlist_detail_cubit.dart';
 import 'package:levelup_tube/src/features/playlist/viewmodels/playlist_detail_state.dart';
+import 'package:levelup_tube/src/features/settings/viewmodels/setting_state.dart';
+import 'package:levelup_tube/src/features/settings/viewmodels/settings_cubit.dart';
+import 'package:levelup_tube/src/core/widgets/molecules/custom_alert_dialog.dart';
 import 'package:toastification/toastification.dart';
 
 class DashboardPage extends StatelessWidget {
@@ -26,20 +29,35 @@ class _DashboardContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cubit = context.read<PlaylistDetailCubit>();
-    return BlocListener<PlaylistDetailCubit, PlaylistDetailState>(
-      listener: (context, state) {
-        if (state is PlaylistDetailError) {
-          toastification.show(
-            context: context,
-            type: ToastificationType.error,
-            style: ToastificationStyle.flatColored,
-            title: const Text(AppStrings.dashboardError),
-            description: Text(state.message),
-            autoCloseDuration: const Duration(seconds: 2),
-            alignment: Alignment.bottomCenter,
-          );
-        }
-      },
+    return MultiBlocListener(
+      listeners: [
+        BlocListener<SettingsCubit, SettingsState>(
+          listenWhen: (previous, current) {
+            if (previous is SettingsLoadedState && current is SettingsLoadedState) {
+              return previous.defaultPlaylistId != current.defaultPlaylistId;
+            }
+            return previous is! SettingsLoadedState && current is SettingsLoadedState;
+          },
+          listener: (context, state) {
+            context.read<PlaylistDetailCubit>().onDefaultPlaylistChanged();
+          },
+        ),
+        BlocListener<PlaylistDetailCubit, PlaylistDetailState>(
+          listener: (context, state) {
+            if (state is PlaylistDetailError) {
+              toastification.show(
+                context: context,
+                type: ToastificationType.error,
+                style: ToastificationStyle.flatColored,
+                title: const Text(AppStrings.dashboardError),
+                description: Text(state.message),
+                autoCloseDuration: const Duration(seconds: 2),
+                alignment: Alignment.bottomCenter,
+              );
+            }
+          },
+        ),
+      ],
       child: BlocBuilder<PlaylistDetailCubit, PlaylistDetailState>(
         builder: (context, state) {
           return switch (state) {
@@ -59,7 +77,6 @@ class _DashboardContent extends StatelessWidget {
       ),
     );
   }
-  
 
   void _showVideoOptionsBottomSheet(BuildContext context, Video video) {
     final cubit = context.read<PlaylistDetailCubit>();
@@ -71,9 +88,7 @@ class _DashboardContent extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             ListTile(
-              leading: Icon(
-                video.isPinned ? Icons.push_pin_outlined : Icons.push_pin,
-              ),
+              leading: Icon(video.isPinned ? Icons.push_pin_outlined : Icons.push_pin),
               title: Text(video.isPinned ? 'Unpin' : 'Pin'),
               onTap: () {
                 Navigator.pop(bottomSheetContext);
@@ -98,19 +113,8 @@ class _DashboardContent extends StatelessWidget {
     final cubit = context.read<PlaylistDetailCubit>();
     showDialog<void>(
       context: context,
-      builder: (dialogContext) => AlertDialog(
-        insetPadding: const EdgeInsets.all(AppSizes.p16),
-        shape: const RoundedRectangleBorder(borderRadius: AppRadius.roundedXL),
-        backgroundColor: context.colorScheme.surface,
-        surfaceTintColor: Colors.transparent,
-        title: Text(
-          AppStrings.dashboardDeleteTitle,
-          style: context.textTheme.titleLarge?.copyWith(
-            fontWeight: FontWeight.bold,
-            color: context.colorScheme.onSurface,
-          ),
-          textAlign: TextAlign.center,
-        ),
+      builder: (dialogContext) => CustomAlertDialog(
+        title: AppStrings.dashboardDeleteTitle,
         content: Text.rich(
           TextSpan(
             children: [
@@ -130,52 +134,28 @@ class _DashboardContent extends StatelessWidget {
           ),
           textAlign: TextAlign.center,
         ),
-        actionsPadding: const EdgeInsets.fromLTRB(
-          AppSizes.p16,
-          0,
-          AppSizes.p16,
-          AppSizes.p16,
-        ),
-        actionsAlignment: MainAxisAlignment.spaceEvenly,
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(dialogContext).pop(),
-            child: Text(
-              AppStrings.commonCancel,
-              style: TextStyle(color: context.colorScheme.onSurfaceVariant),
-            ),
-          ),
-          TextButton(
-            onPressed: () {
-              cubit.removeVideo(video.id);
-              Navigator.of(dialogContext).pop();
-            },
-            style: TextButton.styleFrom(
-              foregroundColor: context.colorScheme.error,
-            ),
-            child: const Text(
-              AppStrings.commonDelete,
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-          ),
-        ],
+        cancelText: AppStrings.commonCancel,
+        confirmText: AppStrings.commonDelete,
+        onCancel: () => Navigator.of(dialogContext).pop(),
+        onConfirm: () {
+          cubit.removeVideo(video.id);
+          Navigator.of(dialogContext).pop();
+        },
       ),
     );
   }
-
 }
 
 class _LoadedDashboardBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-     context.read<PlaylistDetailCubit>();
+    context.read<PlaylistDetailCubit>();
     // Use BlocSelector for each independent part of the state
-    final videosState = context
-        .select<PlaylistDetailCubit, PlaylistVideosState?>(
-          (cubit) => cubit.state is PlaylistDetailLoaded
-              ? (cubit.state as PlaylistDetailLoaded).videosState
-              : null,
-        );
+    final videosState = context.select<PlaylistDetailCubit, PlaylistVideosState?>(
+      (cubit) => cubit.state is PlaylistDetailLoaded
+          ? (cubit.state as PlaylistDetailLoaded).videosState
+          : null,
+    );
     final heroVideoState = context.select<PlaylistDetailCubit, HeroVideoState?>(
       (cubit) => cubit.state is PlaylistDetailLoaded
           ? (cubit.state as PlaylistDetailLoaded).heroVideoState

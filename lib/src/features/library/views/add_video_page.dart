@@ -22,9 +22,7 @@ class AddVideo extends StatefulWidget {
 
 class _AddVideoState extends State<AddVideo> {
   final TextEditingController _urlController = TextEditingController();
-  final ValueNotifier<int?> _selectedPlaylistIdNotifier = ValueNotifier<int?>(
-    null,
-  );
+  final ValueNotifier<int?> _selectedPlaylistIdNotifier = ValueNotifier<int?>(null);
 
   @override
   void initState() {
@@ -45,7 +43,6 @@ class _AddVideoState extends State<AddVideo> {
 
     return BlocListener<PlaylistDetailCubit, PlaylistDetailState>(
       listener: (context, state) {
-        print('state add page is $state');
         if (state is PlaylistDetailAddSuccess) {
           _urlController.clear();
           toastification.show(
@@ -78,8 +75,7 @@ class _AddVideoState extends State<AddVideo> {
               : <PlaylistModel>[];
 
           // Set default playlist id when settings state loads
-          if (settingsState is SettingsLoadedState &&
-              _selectedPlaylistIdNotifier.value == null) {
+          if (settingsState is SettingsLoadedState && _selectedPlaylistIdNotifier.value == null) {
             _selectedPlaylistIdNotifier.value = settingsState.defaultPlaylistId;
           }
 
@@ -100,18 +96,11 @@ class _AddVideoState extends State<AddVideo> {
                     ),
                     const Gap(32),
                     ListenableBuilder(
-                      listenable: Listenable.merge([
-                        _urlController,
-                        _selectedPlaylistIdNotifier,
-                      ]),
+                      listenable: Listenable.merge([_urlController, _selectedPlaylistIdNotifier]),
                       builder: (context, child) {
-                        return BlocBuilder<
-                          PlaylistDetailCubit,
-                          PlaylistDetailState
-                        >(
+                        return BlocBuilder<PlaylistDetailCubit, PlaylistDetailState>(
                           builder: (context, playlistState) {
-                            final isAdding =
-                                playlistState is PlaylistDetailLoading;
+                            final isAdding = playlistState is PlaylistDetailLoading;
 
                             final isEnabled =
                                 _urlController.text.trim().isNotEmpty &&
@@ -131,21 +120,16 @@ class _AddVideoState extends State<AddVideo> {
                               state: buttonState,
                               onPressed: isEnabled
                                   ? () {
-                                      context
-                                          .read<PlaylistDetailCubit>()
-                                          .addVideoToPlaylist(
-                                            _selectedPlaylistIdNotifier.value!,
-                                            _urlController.text.trim(),
-                                          );
+                                      context.read<PlaylistDetailCubit>().addVideoToPlaylist(
+                                        _selectedPlaylistIdNotifier.value!,
+                                        _urlController.text.trim(),
+                                      );
                                     }
                                   : null,
                               padding: const EdgeInsets.symmetric(vertical: 18),
                               child: const Text(
                                 'Add Video',
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.w600,
-                                ),
+                                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
                               ),
                             );
                           },
