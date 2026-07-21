@@ -141,7 +141,7 @@ class PlaylistDetailCubit extends Cubit<PlaylistDetailState> {
     try {
       final isCurrentHero = _selectedHeroId == playlistVideoId;
       await _repository.updateVideoProgress(
-        playlistVideoId, 
+        playlistVideoId,
         positionSeconds,
         updateLastPlayed: isCurrentHero,
       );
@@ -165,7 +165,9 @@ class PlaylistDetailCubit extends Cubit<PlaylistDetailState> {
             if (video.id == playlistVideoId) {
               return video.copyWith(
                 lastWatchedPositionSeconds: positionSeconds,
-                lastPlayedAt: isCurrentHero ? DateTime.now() : video.lastPlayedAt,
+                lastPlayedAt: isCurrentHero
+                    ? DateTime.now()
+                    : video.lastPlayedAt,
               );
             }
             return video;
@@ -203,15 +205,16 @@ class PlaylistDetailCubit extends Cubit<PlaylistDetailState> {
     }
   }
 
-  // add video to playlist only for add video
   Future<void> addVideoToPlaylist(int playlistId, String url) async {
     emit(const PlaylistDetailLoading());
 
     try {
       await _repository.addVideoToPlaylist(playlistId, url);
-      emit(const PlaylistDetailAddSuccess());
+      emit(const PlaylistDetailAddSuccess()); // Triggers the success toast
+      await loadPlaylist(); // <--- NEW: Recovers the Dashboard UI
     } on Exception catch (e) {
-      emit(PlaylistDetailError(_exceptionMessage(e)));
+      emit(PlaylistDetailError(_exceptionMessage(e))); // Triggers the error toast
+      await loadPlaylist(); // <--- NEW: Recovers the Dashboard UI
     }
   }
 

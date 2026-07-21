@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:levelup_tube/src/core/di/injection_container.dart' as di;
 import 'package:levelup_tube/src/features/library/views/add_video_page.dart';
 import 'package:levelup_tube/src/features/library/views/dashboard_page.dart';
 import 'package:levelup_tube/src/features/navigation/pages/main_scaffold.dart';
+import 'package:levelup_tube/src/features/playlist/viewmodels/playlist_detail_cubit.dart';
 import 'package:levelup_tube/src/features/playlist/views/playlist_detail_page.dart';
 import 'package:levelup_tube/src/features/playlist/views/playlists_page.dart';
 import 'package:levelup_tube/src/features/settings/pages/settings_page.dart';
@@ -39,7 +42,11 @@ class AppRouter {
             routes: [
               GoRoute(
                 path: '/',
-                builder: (context, state) => const DashboardPage(),
+                builder: (context, state) => BlocProvider(
+                  create: (_) =>
+                      PlaylistDetailCubit(repository: di.sl())..loadPlaylist(),
+                  child: const DashboardPage(),
+                ),
               ),
             ],
           ),
@@ -74,7 +81,10 @@ class AppRouter {
             routes: [
               GoRoute(
                 path: '/add-video',
-                builder: (context, state) => const AddVideo(),
+                builder: (context, state) => BlocProvider(
+                  create: (_) => PlaylistDetailCubit(repository: di.sl()),
+                  child: const AddVideo(),
+                ),
               ),
             ],
           ),

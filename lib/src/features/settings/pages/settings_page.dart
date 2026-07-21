@@ -1,12 +1,16 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:levelup_tube/main.dart';
 import 'package:levelup_tube/src/core/constants/app_links.dart';
 import 'package:levelup_tube/src/core/design_system/app_sizes.dart';
 import 'package:levelup_tube/src/core/extensions/context_extensions.dart';
 import 'package:levelup_tube/src/core/theme/theme_cubit.dart';
 import 'package:levelup_tube/src/features/settings/viewmodels/setting_state.dart';
 import 'package:levelup_tube/src/features/settings/viewmodels/settings_cubit.dart';
+import 'package:talker_flutter/talker_flutter.dart';
 import 'package:toastification/toastification.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -19,11 +23,38 @@ class SettingsPage extends StatefulWidget {
 
 class _SettingsPageState extends State<SettingsPage> {
   static final Uri _privacyPolicyUri = Uri.parse(AppLinks.privacyPolicy);
+  Timer? _tapResetTimer;
+  int _titleTapCount = 0;
 
   @override
   void initState() {
     super.initState();
     context.read<SettingsCubit>().loadAllPlaylist();
+  }
+
+  @override
+  void dispose() {
+    _tapResetTimer?.cancel();
+    super.dispose();
+  }
+
+  void _handleTitleTap() {
+    _tapResetTimer?.cancel();
+    _titleTapCount += 1;
+
+    if (_titleTapCount >= 5) {
+      _titleTapCount = 0;
+      Navigator.of(context).push(
+        MaterialPageRoute<void>(
+          builder: (context) => TalkerScreen(talker: talker),
+        ),
+      );
+      return;
+    }
+
+    _tapResetTimer = Timer(const Duration(milliseconds: 700), () {
+      _titleTapCount = 0;
+    });
   }
 
   Future<void> _handlePrivacyTap() async {
@@ -59,13 +90,17 @@ class _SettingsPageState extends State<SettingsPage> {
                   AppSizes.p16,
                   AppSizes.p8,
                 ),
-                child: Text(
-                  'Settings',
-                  style: GoogleFonts.poppins(
-                    fontSize: 28,
-                    fontWeight: FontWeight.bold,
-                    color: context.colorScheme.onSurface,
-                    letterSpacing: -0.5,
+                child: GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: _handleTitleTap,
+                  child: Text(
+                    'Settings',
+                    style: GoogleFonts.poppins(
+                      fontSize: 28,
+                      fontWeight: FontWeight.bold,
+                      color: context.colorScheme.onSurface,
+                      letterSpacing: -0.5,
+                    ),
                   ),
                 ),
               ),

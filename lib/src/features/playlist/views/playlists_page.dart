@@ -43,10 +43,6 @@ class _PlaylistsPageContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AppScaffold(
-      appBar: AppBar(
-        title: const Text('My Playlists'),
-        leading: const BackButton(),
-      ),
       body: BlocConsumer<PlaylistCubit, PlaylistState>(
         listener: (context, state) {
           if (state is PlaylistErrorState) {
@@ -62,8 +58,8 @@ class _PlaylistsPageContent extends StatelessWidget {
         },
         builder: (context, state) {
           return switch (state) {
-            PlaylistInitialState() || PlaylistLoadingState() =>
-              const DashboardVideoListShimmer(),
+            PlaylistInitialState() ||
+            PlaylistLoadingState() => const DashboardVideoListShimmer(),
 
             PlaylistEmptyState() => Center(
               child: Column(
@@ -75,10 +71,7 @@ class _PlaylistsPageContent extends StatelessWidget {
                     color: context.colorScheme.onSurfaceVariant,
                   ),
                   const SizedBox(height: 16),
-                  Text(
-                    'No playlists yet',
-                    style: context.textTheme.titleLarge,
-                  ),
+                  Text('No playlists yet', style: context.textTheme.titleLarge),
                   const SizedBox(height: 8),
                   Text(
                     'Create a playlist or import from YouTube',
@@ -91,25 +84,17 @@ class _PlaylistsPageContent extends StatelessWidget {
             ),
 
             PlaylistLoadedState(:final playlists) => RefreshIndicator(
-              onRefresh: () =>
-                  context.read<PlaylistCubit>().loadPlaylists(),
+              onRefresh: () => context.read<PlaylistCubit>().loadPlaylists(),
               child: _buildList(context, playlists),
             ),
 
-            PlaylistImportingState(
-              :final playlists,
-              :final message,
-            ) =>
-              Column(
-                children: [
-                  const LinearProgressIndicator(),
-                  Padding(
-                    padding: const EdgeInsets.all(8),
-                    child: Text(message),
-                  ),
-                  Expanded(child: _buildList(context, playlists)),
-                ],
-              ),
+            PlaylistImportingState(:final playlists, :final message) => Column(
+              children: [
+                const LinearProgressIndicator(),
+                Padding(padding: const EdgeInsets.all(8), child: Text(message)),
+                Expanded(child: _buildList(context, playlists)),
+              ],
+            ),
 
             _ => const SizedBox.shrink(),
           };
@@ -124,10 +109,7 @@ class _PlaylistsPageContent extends StatelessWidget {
     );
   }
 
-  Widget _buildList(
-    BuildContext context,
-    List<PlaylistModel> playlists,
-  ) {
+  Widget _buildList(BuildContext context, List<PlaylistModel> playlists) {
     return ListView.builder(
       padding: const EdgeInsets.all(16).copyWith(bottom: 80),
       itemCount: playlists.length,
@@ -183,8 +165,7 @@ class _PlaylistsPageContent extends StatelessWidget {
                   Navigator.push<void>(
                     context,
                     MaterialPageRoute<void>(
-                      builder: (_) =>
-                          EditPlaylistPage(playlistModel: playlist),
+                      builder: (_) => EditPlaylistPage(playlistModel: playlist),
                     ),
                   );
                 },
@@ -227,17 +208,12 @@ class _PlaylistsPageContent extends StatelessWidget {
     );
   }
 
-  void _showDeleteDialog(
-    BuildContext context,
-    PlaylistModel playlist,
-  ) {
+  void _showDeleteDialog(BuildContext context, PlaylistModel playlist) {
     showDialog<void>(
       context: context,
       builder: (dialogContext) => AlertDialog(
         insetPadding: const EdgeInsets.all(AppSizes.p16),
-        shape: const RoundedRectangleBorder(
-          borderRadius: AppRadius.roundedXL,
-        ),
+        shape: const RoundedRectangleBorder(borderRadius: AppRadius.roundedXL),
         backgroundColor: context.colorScheme.surface,
         surfaceTintColor: Colors.transparent,
         title: Text(
@@ -267,16 +243,12 @@ class _PlaylistsPageContent extends StatelessWidget {
             onPressed: () => Navigator.pop(dialogContext),
             child: Text(
               'Cancel',
-              style: TextStyle(
-                color: context.colorScheme.onSurfaceVariant,
-              ),
+              style: TextStyle(color: context.colorScheme.onSurfaceVariant),
             ),
           ),
           TextButton(
             onPressed: () {
-              context.read<PlaylistCubit>().deletePlaylist(
-                playlist.id,
-              );
+              context.read<PlaylistCubit>().deletePlaylist(playlist.id);
               Navigator.pop(dialogContext);
             },
             style: TextButton.styleFrom(

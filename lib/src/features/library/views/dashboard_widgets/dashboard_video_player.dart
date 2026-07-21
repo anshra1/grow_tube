@@ -235,7 +235,7 @@ class _DashboardVideoPlayerState extends State<DashboardVideoPlayer>
       try {
         final position = await controller.currentTime;
         talker.debug(
-          'VideoPlayer: State: ${value.playerState}, Current position: ${position}',
+          'VideoPlayer: State: ${value.playerState}, Current position: $position',
         );
       } catch (e) {
         // Ignore errors getting position

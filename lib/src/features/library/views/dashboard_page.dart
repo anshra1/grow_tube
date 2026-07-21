@@ -35,7 +35,7 @@ class _DashboardContent extends StatelessWidget {
             style: ToastificationStyle.flatColored,
             title: const Text(AppStrings.dashboardError),
             description: Text(state.message),
-            autoCloseDuration: const Duration(seconds: 4),
+            autoCloseDuration: const Duration(seconds: 2),
             alignment: Alignment.bottomCenter,
           );
         }

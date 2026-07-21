@@ -43,25 +43,34 @@ class _AddVideoState extends State<AddVideo> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return MultiBlocListener(
-      listeners: [
-        BlocListener<PlaylistDetailCubit, PlaylistDetailState>(
-          listener: (context, state) {
-            if (state is PlaylistDetailAddSuccess) {
-              _urlController.clear();
-              toastification.show(
-                context: context,
-                type: ToastificationType.success,
-                style: ToastificationStyle.flatColored,
-                title: const Text('Success!'),
-                description: const Text('Video added successfully!'),
-                autoCloseDuration: const Duration(seconds: 4),
-                alignment: Alignment.bottomCenter,
-              );
-            }
-          },
-        ),
-      ],
+    return BlocListener<PlaylistDetailCubit, PlaylistDetailState>(
+      listener: (context, state) {
+        print('state add page is $state');
+        if (state is PlaylistDetailAddSuccess) {
+          _urlController.clear();
+          toastification.show(
+            context: context,
+            type: ToastificationType.success,
+            style: ToastificationStyle.flatColored,
+            title: const Text('Success!'),
+            description: const Text('Video added successfully!'),
+            autoCloseDuration: const Duration(seconds: 4),
+            alignment: Alignment.bottomCenter,
+          );
+        } else if (state is PlaylistDetailError) {
+          FocusManager.instance.primaryFocus?.unfocus();
+          toastification.show(
+            context: context,
+            type: ToastificationType.error,
+            style: ToastificationStyle.flatColored,
+            title: const Text('Error!'),
+            description: Text(state.message),
+            autoCloseDuration: const Duration(seconds: 4),
+            alignment: Alignment.bottomCenter,
+          );
+        }
+      },
+
       child: BlocBuilder<SettingsCubit, SettingsState>(
         builder: (context, settingsState) {
           final playlists = settingsState is SettingsLoadedState
@@ -85,56 +94,61 @@ class _AddVideoState extends State<AddVideo> {
                     const Gap(32),
                     GetYoutubeUrl(urlController: _urlController, theme: theme),
                     const Gap(24),
-
                     SelectPlaylist(
                       selectedPlaylistIdNotifier: _selectedPlaylistIdNotifier,
                       playlists: playlists,
                     ),
-
                     const Gap(32),
-
                     ListenableBuilder(
                       listenable: Listenable.merge([
                         _urlController,
                         _selectedPlaylistIdNotifier,
                       ]),
                       builder: (context, child) {
-                        final isAdding = settingsState is PlaylistDetailLoading;
+                        return BlocBuilder<
+                          PlaylistDetailCubit,
+                          PlaylistDetailState
+                        >(
+                          builder: (context, playlistState) {
+                            final isAdding =
+                                playlistState is PlaylistDetailLoading;
 
-                        final isEnabled =
-                            _urlController.text.trim().isNotEmpty &&
-                            _selectedPlaylistIdNotifier.value != null &&
-                            !isAdding;
+                            final isEnabled =
+                                _urlController.text.trim().isNotEmpty &&
+                                _selectedPlaylistIdNotifier.value != null &&
+                                !isAdding;
 
-                        AppButtonState buttonState;
-                        if (isAdding) {
-                          buttonState = AppButtonState.loading;
-                        } else if (isEnabled) {
-                          buttonState = AppButtonState.enabled;
-                        } else {
-                          buttonState = AppButtonState.disabled;
-                        }
+                            AppButtonState buttonState;
+                            if (isAdding) {
+                              buttonState = AppButtonState.loading;
+                            } else if (isEnabled) {
+                              buttonState = AppButtonState.enabled;
+                            } else {
+                              buttonState = AppButtonState.disabled;
+                            }
 
-                        return AppPrimaryButton(
-                          state: buttonState,
-                          onPressed: isEnabled
-                              ? () {
-                                  context
-                                      .read<PlaylistDetailCubit>()
-                                      .addVideoToPlaylist(
-                                        _selectedPlaylistIdNotifier.value!,
-                                        _urlController.text.trim(),
-                                      );
-                                }
-                              : null,
-                          padding: const EdgeInsets.symmetric(vertical: 18),
-                          child: const Text(
-                            'Add Video',
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
+                            return AppPrimaryButton(
+                              state: buttonState,
+                              onPressed: isEnabled
+                                  ? () {
+                                      context
+                                          .read<PlaylistDetailCubit>()
+                                          .addVideoToPlaylist(
+                                            _selectedPlaylistIdNotifier.value!,
+                                            _urlController.text.trim(),
+                                          );
+                                    }
+                                  : null,
+                              padding: const EdgeInsets.symmetric(vertical: 18),
+                              child: const Text(
+                                'Add Video',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            );
+                          },
                         );
                       },
                     ),

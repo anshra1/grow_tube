@@ -72,10 +72,6 @@ class LevelUpTube extends StatelessWidget {
           ),
           BlocProvider(create: (context) => FullscreenVideoCubit()),
           BlocProvider(create: (context) => di.sl<SettingsCubit>()),
-          BlocProvider(
-            create: (context) =>
-                PlaylistDetailCubit(repository: di.sl())..loadPlaylist(),
-          ),
         ],
         child: BlocBuilder<ThemeCubit, ThemeState>(
           builder: (context, themeState) {
