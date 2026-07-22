@@ -69,168 +69,171 @@ class DashboardVideoCard extends StatelessWidget {
           );
         };
 
-    return InkWell(
-      overlayColor: WidgetStateProperty.resolveWith((states) {
-        if (states.contains(WidgetState.pressed)) {
-          return context.colorScheme.primary.withValues(alpha: 0.12);
-        }
-        return null;
-      }),
-      onTap: () {
-        Feedback.forTap(context);
-        HapticFeedback.heavyImpact();
-        HapticFeedback.vibrate();
-        if (onTap != null) {
-          onTap!();
-          return;
-        }
-        if (context.read<ConnectivityCubit>().state ==
-            ConnectivityStatus.offline) {
-          _toastController.nudgeOffline();
-          return;
-        }
-        context.read<PlaylistDetailCubit>().selectVideo(video);
-      },
-      onLongPress: handleOptions,
-      child: Padding(
-        padding: const EdgeInsets.only(top: 4, bottom: 4),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Thumbnail with Duration Overlay
-            Stack(
-              children: [
-                ClipRRect(
-                  borderRadius: AppRadius.roundedM,
-                  child: SizedBox(
-                    width: 160,
-                    height: 90,
-                    child: CachedNetworkImage(
-                      imageUrl: video.thumbnailUrl,
-                      fit: BoxFit.cover,
-                      memCacheWidth: 480,
-                      memCacheHeight: 270,
-                      placeholder: (context, url) => Shimmer.fromColors(
-                        baseColor: context.colorScheme.surfaceContainerHighest,
-                        highlightColor: context.colorScheme.surface,
-                        child: Container(color: Colors.white),
-                      ),
-                      errorWidget: (context, url, error) => Container(
-                        color: context.colorScheme.surfaceContainerHighest,
-                      ),
-                    ),
-                  ),
-                ),
-                Positioned(
-                  bottom: 6,
-                  right: 6,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 6,
-                      vertical: 2,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.black.withValues(alpha: 0.8),
-                      borderRadius: AppRadius.roundedS,
-                    ),
-                    child: Text(
-                      _formatDuration(video.durationSeconds),
-                      style: context.textTheme.labelSmall?.copyWith(
-                        color: Colors.white,
-                        fontSize: 12,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            const Gap(12),
-            // content
-            Expanded(
-              child: Column(
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+      child: Container(
+        decoration: BoxDecoration(
+          color: context.colorScheme.surface,
+          borderRadius: AppRadius.roundedL,
+          border: Border.all(
+            color: context.colorScheme.outlineVariant.withValues(alpha: 0.6),
+          ),
+        ),
+        child: ClipRRect(
+          borderRadius: AppRadius.roundedL,
+          child: InkWell(
+            overlayColor: WidgetStateProperty.resolveWith((states) {
+              if (states.contains(WidgetState.pressed)) {
+                return context.colorScheme.primary.withValues(alpha: 0.12);
+              }
+              return null;
+            }),
+            onTap: () {
+              Feedback.forTap(context);
+              HapticFeedback.heavyImpact();
+              HapticFeedback.vibrate();
+              if (onTap != null) {
+                onTap!();
+                return;
+              }
+              if (context.read<ConnectivityCubit>().state ==
+                  ConnectivityStatus.offline) {
+                _toastController.nudgeOffline();
+                return;
+              }
+              context.read<PlaylistDetailCubit>().selectVideo(video);
+            },
+            onLongPress: handleOptions,
+            child: Padding(
+              padding: const EdgeInsets.all(4),
+              child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    video.title,
-                    maxLines: 3,
-                    overflow: TextOverflow.ellipsis,
-                    style: context.textTheme.bodyLarge?.copyWith(
-                      fontWeight: FontWeight.w500,
-                      fontSize: 16,
-                      color: context.colorScheme.onSurface,
-                    ),
-                  ),
-                  // const Gap(4),
-                  // Text(
-                  //   video.channelName,
-                  //   maxLines: 1,
-                  //   overflow: TextOverflow.ellipsis,
-                  //   style: context.textTheme.labelMedium?.copyWith(
-                  //     color: context.colorScheme.onSurfaceVariant,
-                  //   ),
-                  // ),
-                  gapH8,
-                  // Progress Bar & Percentage
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                  // Thumbnail with Duration Overlay
+                  Stack(
                     children: [
-                      Row(
-                        children: [
-                          Expanded(
-                            child: ClipRRect(
-                              borderRadius: AppRadius.roundedS,
-                              child: LinearProgressIndicator(
-                                value: progress,
-                                minHeight: 4,
-                                backgroundColor: context.colorScheme.primary
-                                    .withValues(alpha: 0.1),
-                                valueColor: AlwaysStoppedAnimation<Color>(
-                                  context.colorScheme.primary,
-                                ),
-                              ),
+                      ClipRRect(
+                        borderRadius: AppRadius.roundedM,
+                        child: SizedBox(
+                          width: 140,
+                          height: 79,
+                          child: CachedNetworkImage(
+                            imageUrl: video.thumbnailUrl,
+                            fit: BoxFit.cover,
+                            memCacheWidth: 420,
+                            memCacheHeight: 237,
+                            placeholder: (context, url) => Shimmer.fromColors(
+                              baseColor: context.colorScheme.surfaceContainerHighest,
+                              highlightColor: context.colorScheme.surface,
+                              child: Container(color: Colors.white),
+                            ),
+                            errorWidget: (context, url, error) => Container(
+                              color: context.colorScheme.surfaceContainerHighest,
                             ),
                           ),
-                        ],
+                        ),
                       ),
-                      gapH4,
-                      Text(
-                        '$percentage% watched',
-                        style: context.textTheme.labelSmall?.copyWith(
-                          color: percentage > 0
-                              ? context.colorScheme.primary
-                              : context.colorScheme.onSurfaceVariant,
-                          fontWeight: percentage > 0
-                              ? FontWeight.bold
-                              : FontWeight.normal,
-                          fontSize: 10,
+                      Positioned(
+                        bottom: 6,
+                        right: 6,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 6,
+                            vertical: 2,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.black.withValues(alpha: 0.8),
+                            borderRadius: AppRadius.roundedS,
+                          ),
+                          child: Text(
+                            _formatDuration(video.durationSeconds),
+                            style: context.textTheme.labelSmall?.copyWith(
+                              color: Colors.white,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
                         ),
                       ),
                     ],
                   ),
-                ],
-              ),
-            ),
-            // More Options Icon
-            GestureDetector(
-              onTap: onOptionsTap ?? handleOptions,
-              child: Column(
-                children: [
-                  if (video.isPinned)
+                  const Gap(12),
+                  // content
+                  Expanded(
+                    child: SizedBox(
+                      height: 79,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            video.title,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: context.textTheme.titleMedium?.copyWith(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 15,
+                              color: context.colorScheme.onSurface,
+                              height: 1.2,
+                            ),
+                          ),
+                          const Gap(4),
+                          // Text(
+                          //   video.channelName,
+                          //   maxLines: 1,
+                          //   overflow: TextOverflow.ellipsis,
+                          //   style: context.textTheme.labelMedium?.copyWith(
+                          //     color: context.colorScheme.onSurfaceVariant,
+                          //     fontWeight: FontWeight.w500,
+                          //   ),
+                          // ),
+                          const Spacer(),
+                          // Progress Bar & Percentage
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              ClipRRect(
+                                borderRadius: AppRadius.roundedS,
+                                child: LinearProgressIndicator(
+                                  value: progress,
+                                  minHeight: 4,
+                                  backgroundColor: context.colorScheme.primary
+                                      .withValues(alpha: 0.1),
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                    context.colorScheme.primary,
+                                  ),
+                                ),
+                              ),
+                              gapH4,
+                              Text(
+                                '$percentage% watched',
+                                style: context.textTheme.labelSmall?.copyWith(
+                                  color: percentage > 0
+                                      ? context.colorScheme.primary
+                                      : context.colorScheme.onSurfaceVariant,
+                                  fontWeight: percentage > 0
+                                      ? FontWeight.w600
+                                      : FontWeight.w500,
+                                  fontSize: 11,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  if (video.isPinned) ...[
+                    const Gap(8),
                     Icon(
                       Icons.push_pin,
                       color: context.colorScheme.primary,
                       size: 18,
                     ),
-                  Icon(
-                    Icons.more_vert,
-                    color: context.colorScheme.onSurface,
-                    size: 20,
-                  ),
+                  ]
                 ],
               ),
             ),
-          ],
+          ),
         ),
       ),
     );
