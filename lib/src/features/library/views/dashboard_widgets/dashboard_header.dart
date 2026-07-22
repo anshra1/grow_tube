@@ -21,9 +21,7 @@ class DashboardHeader extends StatefulWidget {
 }
 
 class _DashboardHeaderState extends State<DashboardHeader> {
-  static final Uri _privacyPolicyUri = Uri.parse(
-    AppLinks.privacyPolicy,
-  );
+  static final Uri _privacyPolicyUri = Uri.parse(AppLinks.privacyPolicy);
   Timer? _tapResetTimer;
   int _titleTapCount = 0;
 
@@ -33,11 +31,9 @@ class _DashboardHeaderState extends State<DashboardHeader> {
 
     if (_titleTapCount >= 3) {
       _titleTapCount = 0;
-      Navigator.of(context).push(
-        MaterialPageRoute<void>(
-          builder: (context) => TalkerScreen(talker: talker),
-        ),
-      );
+      Navigator.of(
+        context,
+      ).push(MaterialPageRoute<void>(builder: (context) => TalkerScreen(talker: talker)));
       return;
     }
 
@@ -64,9 +60,7 @@ class _DashboardHeaderState extends State<DashboardHeader> {
         type: ToastificationType.error,
         style: ToastificationStyle.fillColored,
         title: const Text(AppStrings.dashboardError),
-        description: const Text(
-          AppStrings.dashboardUnableToOpenPrivacyPolicy,
-        ),
+        description: const Text(AppStrings.dashboardUnableToOpenPrivacyPolicy),
         autoCloseDuration: const Duration(seconds: 4),
         alignment: Alignment.bottomCenter,
       );
@@ -97,12 +91,9 @@ class _DashboardHeaderState extends State<DashboardHeader> {
             children: [
               BlocBuilder<ThemeCubit, ThemeState>(
                 builder: (context, state) {
-                  final (icon, tooltip) = _themeIconAndTooltip(
-                    state.mode,
-                  );
+                  final (icon, tooltip) = _themeIconAndTooltip(state.mode);
                   return IconButton(
-                    onPressed: () =>
-                        context.read<ThemeCubit>().cycleThemeMode(),
+                    onPressed: () => context.read<ThemeCubit>().cycleThemeMode(),
                     icon: Icon(icon),
                     tooltip: tooltip,
                   );

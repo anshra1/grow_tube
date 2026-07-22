@@ -25,8 +25,7 @@ class DashboardVideoPlayer extends StatefulWidget {
 
   final Video video;
   final int? forcePlayTimestamp;
-  final void Function(int playlistVideoId, int positionSeconds)?
-  onProgressUpdate;
+  final void Function(int playlistVideoId, int positionSeconds)? onProgressUpdate;
 
   @override
   State<DashboardVideoPlayer> createState() => _DashboardVideoPlayerState();
@@ -62,10 +61,7 @@ class _DashboardVideoPlayerState extends State<DashboardVideoPlayer>
       vsync: this,
       duration: const Duration(milliseconds: 300),
     );
-    _fadeAnimation = CurvedAnimation(
-      parent: _animController,
-      curve: Curves.easeInOut,
-    );
+    _fadeAnimation = CurvedAnimation(parent: _animController, curve: Curves.easeInOut);
     _maybeInitializeController();
     _listenConnectivity();
     _startHeartbeat();
@@ -88,10 +84,7 @@ class _DashboardVideoPlayerState extends State<DashboardVideoPlayer>
       );
 
       // User explicitly tapped a video → auto-play it.
-      _controller?.loadVideoById(
-        videoId: widget.video.youtubeId,
-        startSeconds: startPos,
-      );
+      _controller?.loadVideoById(videoId: widget.video.youtubeId, startSeconds: startPos);
     } else if (widget.forcePlayTimestamp != null &&
         widget.forcePlayTimestamp != oldWidget.forcePlayTimestamp) {
       // User tapped the currently active video again in the list.
@@ -148,9 +141,7 @@ class _DashboardVideoPlayerState extends State<DashboardVideoPlayer>
           ? 0.0
           : widget.video.lastWatchedPositionSeconds.toDouble();
 
-      talker.info(
-        'VideoPlayer: Reloading from unknown state with startPos: $startPos',
-      );
+      talker.info('VideoPlayer: Reloading from unknown state with startPos: $startPos');
 
       await _controller!.loadVideoById(
         videoId: widget.video.youtubeId,
@@ -211,6 +202,8 @@ class _DashboardVideoPlayerState extends State<DashboardVideoPlayer>
       params: const YoutubePlayerParams(
         enableCaption: false,
         origin: 'https://www.youtube-nocookie.com',
+        showVideoAnnotations: false,
+        strictRelatedVideos: true,
       ),
     );
 
@@ -218,10 +211,7 @@ class _DashboardVideoPlayerState extends State<DashboardVideoPlayer>
 
     // On app launch: cue the video (shows thumbnail/controls, does NOT auto-play).
     // Auto-play only happens when the user explicitly taps a video (see didUpdateWidget).
-    controller.cueVideoById(
-      videoId: widget.video.youtubeId,
-      startSeconds: startPos,
-    );
+    controller.cueVideoById(videoId: widget.video.youtubeId, startSeconds: startPos);
 
     _errorSubscription = controller.listen((value) async {
       // --- ADDED EXPLICIT PRINTS TO SEE WHAT WE GET ---
@@ -279,9 +269,7 @@ class _DashboardVideoPlayerState extends State<DashboardVideoPlayer>
       await _animController.forward(from: 0);
 
       // 2. Trigger hardware rotation back to portrait
-      await SystemChrome.setPreferredOrientations([
-        DeviceOrientation.portraitUp,
-      ]);
+      await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
       await SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
 
       // 3. Wait for hardware rotation to complete
@@ -315,10 +303,7 @@ class _DashboardVideoPlayerState extends State<DashboardVideoPlayer>
         if (widget.onProgressUpdate != null) {
           widget.onProgressUpdate!(targetPlaylistVideoId, position);
         } else {
-          await _playlistDetailCubit.updateProgress(
-            targetPlaylistVideoId,
-            position,
-          );
+          await _playlistDetailCubit.updateProgress(targetPlaylistVideoId, position);
         }
       }
     } on Exception catch (_) {}
@@ -379,29 +364,21 @@ class _DashboardVideoPlayerState extends State<DashboardVideoPlayer>
                       onTap: _toggleFullScreen,
                       borderRadius: BorderRadius.circular(8),
                       child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 4,
-                        ),
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Icon(
                               Icons.screen_rotation,
                               size: 18,
-                              color: Theme.of(
-                                context,
-                              ).colorScheme.onSurfaceVariant,
+                              color: Theme.of(context).colorScheme.onSurfaceVariant,
                             ),
                             const SizedBox(width: 4),
                             Text(
                               'Landscape',
-                              style: Theme.of(context).textTheme.labelSmall
-                                  ?.copyWith(
-                                    color: Theme.of(
-                                      context,
-                                    ).colorScheme.onSurfaceVariant,
-                                  ),
+                              style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                              ),
                             ),
                           ],
                         ),
@@ -429,9 +406,7 @@ class _DashboardVideoPlayerState extends State<DashboardVideoPlayer>
                     builder: (context, child) {
                       return IgnorePointer(
                         child: Container(
-                          color: Colors.black.withValues(
-                            alpha: _fadeAnimation.value,
-                          ),
+                          color: Colors.black.withValues(alpha: _fadeAnimation.value),
                         ),
                       );
                     },

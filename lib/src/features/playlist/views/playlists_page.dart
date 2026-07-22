@@ -5,6 +5,7 @@ import 'package:levelup_tube/src/core/design_system/app_radius.dart';
 import 'package:levelup_tube/src/core/design_system/app_sizes.dart';
 import 'package:levelup_tube/src/core/di/injection_container.dart';
 import 'package:levelup_tube/src/core/extensions/context_extensions.dart';
+import 'package:levelup_tube/src/core/widgets/atoms/top_header.dart';
 import 'package:levelup_tube/src/core/widgets/template/app_scaffold.dart';
 import 'package:levelup_tube/src/features/library/views/dashboard_widgets/dashboard_video_list_shimmer.dart';
 import 'package:levelup_tube/src/features/playlist/models/playlist_model.dart';
@@ -43,6 +44,7 @@ class _PlaylistsPageContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AppScaffold(
+      appBar: AppBar(title: const TopHeaderText('Playlist')),
       body: BlocConsumer<PlaylistCubit, PlaylistState>(
         listener: (context, state) {
           if (state is PlaylistErrorState) {
@@ -123,18 +125,14 @@ class _PlaylistsPageContent extends StatelessWidget {
             onLongPress: playlist.isSystemDefault
                 ? null
                 : () => _showDeleteDialog(context, playlist),
-            onOptionsTap: () =>
-                _showPlaylistOptionsBottomSheet(context, playlist),
+            onOptionsTap: () => _showPlaylistOptionsBottomSheet(context, playlist),
           ),
         );
       },
     );
   }
 
-  void _showPlaylistOptionsBottomSheet(
-    BuildContext context,
-    PlaylistModel playlist,
-  ) {
+  void _showPlaylistOptionsBottomSheet(BuildContext context, PlaylistModel playlist) {
     showModalBottomSheet<void>(
       context: context,
       useSafeArea: true,
@@ -143,9 +141,7 @@ class _PlaylistsPageContent extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             ListTile(
-              leading: Icon(
-                playlist.isPinned ? Icons.push_pin_outlined : Icons.push_pin,
-              ),
+              leading: Icon(playlist.isPinned ? Icons.push_pin_outlined : Icons.push_pin),
               title: Text(playlist.isPinned ? 'Unpin' : 'Pin'),
               onTap: () {
                 Navigator.pop(bottomSheetContext);
@@ -251,13 +247,8 @@ class _PlaylistsPageContent extends StatelessWidget {
               context.read<PlaylistCubit>().deletePlaylist(playlist.id);
               Navigator.pop(dialogContext);
             },
-            style: TextButton.styleFrom(
-              foregroundColor: context.colorScheme.error,
-            ),
-            child: const Text(
-              'Delete',
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
+            style: TextButton.styleFrom(foregroundColor: context.colorScheme.error),
+            child: const Text('Delete', style: TextStyle(fontWeight: FontWeight.bold)),
           ),
         ],
       ),

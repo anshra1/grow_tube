@@ -1,0 +1,22 @@
+{
+  "name": "ansh-light-theme",
+  "displayName": "Ansh Light",
+  "description": "A low-key macOS-inspired light theme with Trae editor colors.",
+  "version": "1.0.0",
+  "publisher": "ansh",
+  "engines": {
+    "vscode": "^1.60.0"
+  },
+  "categories": [
+    "Themes"
+  ],
+  "contributes": {
+    "themes": [
+      {
+        "label": "Ansh Light",
+        "uiTheme": "vs",
+        "path": "./themes/ansh-light-color-theme.json"
+      }
+    ]
+  }
+}

@@ -1,0 +1,163 @@
+{
+  "name": "Ansh Light",
+  "type": "light",
+  "colors": {
+    "focusBorder": "#00000000",
+    "foreground": "#333333",
+    "widget.shadow": "#00000015",
+    "selection.background": "#0066CC33",
+    
+    "icon.foreground": "#8E8E93",
+    
+    "window.activeBorder": "#E5E5EA",
+    "window.inactiveBorder": "#E5E5EA",
+    
+    "titleBar.activeBackground": "#F5F5F7",
+    "titleBar.activeForeground": "#1C1C1E",
+    "titleBar.inactiveBackground": "#F5F5F7",
+    "titleBar.inactiveForeground": "#8E8E93",
+    "titleBar.border": "#F5F5F7",
+    
+    "activityBar.background": "#F5F5F7",
+    "activityBar.foreground": "#1C1C1E",
+    "activityBar.inactiveForeground": "#8E8E93",
+    "activityBar.border": "#E5E5EA",
+    "activityBarBadge.background": "#007AFF",
+    "activityBarBadge.foreground": "#FFFFFF",
+    
+    "sideBar.background": "#F5F5F7",
+    "sideBar.foreground": "#333333",
+    "sideBar.border": "#E5E5EA",
+    "sideBarSectionHeader.background": "#F5F5F7",
+    "sideBarSectionHeader.foreground": "#1C1C1E",
+    "sideBarSectionHeader.border": "#F5F5F7",
+    
+    "list.activeSelectionBackground": "#E5E5EA",
+    "list.activeSelectionForeground": "#1C1C1E",
+    "list.inactiveSelectionBackground": "#E5E5EA80",
+    "list.inactiveSelectionForeground": "#1C1C1E",
+    "list.hoverBackground": "#0000000C",
+    "list.hoverForeground": "#1C1C1E",
+    
+    "editor.background": "#FFFFFF",
+    "editor.foreground": "#383A42",
+    "editorLineNumber.foreground": "#9D9D9F",
+    "editorLineNumber.activeForeground": "#1C1C1E",
+    "editorCursor.foreground": "#007AFF",
+    "editor.selectionBackground": "#B3D8FF",
+    "editor.inactiveSelectionBackground": "#E5E5EA",
+    "editor.lineHighlightBackground": "#F5F5F780",
+    "editor.lineHighlightBorder": "#00000000",
+    
+    "editorGroup.border": "#E5E5EA",
+    "editorGroupHeader.tabsBackground": "#F5F5F7",
+    "editorGroupHeader.tabsBorder": "#E5E5EA",
+    
+    "tab.activeBackground": "#FFFFFF",
+    "tab.activeForeground": "#1C1C1E",
+    "tab.inactiveBackground": "#F5F5F7",
+    "tab.inactiveForeground": "#8E8E93",
+    "tab.border": "#E5E5EA",
+    "tab.activeBorderTop": "#007AFF",
+    
+    "statusBar.background": "#F5F5F7",
+    "statusBar.foreground": "#8E8E93",
+    "statusBar.border": "#E5E5EA",
+    "statusBar.noFolderBackground": "#F5F5F7",
+    "statusBarItem.hoverBackground": "#00000010"
+  },
+  "tokenColors": [
+    {
+      "name": "Comments",
+      "scope": ["comment", "punctuation.definition.comment"],
+      "settings": {
+        "foreground": "#A0A1A7",
+        "fontStyle": "italic"
+      }
+    },
+    {
+      "name": "Keywords",
+      "scope": ["keyword", "storage.type", "storage.modifier"],
+      "settings": {
+        "foreground": "#A626A4"
+      }
+    },
+    {
+      "name": "Control Flow Keywords",
+      "scope": ["keyword.control"],
+      "settings": {
+        "foreground": "#A626A4"
+      }
+    },
+    {
+      "name": "Variables",
+      "scope": ["variable", "string constant.other.placeholder", "variable.parameter"],
+      "settings": {
+        "foreground": "#E45649"
+      }
+    },
+    {
+      "name": "Functions",
+      "scope": ["entity.name.function", "meta.function-call", "support.function"],
+      "settings": {
+        "foreground": "#4078F2"
+      }
+    },
+    {
+      "name": "Strings",
+      "scope": ["string", "string.quoted"],
+      "settings": {
+        "foreground": "#50A14F"
+      }
+    },
+    {
+      "name": "Numbers",
+      "scope": ["constant.numeric"],
+      "settings": {
+        "foreground": "#986801"
+      }
+    },
+    {
+      "name": "Constants",
+      "scope": ["constant.language", "support.constant", "variable.other.constant"],
+      "settings": {
+        "foreground": "#0184BB"
+      }
+    },
+    {
+      "name": "Classes/Types",
+      "scope": ["entity.name.type", "entity.name.class", "support.type", "support.class"],
+      "settings": {
+        "foreground": "#C18401"
+      }
+    },
+    {
+      "name": "HTML/XML Tags",
+      "scope": ["entity.name.tag", "meta.tag.sgml"],
+      "settings": {
+        "foreground": "#E45649"
+      }
+    },
+    {
+      "name": "HTML/XML Attributes",
+      "scope": ["entity.other.attribute-name"],
+      "settings": {
+        "foreground": "#986801"
+      }
+    },
+    {
+      "name": "Operators",
+      "scope": ["keyword.operator"],
+      "settings": {
+        "foreground": "#383A42"
+      }
+    },
+    {
+      "name": "Object Properties",
+      "scope": ["variable.other.property", "meta.property-name"],
+      "settings": {
+        "foreground": "#E45649"
+      }
+    }
+  ]
+}

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:levelup_tube/src/core/design_system/app_radius.dart';
+import 'package:levelup_tube/src/core/design_system/app_sizes.dart';
 import 'package:levelup_tube/src/core/extensions/context_extensions.dart';
 import 'package:levelup_tube/src/features/library/models/video.dart';
 import 'package:levelup_tube/src/features/library/views/dashboard_widgets/dashboard_video_list.dart';
@@ -19,8 +21,8 @@ class VideoListWithPlayer extends StatelessWidget {
     this.onOptionsTap,
     this.onProgressUpdate,
     this.emptyWidget,
-    this.heroPadding = const EdgeInsets.symmetric(horizontal: 16),
-    this.heroShimmerRadius,
+    this.heroPadding = const EdgeInsets.symmetric(horizontal: AppSizes.p8),
+    this.heroShimmerRadius = AppRadius.roundedXL,
   });
 
   final bool isLoading;
@@ -41,7 +43,7 @@ class VideoListWithPlayer extends StatelessWidget {
     return SafeArea(
       child: Column(
         children: [
-          const SizedBox(height: 8),
+          const SizedBox(height: 4),
           // Hero Player
           Padding(
             padding: heroPadding,
@@ -67,7 +69,7 @@ class VideoListWithPlayer extends StatelessWidget {
                   )
                 : const SizedBox.shrink(),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 8),
           // Video List
           Expanded(
             child: isLoading

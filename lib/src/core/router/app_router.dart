@@ -68,7 +68,13 @@ class AppRouter {
                     path: ':id',
                     builder: (context, state) {
                       final id = int.parse(state.pathParameters['id']!);
-                      return PlaylistDetailPage(playlistId: id);
+                      return BlocProvider(
+                        create: (_) => PlaylistDetailCubit(
+                          playlistId: id,
+                          repository: di.sl(),
+                        )..loadPlaylist(),
+                        child: const PlaylistDetailPage(),
+                      );
                     },
                   ),
                 ],
@@ -118,7 +124,13 @@ class AppRouter {
             path: ':id',
             builder: (context, state) {
               final id = int.parse(state.pathParameters['id']!);
-              return PlaylistDetailPage(playlistId: id);
+              return BlocProvider(
+                create: (_) => PlaylistDetailCubit(
+                  playlistId: id,
+                  repository: di.sl(),
+                )..loadPlaylist(),
+                child: const PlaylistDetailPage(),
+              );
             },
           ),
         ],

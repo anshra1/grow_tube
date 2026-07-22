@@ -3,6 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
 import 'package:levelup_tube/src/core/widgets/atoms/buttons/app_button_state.dart';
 import 'package:levelup_tube/src/core/widgets/atoms/buttons/app_primary_button.dart';
+import 'package:levelup_tube/src/core/widgets/atoms/top_header.dart';
+import 'package:levelup_tube/src/core/widgets/template/app_scaffold.dart';
 import 'package:levelup_tube/src/features/library/views/add_page_widgets/get_youtube_url.dart';
 import 'package:levelup_tube/src/features/library/views/add_page_widgets/select_playlist.dart';
 import 'package:levelup_tube/src/features/library/views/add_page_widgets/top_header.dart';
@@ -43,7 +45,7 @@ class _AddVideoState extends State<AddVideo> {
 
     return BlocListener<PlaylistDetailCubit, PlaylistDetailState>(
       listener: (context, state) {
-        if (state is PlaylistDetailAddSuccess) {
+        if (state is VideoAddPlaylistSuccessState) {
           _urlController.clear();
           toastification.show(
             context: context,
@@ -75,69 +77,74 @@ class _AddVideoState extends State<AddVideo> {
               : <PlaylistModel>[];
 
           // Set default playlist id when settings state loads
-          if (settingsState is SettingsLoadedState && _selectedPlaylistIdNotifier.value == null) {
+          if (settingsState is SettingsLoadedState &&
+              _selectedPlaylistIdNotifier.value == null) {
             _selectedPlaylistIdNotifier.value = settingsState.defaultPlaylistId;
           }
 
-          return Scaffold(
-            body: SafeArea(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    const TopHeader(),
-                    const Gap(32),
-                    GetYoutubeUrl(urlController: _urlController, theme: theme),
-                    const Gap(24),
-                    SelectPlaylist(
-                      selectedPlaylistIdNotifier: _selectedPlaylistIdNotifier,
-                      playlists: playlists,
-                    ),
-                    const Gap(32),
-                    ListenableBuilder(
-                      listenable: Listenable.merge([_urlController, _selectedPlaylistIdNotifier]),
-                      builder: (context, child) {
-                        return BlocBuilder<PlaylistDetailCubit, PlaylistDetailState>(
-                          builder: (context, playlistState) {
-                            final isAdding = playlistState is PlaylistDetailLoading;
+          return AppScaffold(
+            appBar: AppBar(title: const TopHeaderText('Add Video Link')),
+            body: SingleChildScrollView(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  const TopHeader(),
+                  const Gap(32),
+                  GetYoutubeUrl(urlController: _urlController, theme: theme),
+                  const Gap(24),
+                  SelectPlaylist(
+                    selectedPlaylistIdNotifier: _selectedPlaylistIdNotifier,
+                    playlists: playlists,
+                  ),
+                  const Gap(32),
+                  ListenableBuilder(
+                    listenable: Listenable.merge([
+                      _urlController,
+                      _selectedPlaylistIdNotifier,
+                    ]),
+                    builder: (context, child) {
+                      return BlocBuilder<PlaylistDetailCubit, PlaylistDetailState>(
+                        builder: (context, playlistState) {
+                          final isAdding = playlistState is PlaylistDetailLoading;
 
-                            final isEnabled =
-                                _urlController.text.trim().isNotEmpty &&
-                                _selectedPlaylistIdNotifier.value != null &&
-                                !isAdding;
+                          final isEnabled =
+                              _urlController.text.trim().isNotEmpty &&
+                              _selectedPlaylistIdNotifier.value != null &&
+                              !isAdding;
 
-                            AppButtonState buttonState;
-                            if (isAdding) {
-                              buttonState = AppButtonState.loading;
-                            } else if (isEnabled) {
-                              buttonState = AppButtonState.enabled;
-                            } else {
-                              buttonState = AppButtonState.disabled;
-                            }
+                          AppButtonState buttonState;
+                          if (isAdding) {
+                            buttonState = AppButtonState.loading;
+                          } else if (isEnabled) {
+                            buttonState = AppButtonState.enabled;
+                          } else {
+                            buttonState = AppButtonState.disabled;
+                          }
 
-                            return AppPrimaryButton(
-                              state: buttonState,
-                              onPressed: isEnabled
-                                  ? () {
-                                      context.read<PlaylistDetailCubit>().addVideoToPlaylist(
-                                        _selectedPlaylistIdNotifier.value!,
-                                        _urlController.text.trim(),
-                                      );
-                                    }
-                                  : null,
-                              padding: const EdgeInsets.symmetric(vertical: 18),
-                              child: const Text(
-                                'Add Video',
-                                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
-                              ),
-                            );
-                          },
-                        );
-                      },
-                    ),
-                  ],
-                ),
+                          return AppPrimaryButton(
+                            state: buttonState,
+                            onPressed: isEnabled
+                                ? () {
+                                    context
+                                        .read<PlaylistDetailCubit>()
+                                        .addVideoToPlaylist(
+                                          _selectedPlaylistIdNotifier.value!,
+                                          _urlController.text.trim(),
+                                        );
+                                  }
+                                : null,
+                            padding: const EdgeInsets.symmetric(vertical: 18),
+                            child: const Text(
+                              'Add Video',
+                              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                            ),
+                          );
+                        },
+                      );
+                    },
+                  ),
+                ],
               ),
             ),
           );

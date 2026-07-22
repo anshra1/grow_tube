@@ -4,6 +4,7 @@ import 'package:levelup_tube/src/core/constants/app_strings.dart';
 import 'package:levelup_tube/src/core/design_system/app_radius.dart';
 import 'package:levelup_tube/src/core/design_system/app_sizes.dart';
 import 'package:levelup_tube/src/core/extensions/context_extensions.dart';
+import 'package:levelup_tube/src/core/widgets/molecules/custom_alert_dialog.dart';
 import 'package:levelup_tube/src/features/library/models/video.dart';
 import 'package:levelup_tube/src/features/library/views/dashboard_widgets/dashboard_empty_state.dart';
 import 'package:levelup_tube/src/features/library/views/dashboard_widgets/video_list_with_player.dart';
@@ -11,20 +12,10 @@ import 'package:levelup_tube/src/features/playlist/viewmodels/playlist_detail_cu
 import 'package:levelup_tube/src/features/playlist/viewmodels/playlist_detail_state.dart';
 import 'package:levelup_tube/src/features/settings/viewmodels/setting_state.dart';
 import 'package:levelup_tube/src/features/settings/viewmodels/settings_cubit.dart';
-import 'package:levelup_tube/src/core/widgets/molecules/custom_alert_dialog.dart';
 import 'package:toastification/toastification.dart';
 
 class DashboardPage extends StatelessWidget {
   const DashboardPage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return const _DashboardContent();
-  }
-}
-
-class _DashboardContent extends StatelessWidget {
-  const _DashboardContent();
 
   @override
   Widget build(BuildContext context) {
@@ -67,8 +58,6 @@ class _DashboardContent extends StatelessWidget {
               isLoading: false,
               isEmpty: true,
               emptyWidget: DashboardEmptyState(onAddVideo: cubit.addVideo),
-              heroPadding: const EdgeInsets.symmetric(horizontal: AppSizes.p8),
-              heroShimmerRadius: AppRadius.roundedXL,
             ),
             PlaylistDetailLoaded() => _LoadedDashboardBody(),
             _ => const SizedBox.shrink(),
@@ -174,11 +163,9 @@ class _LoadedDashboardBody extends StatelessWidget {
       forcePlayTimestamp: heroVideoState.forcePlayTimestamp,
       onOptionsTap: (video) {
         context
-            .findAncestorWidgetOfExactType<_DashboardContent>()!
+            .findAncestorWidgetOfExactType<DashboardPage>()!
             ._showVideoOptionsBottomSheet(context, video);
       },
-      heroPadding: const EdgeInsets.symmetric(horizontal: AppSizes.p8),
-      heroShimmerRadius: AppRadius.roundedXL,
     );
   }
 }

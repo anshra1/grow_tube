@@ -78,17 +78,11 @@ class PlaylistDetailCubit extends Cubit<PlaylistDetailState> {
       _selectedHeroId = heroVideo.id;
 
       final videos = _pinnedFirst(normalVideos);
-      final videosState = PlaylistVideosState(
-        playlist: playlist,
-        videos: videos,
-      );
+      final videosState = PlaylistVideosState(playlist: playlist, videos: videos);
       final heroVideoState = HeroVideoState(heroVideo: heroVideo);
 
       emit(
-        PlaylistDetailLoaded(
-          videosState: videosState,
-          heroVideoState: heroVideoState,
-        ),
+        PlaylistDetailLoaded(videosState: videosState, heroVideoState: heroVideoState),
       );
     } on Object catch (e) {
       emit(PlaylistDetailError(_exceptionMessage(e)));
@@ -165,9 +159,7 @@ class PlaylistDetailCubit extends Cubit<PlaylistDetailState> {
             if (video.id == playlistVideoId) {
               return video.copyWith(
                 lastWatchedPositionSeconds: positionSeconds,
-                lastPlayedAt: isCurrentHero
-                    ? DateTime.now()
-                    : video.lastPlayedAt,
+                lastPlayedAt: isCurrentHero ? DateTime.now() : video.lastPlayedAt,
               );
             }
             return video;
@@ -210,7 +202,7 @@ class PlaylistDetailCubit extends Cubit<PlaylistDetailState> {
 
     try {
       await _repository.addVideoToPlaylist(playlistId, url);
-      emit(const PlaylistDetailAddSuccess()); // Triggers the success toast
+      emit(const VideoAddPlaylistSuccessState()); // Triggers the success toast
       await loadPlaylist(); // <--- NEW: Recovers the Dashboard UI
     } on Exception catch (e) {
       emit(PlaylistDetailError(_exceptionMessage(e))); // Triggers the error toast

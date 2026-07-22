@@ -2,6 +2,43 @@ import 'package:flutter/material.dart';
 import 'package:levelup_tube/src/core/design_system/app_colors.dart';
 import 'package:levelup_tube/src/core/design_system/app_typography.dart';
 
+class AppTheme {
+  const AppTheme._();
+
+  static ThemeData light() {
+    final scheme = ColorScheme.fromSeed(seedColor: AppColors.primary);
+
+    return ThemeData(
+      useMaterial3: true,
+      colorScheme: scheme,
+      textTheme: AppTypography.main,
+      appBarTheme: AppBarTheme(
+        backgroundColor: scheme.surfaceContainer,
+        surfaceTintColor: Colors.transparent,
+      ),
+      extensions: const [AppColorsExtension.light],
+    );
+  }
+
+  static ThemeData dark() {
+    final scheme = ColorScheme.fromSeed(
+      seedColor: AppColors.primary,
+      brightness: Brightness.dark,
+    );
+
+    return ThemeData(
+      useMaterial3: true,
+      colorScheme: scheme,
+      textTheme: AppTypography.main,
+      appBarTheme: AppBarTheme(
+        backgroundColor: scheme.surfaceContainer,
+        surfaceTintColor: Colors.transparent,
+      ),
+      extensions: const [AppColorsExtension.dark],
+    );
+  }
+}
+
 @immutable
 class AppColorsExtension extends ThemeExtension<AppColorsExtension> {
   const AppColorsExtension({
@@ -62,35 +99,4 @@ class AppColorsExtension extends ThemeExtension<AppColorsExtension> {
     textPrimary: Color(0xFFF5F5F5),
     textSecondary: Color(0xFFB0B8C4),
   );
-}
-
-class AppTheme {
-  const AppTheme._();
-
-  static ThemeData light() {
-    final scheme = ColorScheme.fromSeed(
-      seedColor: AppColors.primary,
-    );
-
-    return ThemeData(
-      useMaterial3: true,
-      colorScheme: scheme,
-      textTheme: AppTypography.main,
-      extensions: const [AppColorsExtension.light],
-    );
-  }
-
-  static ThemeData dark() {
-    final scheme = ColorScheme.fromSeed(
-      seedColor: AppColors.primary,
-      brightness: Brightness.dark,
-    );
-
-    return ThemeData(
-      useMaterial3: true,
-      colorScheme: scheme,
-      textTheme: AppTypography.main,
-      extensions: const [AppColorsExtension.dark],
-    );
-  }
 }

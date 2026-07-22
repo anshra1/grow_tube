@@ -41,8 +41,8 @@ final class PlaylistDetailLoading extends PlaylistDetailState {
 }
 
 // adding success state
-final class PlaylistDetailAddSuccess extends PlaylistDetailState {
-  const PlaylistDetailAddSuccess();
+final class VideoAddPlaylistSuccessState extends PlaylistDetailState {
+  const VideoAddPlaylistSuccessState();
 }
 
 final class PlaylistDetailEmpty extends PlaylistDetailState {
@@ -54,10 +54,7 @@ final class PlaylistDetailEmpty extends PlaylistDetailState {
 }
 
 final class PlaylistDetailLoaded extends PlaylistDetailState {
-  const PlaylistDetailLoaded({
-    required this.videosState,
-    required this.heroVideoState,
-  });
+  const PlaylistDetailLoaded({required this.videosState, required this.heroVideoState});
 
   final PlaylistVideosState videosState;
   final HeroVideoState heroVideoState;
