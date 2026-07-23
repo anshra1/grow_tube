@@ -1,6 +1,3 @@
-import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
-
 /// Component dimensions, touch targets, and standard sizes.
 ///
 /// All sizes follow Material Design 3 accessibility guidelines.
@@ -136,21 +133,6 @@ class AppSizes {
   /// Bottom sheet top padding (above handle)
   static const double bottomSheetTopPadding = 12;
 }
-
-// Global Gap Constants
-const gapH4 = SizedBox(height: AppSizes.p4);
-const gapH8 = SizedBox(height: AppSizes.p8);
-const gapH12 = SizedBox(height: AppSizes.p12);
-const gapH16 = SizedBox(height: AppSizes.p16);
-const gapH24 = SizedBox(height: AppSizes.p24);
-const gapH32 = SizedBox(height: AppSizes.p32);
-const gapH48 = SizedBox(height: AppSizes.p48);
-
-const gapW4 = SizedBox(width: AppSizes.p4);
-const gapW8 = SizedBox(width: AppSizes.p8);
-const gapW12 = SizedBox(width: AppSizes.p12);
-const gapW16 = SizedBox(width: AppSizes.p16);
-const gapW24 = SizedBox(width: AppSizes.p24);
 
 /// Standard icon sizes.
 class AppIconSizes {

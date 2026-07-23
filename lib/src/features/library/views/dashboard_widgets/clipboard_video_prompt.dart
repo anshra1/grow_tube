@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gap/gap.dart';
 import 'package:levelup_tube/src/core/constants/app_icons.dart';
 import 'package:levelup_tube/src/core/design_system/app_radius.dart';
 import 'package:levelup_tube/src/core/design_system/app_sizes.dart';
@@ -55,7 +56,7 @@ class ClipboardVideoPrompt extends StatelessWidget {
                   color: Color(0xFFFF0000),
                 ),
               ),
-              gapW12,
+              const Gap(12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -88,7 +89,7 @@ class ClipboardVideoPrompt extends StatelessWidget {
               ),
             ],
           ),
-          gapH16,
+          const Gap(16),
           Container(
             padding: const EdgeInsets.symmetric(
               horizontal: AppSizes.p12,
@@ -105,7 +106,7 @@ class ClipboardVideoPrompt extends StatelessWidget {
                   size: AppIconSizes.sm,
                   color: colors.primary,
                 ),
-                gapW8,
+                const Gap(8),
                 Expanded(
                   child: Text(
                     url,
@@ -119,7 +120,7 @@ class ClipboardVideoPrompt extends StatelessWidget {
               ],
             ),
           ),
-          gapH16,
+          const Gap(16),
           Row(
             children: [
               Expanded(
@@ -141,7 +142,7 @@ class ClipboardVideoPrompt extends StatelessWidget {
                   ),
                 ),
               ),
-              gapW12,
+              const Gap(12),
               Expanded(
                 child: FilledButton.icon(
                   onPressed: onWatch,

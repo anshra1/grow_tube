@@ -1,4 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -13,7 +14,6 @@ import 'package:levelup_tube/src/features/connectivity/presentation/widgets/conn
 import 'package:levelup_tube/src/features/library/models/video.dart';
 import 'package:levelup_tube/src/features/library/views/dashboard_widgets/delete_video_dialog.dart';
 import 'package:levelup_tube/src/features/playlist/viewmodels/playlist_detail_cubit.dart';
-import 'package:shimmer/shimmer.dart';
 
 class DashboardVideoCard extends StatelessWidget {
   const DashboardVideoCard({
@@ -99,123 +99,124 @@ class DashboardVideoCard extends StatelessWidget {
             onLongPress: handleOptions,
             child: Padding(
               padding: const EdgeInsets.all(AppSizes.p4),
-              child: Row(
-                children: [
-                  // Thumbnail with Duration Overlay
-                  Stack(
-                    children: [
-                      ClipRRect(
-                        borderRadius: AppRadius.roundedM,
-                        child: SizedBox(
-                          width: 120,
-                          height: 70,
-                          child: CachedNetworkImage(
-                            imageUrl: video.thumbnailUrl,
-                            fit: BoxFit.fitHeight,
-                            memCacheWidth: 360,
-                            memCacheHeight: 210,
-                            placeholder: (context, url) => Shimmer.fromColors(
-                              baseColor: context.colorScheme.surfaceContainerHighest,
-                              highlightColor: context.colorScheme.surface,
-                              child: Container(color: Colors.white),
-                            ),
-                            errorWidget: (context, url, error) => Container(
-                              color: context.colorScheme.surfaceContainerHighest,
-                            ),
-                          ),
-                        ),
-                      ),
-                      Positioned(
-                        bottom: 4,
-                        right: 4,
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-                          decoration: BoxDecoration(
-                            color: Colors.black.withValues(alpha: 0.8),
-                            borderRadius: AppRadius.roundedS,
-                          ),
-                          child: Text(
-                            _formatDuration(video.durationSeconds),
-                            style: context.textTheme.labelSmall?.copyWith(
-                              color: Colors.white,
-                              fontSize: 10,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  gapW16,
-                  // content
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          video.title,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          style: context.textTheme.bodyMedium?.copyWith(
-                            fontWeight: FontWeight.w600,
-                            color: context.colorScheme.onSurface,
-                          ),
-                        ),
-                        const Gap(2),
-                        Text(
-                          video.channelName,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: context.textTheme.labelSmall?.copyWith(
-                            color: context.colorScheme.onSurfaceVariant,
-                          ),
-                        ),
-                        const Gap(8),
-                        // Progress Bar & Percentage
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Expanded(
-                                  child: ClipRRect(
+              child: IntrinsicHeight(
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Expanded(
+                      child: Row(
+                        children: [
+                          // Thumbnail with Duration Overlay
+                          Stack(
+                            children: [
+                              ClipRRect(
+                                borderRadius: AppRadius.roundedM,
+                                child: SizedBox(
+                                  width: 120,
+                                  height: 67,
+                                  child: CachedNetworkImage(
+                                    scale: 1.2,
+                                    imageUrl: video.thumbnailUrl,
+                                    fit: BoxFit.cover, // Fill the whole box
+                                  ),
+                                ),
+                              ),
+
+                              Positioned(
+                                bottom: 4,
+                                right: 4,
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 4,
+                                    vertical: 2,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: Colors.black.withValues(alpha: 0.8),
                                     borderRadius: AppRadius.roundedS,
-                                    child: LinearProgressIndicator(
-                                      value: progress,
-                                      minHeight: 4,
-                                      backgroundColor: context.colorScheme.primary
-                                          .withValues(alpha: 0.1),
-                                      valueColor: AlwaysStoppedAnimation<Color>(
-                                        context.colorScheme.primary,
-                                      ),
+                                  ),
+                                  child: Text(
+                                    _formatDuration(video.durationSeconds),
+                                    style: context.textTheme.labelSmall?.copyWith(
+                                      color: Colors.white,
+                                      fontSize: 10,
                                     ),
                                   ),
                                 ),
+                              ),
+                            ],
+                          ),
+                          const Gap(16),
+                          // content
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  video.title,
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: context.textTheme.bodyMedium?.copyWith(
+                                    fontWeight: FontWeight.w600,
+                                    color: context.colorScheme.onSurface,
+                                  ),
+                                ),
+                                const Gap(2),
+                                Text(
+                                  video.channelName,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: context.textTheme.labelSmall?.copyWith(
+                                    color: context.colorScheme.onSurfaceVariant,
+                                  ),
+                                ),
+                                const Gap(8),
+                                // Progress Bar & Percentage
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Expanded(
+                                          child: ClipRRect(
+                                            borderRadius: AppRadius.roundedS,
+                                            child: LinearProgressIndicator(
+                                              value: progress,
+                                              minHeight: 4,
+                                              backgroundColor: context.colorScheme.primary
+                                                  .withValues(alpha: 0.1),
+                                              valueColor: AlwaysStoppedAnimation<Color>(
+                                                context.colorScheme.primary,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    const Gap(4),
+                                    Text(
+                                      '$percentage% watched',
+                                      style: context.textTheme.labelSmall?.copyWith(
+                                        color: percentage > 0
+                                            ? context.colorScheme.primary
+                                            : context.colorScheme.onSurfaceVariant,
+                                        fontWeight: percentage > 0
+                                            ? FontWeight.bold
+                                            : FontWeight.normal,
+                                        fontSize: 10,
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ],
                             ),
-                            const Gap(4),
-                            Text(
-                              '$percentage% watched',
-                              style: context.textTheme.labelSmall?.copyWith(
-                                color: percentage > 0
-                                    ? context.colorScheme.primary
-                                    : context.colorScheme.onSurfaceVariant,
-                                fontWeight: percentage > 0
-                                    ? FontWeight.bold
-                                    : FontWeight.normal,
-                                fontSize: 10,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                  const Gap(2),
-                  SizedBox(
-                    height: 70, // Matches the thumbnail height
-                    child: Column(
+                    const Gap(2),
+                    Column(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         GestureDetector(
@@ -227,13 +228,18 @@ class DashboardVideoCard extends StatelessWidget {
                           ),
                         ),
                         if (video.isPinned)
-                          Icon(Icons.push_pin, color: context.colorScheme.primary, size: 14)
-                        else
-                          const SizedBox.shrink(),
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 2),
+                            child: Icon(
+                              CupertinoIcons.pin,
+                              color: context.colorScheme.onSurface,
+                              size: 12,
+                            ),
+                          ),
                       ],
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),

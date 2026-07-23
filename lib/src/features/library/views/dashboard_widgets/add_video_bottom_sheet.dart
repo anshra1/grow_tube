@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gap/gap.dart';
 import 'package:levelup_tube/src/core/constants/app_strings.dart';
 import 'package:levelup_tube/src/core/design_system/app_sizes.dart';
 import 'package:levelup_tube/src/core/extensions/context_extensions.dart';
@@ -43,7 +44,7 @@ class _AddVideoBottomSheetState extends State<AddVideoBottomSheet> {
             ),
             textAlign: TextAlign.center,
           ),
-          gapH24,
+          const Gap(24),
           TextField(
             controller: _controller,
             decoration: InputDecoration(
@@ -57,7 +58,7 @@ class _AddVideoBottomSheetState extends State<AddVideoBottomSheet> {
             autofocus: true,
             style: TextStyle(color: context.colorScheme.onSurface),
           ),
-          gapH24,
+          const Gap(24),
           FilledButton(
             onPressed: _submit,
             style: FilledButton.styleFrom(
@@ -66,7 +67,7 @@ class _AddVideoBottomSheetState extends State<AddVideoBottomSheet> {
             ),
             child: const Text(AppStrings.dashboardAddToLibrary),
           ),
-          gapH24,
+          const Gap(24),
         ],
       ),
     );

@@ -2,6 +2,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:gap/gap.dart';
 import 'package:levelup_tube/src/core/constants/app_strings.dart';
 import 'package:levelup_tube/src/core/design_system/app_radius.dart';
 import 'package:levelup_tube/src/core/design_system/app_sizes.dart';
@@ -207,7 +208,7 @@ class _DashboardEmptyStateState extends State<DashboardEmptyState>
                 ),
               ),
 
-              gapH16,
+              const Gap(16),
 
               // ── Text Section ──
               SlideTransition(
@@ -218,7 +219,7 @@ class _DashboardEmptyStateState extends State<DashboardEmptyState>
                 ),
               ),
 
-              gapH16,
+              const Gap(16),
 
               // ── Input + CTA Section ──
               SlideTransition(
@@ -524,7 +525,7 @@ class _DashboardEmptyStateState extends State<DashboardEmptyState>
           ),
         ),
 
-        gapH16,
+        const Gap(16),
 
         // ── CTA Button ──
         SizedBox(
@@ -543,7 +544,7 @@ class _DashboardEmptyStateState extends State<DashboardEmptyState>
                     fontWeight: FontWeight.w700,
                   ),
                 ),
-                gapW8,
+                const Gap(8),
                 Icon(
                   Icons.add_circle_rounded,
                   color: colors.onPrimary,

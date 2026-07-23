@@ -50,18 +50,22 @@ class PlaylistDetailPage extends StatelessWidget {
             title: Text(
               title ?? 'Playlist',
               style: GoogleFonts.poppins(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
+                fontSize: 22,
+                fontWeight: FontWeight.w600,
                 color: context.colorScheme.onSurface,
                 letterSpacing: -0.5,
               ),
             ),
             leading: IconButton(
-              icon: const Icon(Icons.arrow_back_ios_new),
+              icon: const Icon(
+                Icons.arrow_back_ios_new,
+                size: 18,
+                fontWeight: FontWeight.w600,
+              ),
               onPressed: () => Navigator.pop(context),
             ),
-            actions: const [Icon(Icons.edit)],
-            // Todo: add later go to edit page with dropdown option to open edit icon when click on 
+            // actions: const [Icon(Icons.edit)],
+            // Todo: add later go to edit page with dropdown option to open edit icon when click on
           ),
           body: body,
         );

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gap/gap.dart';
 import 'package:levelup_tube/src/core/design_system/app_radius.dart';
 import 'package:levelup_tube/src/core/design_system/app_sizes.dart';
 import 'package:levelup_tube/src/core/extensions/context_extensions.dart';
@@ -52,7 +53,7 @@ class ClipboardPlaylistPrompt extends StatelessWidget {
                   color: Color(0xFFFF0000),
                 ),
               ),
-              gapW12,
+              const Gap(12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -85,7 +86,7 @@ class ClipboardPlaylistPrompt extends StatelessWidget {
               ),
             ],
           ),
-          gapH16,
+          const Gap(16),
           Container(
             padding: const EdgeInsets.symmetric(
               horizontal: AppSizes.p12,
@@ -102,7 +103,7 @@ class ClipboardPlaylistPrompt extends StatelessWidget {
                   size: AppIconSizes.sm,
                   color: colors.primary,
                 ),
-                gapW8,
+                const Gap(8),
                 Expanded(
                   child: Text(
                     url,
@@ -116,7 +117,7 @@ class ClipboardPlaylistPrompt extends StatelessWidget {
               ],
             ),
           ),
-          gapH16,
+          const Gap(16),
           Row(
             children: [
               Expanded(
