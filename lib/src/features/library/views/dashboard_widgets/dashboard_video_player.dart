@@ -3,6 +3,7 @@
 
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -215,12 +216,24 @@ class _DashboardVideoPlayerState extends State<DashboardVideoPlayer>
 
     _errorSubscription = controller.listen((value) async {
       // --- ADDED EXPLICIT PRINTS TO SEE WHAT WE GET ---
-      print('====== YOUTUBE PLAYER UPDATE ======');
-      print('Error Code: ${value.error.code} | Name: ${value.error.name}');
-      print('Player State: ${value.playerState.name}');
-      print('Video Title: ${value.metaData.title}');
-      print('Video ID: ${value.metaData.videoId}');
-      print('===================================');
+      if (kDebugMode) {
+        print('====== YOUTUBE PLAYER UPDATE ======');
+      }
+      if (kDebugMode) {
+        print('Error Code: ${value.error.code} | Name: ${value.error.name}');
+      }
+      if (kDebugMode) {
+        print('Player State: ${value.playerState.name}');
+      }
+      if (kDebugMode) {
+        print('Video Title: ${value.metaData.title}');
+      }
+      if (kDebugMode) {
+        print('Video ID: ${value.metaData.videoId}');
+      }
+      if (kDebugMode) {
+        print('===================================');
+      }
 
       if (value.error != YoutubeError.none) {
         talker.error(
@@ -235,8 +248,10 @@ class _DashboardVideoPlayerState extends State<DashboardVideoPlayer>
         talker.debug(
           'VideoPlayer: State: ${value.playerState}, Current position: $position',
         );
-      } catch (e) {
-        print('Error getting position: $e');
+      } on Exception catch (e) {
+        if (kDebugMode) {
+          print('Error getting position: $e');
+        }
       }
     });
   }

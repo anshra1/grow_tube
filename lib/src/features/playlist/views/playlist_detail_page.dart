@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:levelup_tube/src/core/extensions/context_extensions.dart';
 import 'package:levelup_tube/src/core/widgets/template/app_scaffold.dart';
 import 'package:levelup_tube/src/features/library/models/video.dart';
 import 'package:levelup_tube/src/features/library/views/dashboard_widgets/video_list_with_player.dart';
@@ -44,7 +46,23 @@ class PlaylistDetailPage extends StatelessWidget {
         }
 
         return AppScaffold(
-          appBar: AppBar(title: Text(title ?? 'Playlist')),
+          appBar: AppBar(
+            title: Text(
+              title ?? 'Playlist',
+              style: GoogleFonts.poppins(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: context.colorScheme.onSurface,
+                letterSpacing: -0.5,
+              ),
+            ),
+            leading: IconButton(
+              icon: const Icon(Icons.arrow_back_ios_new),
+              onPressed: () => Navigator.pop(context),
+            ),
+            actions: const [Icon(Icons.edit)],
+            // Todo: add later go to edit page with dropdown option to open edit icon when click on 
+          ),
           body: body,
         );
       },

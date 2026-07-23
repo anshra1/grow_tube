@@ -34,7 +34,7 @@ class DashboardVideoList extends StatelessWidget {
         final video = videos[index];
 
         return Padding(
-          padding: const EdgeInsets.only(bottom: AppSizes.p16),
+          padding: const EdgeInsets.only(bottom: AppSizes.p4),
           child: DashboardVideoCard(
             video: video,
             onTap: onVideoTap != null ? () => onVideoTap!(video) : null,

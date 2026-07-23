@@ -12,5 +12,7 @@
   "flutterTools.displayMobxContextMenu": false,
   "flutterTools.displayRiverpodContextMenu": false,
   "flutterTools.displayModularContextMenu": false,
-  "flutterTools.displaySignalsContextMenu": false
+  "flutterTools.displaySignalsContextMenu": false,
+  "workbench.editor.tabSizing": "fit",
+  "workbench.editor.titleScrollbarSizing": "large"
 }

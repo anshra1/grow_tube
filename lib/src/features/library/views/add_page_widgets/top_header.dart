@@ -30,9 +30,7 @@ class TopHeader extends StatelessWidget {
           Text(
             'Paste a YouTube URL and select a playlist to add it to',
             style: theme.textTheme.bodyMedium?.copyWith(
-              color: theme.colorScheme.onPrimaryContainer.withValues(
-                alpha: 0.8,
-              ),
+              color: theme.colorScheme.onPrimaryContainer.withValues(alpha: 0.8),
             ),
             textAlign: TextAlign.center,
           ),

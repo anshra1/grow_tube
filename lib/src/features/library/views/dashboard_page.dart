@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:levelup_tube/src/core/constants/app_strings.dart';
-import 'package:levelup_tube/src/core/design_system/app_radius.dart';
-import 'package:levelup_tube/src/core/design_system/app_sizes.dart';
 import 'package:levelup_tube/src/core/extensions/context_extensions.dart';
 import 'package:levelup_tube/src/core/widgets/molecules/custom_alert_dialog.dart';
 import 'package:levelup_tube/src/features/library/models/video.dart';

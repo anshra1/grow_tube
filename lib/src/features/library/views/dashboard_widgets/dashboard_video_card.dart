@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
 import 'package:levelup_tube/src/core/design_system/app_radius.dart';
+import 'package:levelup_tube/src/core/design_system/app_shadows.dart';
 import 'package:levelup_tube/src/core/design_system/app_sizes.dart';
 import 'package:levelup_tube/src/core/di/injection_container.dart' as di;
 import 'package:levelup_tube/src/core/extensions/context_extensions.dart';
@@ -24,17 +25,10 @@ class DashboardVideoCard extends StatelessWidget {
   });
 
   final Video video;
-
-  /// Optional override for tap behavior.
-  /// If null, defaults to LibraryVideoSelectedEvent dispatch.
   final VoidCallback? onTap;
-
-  /// Optional override for long-press behavior.
-  /// If null, defaults to showing the delete video dialog.
   final VoidCallback? onLongPress;
-
-  /// Optional override for the existing three-dot control.
   final VoidCallback? onOptionsTap;
+
   static final ConnectivityToastController _toastController = di
       .sl<ConnectivityToastController>();
 
@@ -47,10 +41,7 @@ class DashboardVideoCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final progress = video.durationSeconds > 0
-        ? (video.lastWatchedPositionSeconds / video.durationSeconds).clamp(
-            0.0,
-            1.0,
-          )
+        ? (video.lastWatchedPositionSeconds / video.durationSeconds).clamp(0.0, 1.0)
         : 0.0;
 
     final percentage = (progress * 100).toInt();
@@ -70,18 +61,21 @@ class DashboardVideoCard extends StatelessWidget {
         };
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+      padding: const EdgeInsets.only(bottom: 8),
       child: Container(
         decoration: BoxDecoration(
-          color: context.colorScheme.surface,
           borderRadius: AppRadius.roundedL,
           border: Border.all(
-            color: context.colorScheme.outlineVariant.withValues(alpha: 0.6),
+            color: context.colorScheme.outlineVariant.withValues(alpha: 0.5),
           ),
+          boxShadow: AppShadows.card,
         ),
-        child: ClipRRect(
+        child: Material(
+          color: context.colorScheme.surface,
           borderRadius: AppRadius.roundedL,
+          clipBehavior: Clip.antiAlias,
           child: InkWell(
+            borderRadius: AppRadius.roundedL,
             overlayColor: WidgetStateProperty.resolveWith((states) {
               if (states.contains(WidgetState.pressed)) {
                 return context.colorScheme.primary.withValues(alpha: 0.12);
@@ -96,8 +90,7 @@ class DashboardVideoCard extends StatelessWidget {
                 onTap!();
                 return;
               }
-              if (context.read<ConnectivityCubit>().state ==
-                  ConnectivityStatus.offline) {
+              if (context.read<ConnectivityCubit>().state == ConnectivityStatus.offline) {
                 _toastController.nudgeOffline();
                 return;
               }
@@ -105,9 +98,8 @@ class DashboardVideoCard extends StatelessWidget {
             },
             onLongPress: handleOptions,
             child: Padding(
-              padding: const EdgeInsets.all(4),
+              padding: const EdgeInsets.all(AppSizes.p4),
               child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // Thumbnail with Duration Overlay
                   Stack(
@@ -115,13 +107,13 @@ class DashboardVideoCard extends StatelessWidget {
                       ClipRRect(
                         borderRadius: AppRadius.roundedM,
                         child: SizedBox(
-                          width: 140,
-                          height: 79,
+                          width: 120,
+                          height: 70,
                           child: CachedNetworkImage(
                             imageUrl: video.thumbnailUrl,
-                            fit: BoxFit.cover,
-                            memCacheWidth: 420,
-                            memCacheHeight: 237,
+                            fit: BoxFit.fitHeight,
+                            memCacheWidth: 360,
+                            memCacheHeight: 210,
                             placeholder: (context, url) => Shimmer.fromColors(
                               baseColor: context.colorScheme.surfaceContainerHighest,
                               highlightColor: context.colorScheme.surface,
@@ -134,13 +126,10 @@ class DashboardVideoCard extends StatelessWidget {
                         ),
                       ),
                       Positioned(
-                        bottom: 6,
-                        right: 6,
+                        bottom: 4,
+                        right: 4,
                         child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 6,
-                            vertical: 2,
-                          ),
+                          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
                           decoration: BoxDecoration(
                             color: Colors.black.withValues(alpha: 0.8),
                             borderRadius: AppRadius.roundedS,
@@ -149,87 +138,101 @@ class DashboardVideoCard extends StatelessWidget {
                             _formatDuration(video.durationSeconds),
                             style: context.textTheme.labelSmall?.copyWith(
                               color: Colors.white,
-                              fontSize: 12,
-                              fontWeight: FontWeight.w500,
+                              fontSize: 10,
                             ),
                           ),
                         ),
                       ),
                     ],
                   ),
-                  const Gap(12),
+                  gapW16,
                   // content
                   Expanded(
-                    child: SizedBox(
-                      height: 79,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            video.title,
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                            style: context.textTheme.titleMedium?.copyWith(
-                              fontWeight: FontWeight.w600,
-                              fontSize: 15,
-                              color: context.colorScheme.onSurface,
-                              height: 1.2,
-                            ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          video.title,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: context.textTheme.bodyMedium?.copyWith(
+                            fontWeight: FontWeight.w600,
+                            color: context.colorScheme.onSurface,
                           ),
-                          const Gap(4),
-                          // Text(
-                          //   video.channelName,
-                          //   maxLines: 1,
-                          //   overflow: TextOverflow.ellipsis,
-                          //   style: context.textTheme.labelMedium?.copyWith(
-                          //     color: context.colorScheme.onSurfaceVariant,
-                          //     fontWeight: FontWeight.w500,
-                          //   ),
-                          // ),
-                          const Spacer(),
-                          // Progress Bar & Percentage
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              ClipRRect(
-                                borderRadius: AppRadius.roundedS,
-                                child: LinearProgressIndicator(
-                                  value: progress,
-                                  minHeight: 4,
-                                  backgroundColor: context.colorScheme.primary
-                                      .withValues(alpha: 0.1),
-                                  valueColor: AlwaysStoppedAnimation<Color>(
-                                    context.colorScheme.primary,
+                        ),
+                        const Gap(2),
+                        Text(
+                          video.channelName,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: context.textTheme.labelSmall?.copyWith(
+                            color: context.colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                        const Gap(8),
+                        // Progress Bar & Percentage
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Expanded(
+                                  child: ClipRRect(
+                                    borderRadius: AppRadius.roundedS,
+                                    child: LinearProgressIndicator(
+                                      value: progress,
+                                      minHeight: 4,
+                                      backgroundColor: context.colorScheme.primary
+                                          .withValues(alpha: 0.1),
+                                      valueColor: AlwaysStoppedAnimation<Color>(
+                                        context.colorScheme.primary,
+                                      ),
+                                    ),
                                   ),
                                 ),
+                              ],
+                            ),
+                            const Gap(4),
+                            Text(
+                              '$percentage% watched',
+                              style: context.textTheme.labelSmall?.copyWith(
+                                color: percentage > 0
+                                    ? context.colorScheme.primary
+                                    : context.colorScheme.onSurfaceVariant,
+                                fontWeight: percentage > 0
+                                    ? FontWeight.bold
+                                    : FontWeight.normal,
+                                fontSize: 10,
                               ),
-                              gapH4,
-                              Text(
-                                '$percentage% watched',
-                                style: context.textTheme.labelSmall?.copyWith(
-                                  color: percentage > 0
-                                      ? context.colorScheme.primary
-                                      : context.colorScheme.onSurfaceVariant,
-                                  fontWeight: percentage > 0
-                                      ? FontWeight.w600
-                                      : FontWeight.w500,
-                                  fontSize: 11,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
                   ),
-                  if (video.isPinned) ...[
-                    const Gap(8),
-                    Icon(
-                      Icons.push_pin,
-                      color: context.colorScheme.primary,
-                      size: 18,
+                  const Gap(2),
+                  SizedBox(
+                    height: 70, // Matches the thumbnail height
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        GestureDetector(
+                          onTap: onOptionsTap,
+                          child: Icon(
+                            Icons.more_vert,
+                            color: context.colorScheme.onSurface,
+                            size: 20,
+                          ),
+                        ),
+                        if (video.isPinned)
+                          Icon(Icons.push_pin, color: context.colorScheme.primary, size: 14)
+                        else
+                          const SizedBox.shrink(),
+                      ],
                     ),
-                  ]
+                  ),
                 ],
               ),
             ),

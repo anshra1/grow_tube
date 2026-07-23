@@ -71,11 +71,6 @@ class AppBaseButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Helper to resolve colors to WidgetStateProperty if they aren't already
-    WidgetStateProperty<Color?>? resolveColor(dynamic value) {
-      if (value is Color) return WidgetStatePropertyAll(value);
-      if (value is WidgetStateProperty<Color?>) return value;
-      return null;
-    }
 
     // Helper to resolve border to WidgetStateProperty if it isn't already
     WidgetStateProperty<BorderSide?>? resolveBorder(dynamic value) {
@@ -103,9 +98,7 @@ class AppBaseButton extends StatelessWidget {
         case AppButtonShape.pill:
           effectiveShape = const StadiumBorder();
         case AppButtonShape.rectangular:
-          effectiveShape = RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(4),
-          );
+          effectiveShape = RoundedRectangleBorder(borderRadius: BorderRadius.circular(4));
         case AppButtonShape.rounded:
           effectiveShape = RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),

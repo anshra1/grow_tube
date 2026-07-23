@@ -96,10 +96,10 @@ class YoutubeApiService {
         item['contentDetails'] as Map<String, dynamic>;
     final thumbnails = snippet['thumbnails'] as Map<String, dynamic>;
 
-    // Prefer high > medium > default thumbnail
+    // Prefer medium > high > default thumbnail to avoid black bars
     final thumbUrl =
-        (thumbnails['high'] as Map<String, dynamic>?)?['url'] ??
         (thumbnails['medium'] as Map<String, dynamic>?)?['url'] ??
+        (thumbnails['high'] as Map<String, dynamic>?)?['url'] ??
         (thumbnails['default'] as Map<String, dynamic>?)?['url'] ??
         '';
 
@@ -278,9 +278,10 @@ class YoutubeApiService {
     final thumbnails =
         snippet['thumbnails'] as Map<String, dynamic>? ?? {};
 
+    // Prefer medium > high > default thumbnail to avoid black bars
     final thumbUrl =
-        (thumbnails['high'] as Map<String, dynamic>?)?['url'] ??
         (thumbnails['medium'] as Map<String, dynamic>?)?['url'] ??
+        (thumbnails['high'] as Map<String, dynamic>?)?['url'] ??
         (thumbnails['default'] as Map<String, dynamic>?)?['url'] ??
         '';
 

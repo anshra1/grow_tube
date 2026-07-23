@@ -14,7 +14,6 @@ import 'package:levelup_tube/src/core/widgets/pages/startup_error_app.dart';
 import 'package:levelup_tube/src/features/connectivity/presentation/bloc/connectivity_cubit.dart';
 import 'package:levelup_tube/src/features/connectivity/presentation/widgets/connectivity_toast_listener.dart';
 import 'package:levelup_tube/src/features/navigation/cubit/fullscreen_video_cubit.dart';
-import 'package:levelup_tube/src/features/playlist/viewmodels/playlist_detail_cubit.dart';
 import 'package:levelup_tube/src/features/settings/viewmodels/settings_cubit.dart';
 import 'package:talker_flutter/talker_flutter.dart';
 import 'package:toastification/toastification.dart';
@@ -67,9 +66,7 @@ class LevelUpTube extends StatelessWidget {
       child: MultiBlocProvider(
         providers: [
           BlocProvider(create: (context) => di.sl<ThemeCubit>()..load()),
-          BlocProvider(
-            create: (context) => di.sl<ConnectivityCubit>()..initialize(),
-          ),
+          BlocProvider(create: (context) => di.sl<ConnectivityCubit>()..initialize()),
           BlocProvider(create: (context) => FullscreenVideoCubit()),
           BlocProvider(create: (context) => di.sl<SettingsCubit>()),
         ],
