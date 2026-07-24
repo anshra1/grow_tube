@@ -12,7 +12,7 @@ class TopHeaderText extends StatelessWidget {
     return Text(
       text,
       style: GoogleFonts.poppins(
-        fontSize: 28,
+        fontSize: 22,
         fontWeight: FontWeight.w600,
         color: context.colorScheme.onSurface,
         letterSpacing: -0.5,

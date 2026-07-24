@@ -107,43 +107,46 @@ class DashboardVideoCard extends StatelessWidget {
                       child: Row(
                         children: [
                           // Thumbnail with Duration Overlay
-                          Stack(
-                            children: [
-                              ClipRRect(
-                                borderRadius: AppRadius.roundedM,
-                                child: SizedBox(
-                                  width: 120,
-                                  height: 67,
-                                  child: CachedNetworkImage(
-                                    scale: 1.2,
-                                    imageUrl: video.thumbnailUrl,
-                                    fit: BoxFit.cover, // Fill the whole box
-                                  ),
-                                ),
-                              ),
-
-                              Positioned(
-                                bottom: 4,
-                                right: 4,
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 4,
-                                    vertical: 2,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: Colors.black.withValues(alpha: 0.8),
-                                    borderRadius: AppRadius.roundedS,
-                                  ),
-                                  child: Text(
-                                    _formatDuration(video.durationSeconds),
-                                    style: context.textTheme.labelSmall?.copyWith(
-                                      color: Colors.white,
-                                      fontSize: 10,
+                          Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 8),
+                            child: Stack(
+                              children: [
+                                ClipRRect(
+                                  borderRadius: AppRadius.roundedM,
+                                  child: SizedBox(
+                                    width: 120,
+                                    height: 67,
+                                    child: CachedNetworkImage(
+                                      scale: 1.2,
+                                      imageUrl: video.thumbnailUrl,
+                                      fit: BoxFit.cover, // Fill the whole box
                                     ),
                                   ),
                                 ),
-                              ),
-                            ],
+
+                                Positioned(
+                                  bottom: 4,
+                                  right: 4,
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 4,
+                                      vertical: 2,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: Colors.black.withValues(alpha: 0.8),
+                                      borderRadius: AppRadius.roundedS,
+                                    ),
+                                    child: Text(
+                                      _formatDuration(video.durationSeconds),
+                                      style: context.textTheme.labelSmall?.copyWith(
+                                        color: Colors.white,
+                                        fontSize: 10,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                           const Gap(16),
                           // content

@@ -50,11 +50,12 @@ class _PlaylistsPageContent extends StatelessWidget {
           if (state is PlaylistErrorState) {
             toastification.show(
               context: context,
+              alignment: Alignment.bottomCenter,
               title: const Text('Error'),
               description: Text(state.message),
               type: ToastificationType.error,
               style: ToastificationStyle.flatColored,
-              autoCloseDuration: const Duration(seconds: 4),
+              autoCloseDuration: const Duration(seconds: 2),
             );
           }
         },
@@ -113,12 +114,12 @@ class _PlaylistsPageContent extends StatelessWidget {
 
   Widget _buildList(BuildContext context, List<PlaylistModel> playlists) {
     return ListView.builder(
-      padding: const EdgeInsets.all(16).copyWith(bottom: 80),
+      padding: const EdgeInsets.only(left: 8, right: 8, top: 8),
       itemCount: playlists.length,
       itemBuilder: (context, index) {
         final playlist = playlists[index];
         return Padding(
-          padding: const EdgeInsets.only(bottom: 16),
+          padding: const EdgeInsets.only(bottom: 8),
           child: PlaylistCard(
             playlist: playlist,
             onTap: () => context.push('/playlists/${playlist.id}'),
@@ -158,10 +159,14 @@ class _PlaylistsPageContent extends StatelessWidget {
                 onTap: () {
                   Navigator.pop(bottomSheetContext);
                   // Push to the new edit page
+                  final cubit = context.read<PlaylistCubit>();
                   Navigator.push<void>(
                     context,
                     MaterialPageRoute<void>(
-                      builder: (_) => EditPlaylistPage(playlistModel: playlist),
+                      builder: (_) => BlocProvider.value(
+                        value: cubit,
+                        child: EditPlaylistPage(playlistModel: playlist),
+                      ),
                     ),
                   );
                 },

@@ -58,7 +58,7 @@ class YoutubeApiService {
 
       talker
         ..error('YoutubeApiService: 403 Forbidden - reason: $reason')
-        ..debug('YoutubeApiService: Error body: ${response.body}');
+        ..error('YoutubeApiService: Error body: ${response.body}');
 
       if (reason == 'quotaExceeded' ||
           reason == 'rateLimitExceeded') {

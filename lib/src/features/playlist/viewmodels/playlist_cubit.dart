@@ -83,11 +83,23 @@ class PlaylistCubit extends Cubit<PlaylistState> {
       await loadPlaylists(); // recover UI
     }
   }
-   // Set playlist as pinned or not.
+  // Set playlist as pinned or not.
   // ignore: avoid_positional_boolean_parameters  
   Future<void> setPlaylistPinned(int playlistId, bool isPinned) async {
     try {
       await _repository.setPlaylistPinned(playlistId, isPinned);
+      await loadPlaylists();
+    } on Exception catch (e) {
+      emit(PlaylistErrorState(_exceptionMessage(e)));
+      await loadPlaylists();
+    }
+  }
+
+  /// Update playlist details.
+  Future<void> updatePlaylistDetails(int id, {String? title, String? localThumbnailPath}) async {
+    try {
+      await _repository.updatePlaylistDetails(id, title: title, localThumbnailPath: localThumbnailPath);
+      emit(const PlaylistUpdateSuccessState());
       await loadPlaylists();
     } on Exception catch (e) {
       emit(PlaylistErrorState(_exceptionMessage(e)));

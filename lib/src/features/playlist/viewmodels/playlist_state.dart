@@ -55,3 +55,8 @@ final class PlaylistImportingState extends PlaylistState {
   @override
   List<Object?> get props => [playlists, message];
 }
+
+/// Playlist details (title/thumbnail) updated successfully.
+final class PlaylistUpdateSuccessState extends PlaylistState {
+  const PlaylistUpdateSuccessState();
+}

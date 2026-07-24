@@ -61,7 +61,7 @@
     },
     {
       "id": "2:1747732836037110316",
-      "lastPropertyId": "9:7052101240848382711",
+      "lastPropertyId": "10:7404170635936905599",
       "name": "PlaylistModel",
       "properties": [
         {
@@ -109,6 +109,11 @@
           "id": "9:7052101240848382711",
           "name": "isPinned",
           "type": 1
+        },
+        {
+          "id": "10:7404170635936905599",
+          "name": "localThumbnailPath",
+          "type": 9
         }
       ],
       "relations": [

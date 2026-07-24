@@ -65,7 +65,7 @@ class PlaylistDetailPage extends StatelessWidget {
               onPressed: () => Navigator.pop(context),
             ),
             // actions: const [Icon(Icons.edit)],
-            // Todo: add later go to edit page with dropdown option to open edit icon when click on
+            // TODO(dev): add later go to edit page with dropdown option to open edit icon when click on
           ),
           body: body,
         );
