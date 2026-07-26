@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:levelup_tube/src/core/mixins/clipboard_monitor_mixin.dart';
-import 'package:levelup_tube/src/features/library/views/dashboard_widgets/clipboard_playlist_prompt.dart';
-import 'package:levelup_tube/src/features/library/views/dashboard_widgets/clipboard_video_prompt.dart';
+import 'package:levelup_tube/main.dart';
+import 'package:levelup_tube/src/features/clipboard/mixins/clipboard_monitor_mixin.dart';
+import 'package:levelup_tube/src/features/clipboard/viewmodels/clipboard_cubit.dart';
+import 'package:levelup_tube/src/features/clipboard/viewmodels/clipboard_state.dart';
+import 'package:levelup_tube/src/features/clipboard/views/clipboard_playlist_prompt.dart';
+import 'package:levelup_tube/src/features/clipboard/views/clipboard_video_prompt.dart';
 import 'package:levelup_tube/src/features/navigation/cubit/fullscreen_video_cubit.dart';
 import 'package:levelup_tube/src/features/playlist/viewmodels/playlist_detail_cubit.dart';
 import 'package:levelup_tube/src/features/settings/viewmodels/setting_state.dart';
@@ -30,31 +33,53 @@ class _MainScaffoldState extends State<MainScaffold>
 
   @override
   void onClipboardUrlDetected(String url, String videoId) {
-    toastification.showCustom(
+    showModalBottomSheet<void>(
       context: context,
-      alignment: Alignment.bottomCenter,
-      autoCloseDuration: const Duration(seconds: 10),
-      animationBuilder: (context, animation, alignment, child) {
-        return SlideTransition(
-          position: Tween<Offset>(
-            begin: const Offset(0, 1),
-            end: Offset.zero,
-          ).animate(animation),
-          child: child,
-        );
-      },
-      builder: (context, holder) {
-        return ClipboardVideoPrompt(
-          url: url,
-          onDismiss: () => toastification.dismiss(holder),
-          onAdd: () {
-            context.read<PlaylistDetailCubit>().addVideo(url);
-            toastification.dismiss(holder);
+      useRootNavigator: true,
+      isScrollControlled: true,
+      backgroundColor:
+          Colors.transparent, // Let the prompt widget draw its own background/radius
+      builder: (bottomSheetContext) {
+        return BlocListener<ClipboardCubit, ClipboardState>(
+          listener: (context, state) {
+            talker.debug('MainScaffold BlocListener: Received state $state');
+            if (state is ClipboardVideoAddedState ||
+                state is ClipboardNavigateToDashboardState ||
+                state is ClipboardNavigateToPlaylistState) {
+              Navigator.of(bottomSheetContext).pop();
+            }
+            if (state is ClipboardNavigateToDashboardState) {
+              talker.debug('MainScaffold: Navigating to Dashboard with url ${state.url}');
+              widget.navigationShell.goBranch(0);
+              context.go('/', extra: state.url);
+            }
+            if (state is ClipboardNavigateToPlaylistState) {
+              talker.debug(
+                'MainScaffold: Navigating to Playlist ${state.playlistId} with url ${state.url}',
+              );
+              widget.navigationShell.goBranch(1);
+              context.go('/playlists/${state.playlistId}', extra: state.url);
+            }
+            if (state is ClipboardVideoAlreadyExistsState) {
+              talker.debug('MainScaffold: Showing Already Exists warning toast');
+              toastification.show(
+                context: context,
+                type: ToastificationType.warning,
+                title: const Text('Already in playlist'),
+                description: const Text(
+                  'This video is already in the selected playlist.',
+                ),
+                autoCloseDuration: const Duration(seconds: 3),
+                alignment: Alignment.bottomCenter,
+              );
+            }
           },
-          onWatch: () {
-            context.read<PlaylistDetailCubit>().addAndPlayVideo(url);
-            toastification.dismiss(holder);
-          },
+          child: SafeArea(
+            child: ClipboardVideoPrompt(
+              url: url,
+              onDismiss: () => Navigator.of(bottomSheetContext).pop(),
+            ),
+          ),
         );
       },
     );
@@ -62,29 +87,24 @@ class _MainScaffoldState extends State<MainScaffold>
 
   @override
   void onClipboardPlaylistDetected(String url, String playlistId) {
-    toastification.showCustom(
+    showModalBottomSheet<void>(
       context: context,
-      alignment: Alignment.bottomCenter,
-      autoCloseDuration: const Duration(seconds: 10),
-      animationBuilder: (context, animation, alignment, child) {
-        return SlideTransition(
-          position: Tween<Offset>(
-            begin: const Offset(0, 1),
-            end: Offset.zero,
-          ).animate(animation),
-          child: child,
-        );
-      },
-      builder: (context, holder) {
-        return ClipboardPlaylistPrompt(
-          url: url,
-          onDismiss: () => toastification.dismiss(holder),
-          onImport: () {
-            toastification.dismiss(holder);
-            // Push above the shell (full-screen, no bottom bar) using root navigator.
-            // This avoids deep-link conflicts with the shell branch routing.
-            context.push('/playlists?importUrl=${Uri.encodeComponent(url)}');
-          },
+      useRootNavigator: true,
+      isScrollControlled: true,
+      backgroundColor:
+          Colors.transparent, // Let the prompt widget draw its own background/radius
+      builder: (bottomSheetContext) {
+        return SafeArea(
+          child: ClipboardPlaylistPrompt(
+            url: url,
+            onDismiss: () => Navigator.of(bottomSheetContext).pop(),
+            onImport: () {
+              Navigator.of(bottomSheetContext).pop();
+              // Push above the shell (full-screen, no bottom bar) using root navigator.
+              // This avoids deep-link conflicts with the shell branch routing.
+              context.push('/playlists?importUrl=${Uri.encodeComponent(url)}');
+            },
+          ),
         );
       },
     );

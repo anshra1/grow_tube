@@ -3,6 +3,7 @@ import 'package:levelup_tube/main.dart';
 import 'package:levelup_tube/src/core/error/exception.dart';
 import 'package:levelup_tube/src/features/library/models/video.dart';
 import 'package:levelup_tube/src/features/playlist/repositories/playlist_repository.dart';
+import 'package:levelup_tube/src/core/utils/youtube_url_parser.dart';
 import 'package:levelup_tube/src/features/playlist/viewmodels/playlist_detail_state.dart';
 
 class PlaylistDetailCubit extends Cubit<PlaylistDetailState> {
@@ -225,6 +226,16 @@ class PlaylistDetailCubit extends Cubit<PlaylistDetailState> {
     }
   }
 
+  /// Load playlist and optionally add-and-play a video immediately.
+  /// Used when navigating from the clipboard toast to a non-default playlist.
+  Future<void> loadAndPlay(String? videoUrl) async {
+    if (videoUrl != null) {
+      await addAndPlayVideo(videoUrl);
+    } else {
+      await loadPlaylist();
+    }
+  }
+
   /// Add a video and immediately play it
   Future<void> addAndPlayVideo(String url) async {
     try {
@@ -233,18 +244,36 @@ class PlaylistDetailCubit extends Cubit<PlaylistDetailState> {
       } else {
         await _repository.addVideoToPlaylist(playlistId!, url);
       }
-      await loadPlaylist();
-
-      // After loading, select the newly added video
-      final currentState = state;
-      if (currentState is PlaylistDetailLoaded &&
-          currentState.videosState.videos.isNotEmpty) {
-        // The new video should be first since we sort by addedAt desc
-        await selectVideo(currentState.videosState.videos.first);
+    } on VideoException catch (e) {
+      if (e.code != 'already_exists') {
+        emit(PlaylistDetailError(_exceptionMessage(e)));
+        await loadPlaylist(); // Recover UI
+        return;
       }
+      // If it already exists, we just catch it and continue to play it.
     } on Exception catch (e) {
       emit(PlaylistDetailError(_exceptionMessage(e)));
       await loadPlaylist(); // Recover UI
+      return;
+    }
+
+    await loadPlaylist();
+
+    // After loading, select the newly added or existing video
+    final currentState = state;
+    if (currentState is PlaylistDetailLoaded &&
+        currentState.videosState.videos.isNotEmpty) {
+      
+      final youtubeId = YoutubeUrlParser.extractVideoId(url);
+      final videoToPlay = currentState.videosState.videos
+          .where((v) => v.youtubeId == youtubeId)
+          .firstOrNull;
+          
+      if (videoToPlay != null) {
+        await selectVideo(videoToPlay);
+      } else {
+        await selectVideo(currentState.videosState.videos.first);
+      }
     }
   }
 

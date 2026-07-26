@@ -21,24 +21,33 @@ class ClipboardPlaylistPrompt extends StatelessWidget {
     final colors = context.colorScheme;
 
     return Container(
-      margin: const EdgeInsets.all(AppSizes.p12),
-      padding: const EdgeInsets.all(AppSizes.p16),
+      padding: const EdgeInsets.only(
+        left: AppSizes.p16,
+        right: AppSizes.p16,
+        bottom: AppSizes.p24,
+        top: AppSizes.p8,
+      ),
       decoration: BoxDecoration(
         color: colors.surface,
-        borderRadius: AppRadius.roundedXL,
-        border: Border.all(color: colors.outlineVariant.withValues(alpha: 0.7)),
-        boxShadow: [
-          BoxShadow(
-            color: colors.shadow.withValues(alpha: 0.12),
-            blurRadius: 24,
-            offset: const Offset(0, 10),
-          ),
-        ],
+        borderRadius: const BorderRadius.vertical(
+          top: Radius.circular(AppSizes.p24),
+        ),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          Center(
+            child: Container(
+              width: 32,
+              height: 4,
+              margin: const EdgeInsets.only(bottom: AppSizes.p16),
+              decoration: BoxDecoration(
+                color: colors.onSurfaceVariant.withValues(alpha: 0.4),
+                borderRadius: BorderRadius.circular(AppSizes.p2),
+              ),
+            ),
+          ),
           Row(
             children: [
               Container(

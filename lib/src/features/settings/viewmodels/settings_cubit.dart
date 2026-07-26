@@ -13,9 +13,7 @@ class SettingsCubit extends Cubit<SettingsState> {
     emit(const SettingsLoadingState());
     try {
       final playlists = await _repository.getAllPlaylists();
-      final defaultPlaylist = playlists
-          .where((p) => p.isSystemDefault)
-          .firstOrNull;
+      final defaultPlaylist = playlists.where((p) => p.isSystemDefault).firstOrNull;
       emit(
         SettingsLoadedState(
           allPlaylists: playlists,

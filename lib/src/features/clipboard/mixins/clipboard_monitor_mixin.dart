@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:levelup_tube/main.dart';
 import 'package:levelup_tube/src/core/di/injection_container.dart';
-import 'package:levelup_tube/src/core/services/clipboard_service.dart';
+import 'package:levelup_tube/src/features/clipboard/service/clipboard_service.dart';
 import 'package:levelup_tube/src/features/playlist/repositories/playlist_repository.dart';
 
 mixin ClipboardMonitorMixin<T extends StatefulWidget>

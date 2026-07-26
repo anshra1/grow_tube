@@ -18,6 +18,7 @@ import 'package:levelup_tube/src/features/connectivity/presentation/widgets/conn
 import 'package:levelup_tube/src/features/playlist/models/playlist_model.dart';
 import 'package:levelup_tube/src/features/playlist/models/playlist_video_model.dart';
 import 'package:levelup_tube/src/features/playlist/repositories/playlist_repository.dart';
+import 'package:levelup_tube/src/features/clipboard/viewmodels/clipboard_cubit.dart';
 import 'package:levelup_tube/src/features/playlist/viewmodels/playlist_cubit.dart';
 import 'package:levelup_tube/src/features/settings/viewmodels/settings_cubit.dart';
 import 'package:path_provider/path_provider.dart';
@@ -90,5 +91,6 @@ Future<void> init() async {
     // ============================================================
     ..registerFactory(() => ConnectivityCubit(sl()))
     ..registerFactory(() => PlaylistCubit(sl()))
-    ..registerFactory(() => SettingsCubit(sl()));
+    ..registerFactory(() => SettingsCubit(sl()))
+    ..registerLazySingleton(() => ClipboardCubit(repository: sl()));
 }

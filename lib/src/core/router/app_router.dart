@@ -46,10 +46,13 @@ class AppRouter {
             routes: [
               GoRoute(
                 path: '/',
-                builder: (context, state) => BlocProvider(
-                  create: (_) => PlaylistDetailCubit(repository: di.sl())..loadPlaylist(),
-                  child: const DashboardPage(),
-                ),
+                builder: (context, state) {
+                  final url = state.extra as String?;
+                  return BlocProvider(
+                    create: (_) => PlaylistDetailCubit(repository: di.sl())..loadAndPlay(url),
+                    child: const DashboardPage(),
+                  );
+                },
               ),
             ],
           ),
@@ -71,10 +74,11 @@ class AppRouter {
                     path: ':id',
                     builder: (context, state) {
                       final id = int.parse(state.pathParameters['id']!);
+                      final url = state.extra as String?;
                       return BlocProvider(
                         create: (_) =>
                             PlaylistDetailCubit(playlistId: id, repository: di.sl())
-                              ..loadPlaylist(),
+                              ..loadAndPlay(url),
                         child: const PlaylistDetailPage(),
                       );
                     },
@@ -139,10 +143,11 @@ class AppRouter {
             path: ':id',
             builder: (context, state) {
               final id = int.parse(state.pathParameters['id']!);
+              final url = state.extra as String?;
               return BlocProvider(
                 create: (_) =>
                     PlaylistDetailCubit(playlistId: id, repository: di.sl())
-                      ..loadPlaylist(),
+                      ..loadAndPlay(url),
                 child: const PlaylistDetailPage(),
               );
             },

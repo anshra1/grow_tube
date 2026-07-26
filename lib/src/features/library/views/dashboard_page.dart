@@ -3,6 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:levelup_tube/src/core/constants/app_strings.dart';
 import 'package:levelup_tube/src/core/extensions/context_extensions.dart';
 import 'package:levelup_tube/src/core/widgets/molecules/custom_alert_dialog.dart';
+import 'package:levelup_tube/src/features/clipboard/viewmodels/clipboard_cubit.dart';
+import 'package:levelup_tube/src/features/clipboard/viewmodels/clipboard_state.dart';
 import 'package:levelup_tube/src/features/library/models/video.dart';
 import 'package:levelup_tube/src/features/library/views/dashboard_widgets/dashboard_empty_state.dart';
 import 'package:levelup_tube/src/features/library/views/dashboard_widgets/video_list_with_player.dart';
@@ -20,6 +22,15 @@ class DashboardPage extends StatelessWidget {
     final cubit = context.read<PlaylistDetailCubit>();
     return MultiBlocListener(
       listeners: [
+        BlocListener<ClipboardCubit, ClipboardState>(
+          listener: (context, state) {
+            if (state is ClipboardVideoAddedState) {
+              cubit.loadPlaylist();
+            } else if (state is ClipboardNavigateToDashboardState) {
+              cubit.loadAndPlay(state.url);
+            }
+          },
+        ),
         BlocListener<SettingsCubit, SettingsState>(
           listenWhen: (previous, current) {
             if (previous is SettingsLoadedState && current is SettingsLoadedState) {
