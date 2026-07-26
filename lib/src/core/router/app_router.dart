@@ -80,7 +80,7 @@ class AppRouter {
                     },
                   ),
                   GoRoute(
-                    path: '/editPlaylistPage',
+                    path: 'editPlaylistPage',
                     builder: (context, state) {
                       final playlistModel = state.extra! as PlaylistModel;
                       return BlocProvider(
