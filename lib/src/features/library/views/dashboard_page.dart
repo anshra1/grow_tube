@@ -10,6 +10,8 @@ import 'package:levelup_tube/src/features/library/views/dashboard_widgets/dashbo
 import 'package:levelup_tube/src/features/library/views/dashboard_widgets/video_list_with_player.dart';
 import 'package:levelup_tube/src/features/playlist/viewmodels/playlist_detail_cubit.dart';
 import 'package:levelup_tube/src/features/playlist/viewmodels/playlist_detail_state.dart';
+import 'package:levelup_tube/src/features/add/viewmodels/add_cubit.dart';
+import 'package:levelup_tube/src/features/add/viewmodels/add_state.dart';
 import 'package:levelup_tube/src/features/settings/viewmodels/setting_state.dart';
 import 'package:levelup_tube/src/features/settings/viewmodels/settings_cubit.dart';
 import 'package:toastification/toastification.dart';
@@ -28,6 +30,13 @@ class DashboardPage extends StatelessWidget {
               cubit.loadPlaylist();
             } else if (state is ClipboardNavigateToDashboardState) {
               cubit.loadAndPlay(state.url);
+            }
+          },
+        ),
+        BlocListener<AddCubit, AddState>(
+          listener: (context, state) {
+            if (state is AddVideoSuccess) {
+              cubit.loadPlaylist();
             }
           },
         ),

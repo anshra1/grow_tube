@@ -9,10 +9,11 @@ import 'package:levelup_tube/src/core/widgets/atoms/top_header.dart';
 import 'package:levelup_tube/src/core/widgets/template/app_scaffold.dart';
 import 'package:levelup_tube/src/features/library/views/dashboard_widgets/dashboard_video_list_shimmer.dart';
 import 'package:levelup_tube/src/features/playlist/models/playlist_model.dart';
+import 'package:levelup_tube/src/features/add/viewmodels/add_cubit.dart';
+import 'package:levelup_tube/src/features/add/viewmodels/add_state.dart';
 import 'package:levelup_tube/src/features/playlist/viewmodels/playlist_cubit.dart';
 import 'package:levelup_tube/src/features/playlist/viewmodels/playlist_state.dart';
 import 'package:levelup_tube/src/features/playlist/views/edit_playlist_page.dart';
-import 'package:levelup_tube/src/features/playlist/views/playlist_page_widgets/add_playlist_bottom_sheet.dart';
 import 'package:levelup_tube/src/features/playlist/views/playlist_page_widgets/playlist_card.dart';
 import 'package:toastification/toastification.dart';
 
@@ -43,8 +44,14 @@ class _PlaylistsPageContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AppScaffold(
-      appBar: AppBar(title: const TopHeaderText('Playlist')),
+    return BlocListener<AddCubit, AddState>(
+      listener: (context, state) {
+        if (state is CreatePlaylistSuccess || state is ImportPlaylistSuccess || state is AddVideoSuccess) {
+          context.read<PlaylistCubit>().loadPlaylists();
+        }
+      },
+      child: AppScaffold(
+        appBar: AppBar(title: const TopHeaderText('Playlist')),
       body: BlocConsumer<PlaylistCubit, PlaylistState>(
         listener: (context, state) {
           if (state is PlaylistErrorState) {
@@ -104,10 +111,11 @@ class _PlaylistsPageContent extends StatelessWidget {
         },
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => _showAddPlaylistBottomSheet(context),
+        onPressed: () => context.go('/add?tab=1'),
         backgroundColor: context.colorScheme.primary,
         foregroundColor: context.colorScheme.onPrimary,
         child: const Icon(Icons.add),
+      ),
       ),
     );
   }
@@ -189,22 +197,6 @@ class _PlaylistsPageContent extends StatelessWidget {
             ],
           ],
         ),
-      ),
-    );
-  }
-
-  void _showAddPlaylistBottomSheet(BuildContext context) {
-    showModalBottomSheet<void>(
-      context: context,
-      isScrollControlled: true,
-      useSafeArea: true,
-      builder: (_) => AddPlaylistBottomSheet(
-        onCreateCustom: (title) {
-          context.read<PlaylistCubit>().createPlaylist(title);
-        },
-        onImport: (url) {
-          context.read<PlaylistCubit>().importPlaylist(url);
-        },
       ),
     );
   }

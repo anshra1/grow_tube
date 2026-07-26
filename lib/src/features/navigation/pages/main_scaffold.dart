@@ -145,18 +145,7 @@ class _MainScaffoldState extends State<MainScaffold>
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<SettingsCubit, SettingsState>(
-      // Only react when the loaded default playlist ID actually changes.
-      listenWhen: (previous, current) {
-        if (previous is SettingsLoadedState && current is SettingsLoadedState) {
-          return previous.defaultPlaylistId != current.defaultPlaylistId;
-        }
-        return false;
-      },
-      listener: (context, state) {
-        context.read<PlaylistDetailCubit>().onDefaultPlaylistChanged();
-      },
-      child: BlocBuilder<FullscreenVideoCubit, bool>(
+    return BlocBuilder<FullscreenVideoCubit, bool>(
         builder: (context, isFullscreen) {
           return Scaffold(
             body: widget.navigationShell,
@@ -191,8 +180,7 @@ class _MainScaffoldState extends State<MainScaffold>
                   ),
           );
         },
-      ),
-    );
+      );
   }
 
   int get _effectiveIndex => widget.navigationShell.currentIndex;

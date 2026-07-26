@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:levelup_tube/src/core/di/injection_container.dart' as di;
-import 'package:levelup_tube/src/features/library/views/add_video_page.dart';
+import 'package:levelup_tube/src/features/add/viewmodels/add_cubit.dart';
+import 'package:levelup_tube/src/features/add/views/add_page.dart';
 import 'package:levelup_tube/src/features/library/views/dashboard_page.dart';
 import 'package:levelup_tube/src/features/navigation/pages/main_scaffold.dart';
 import 'package:levelup_tube/src/features/playlist/models/playlist_model.dart';
@@ -101,15 +102,16 @@ class AppRouter {
             ],
           ),
 
-          // Branch 2 — Add Video
+          // Branch 2 — Add
           StatefulShellBranch(
             routes: [
               GoRoute(
-                path: '/add-video',
-                builder: (context, state) => BlocProvider(
-                  create: (_) => PlaylistDetailCubit(repository: di.sl()),
-                  child: const AddVideo(),
-                ),
+                path: '/add',
+                builder: (context, state) {
+                  final tabStr = state.uri.queryParameters['tab'];
+                  final initialTab = tabStr != null ? int.tryParse(tabStr) ?? 0 : 0;
+                  return AddPage(initialTab: initialTab);
+                },
               ),
             ],
           ),

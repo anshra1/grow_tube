@@ -1,25 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 
-class TopHeader extends StatelessWidget {
-  const TopHeader({super.key});
+class AddHeroBanner extends StatelessWidget {
+  const AddHeroBanner({super.key});
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
     return Container(
-      padding: const EdgeInsets.all(32),
+      padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
         color: theme.colorScheme.primaryContainer,
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
         children: [
-          Icon(Icons.video_library, size: 64, color: theme.colorScheme.primary),
+          //  Icon(Icons.add_circle_outline, size: 64, color: theme.colorScheme.primary),
           const Gap(16),
           Text(
-            'Add a YouTube Video',
+            'Add to Your Library',
             style: theme.textTheme.headlineSmall?.copyWith(
               color: theme.colorScheme.onPrimaryContainer,
               fontWeight: FontWeight.bold,
@@ -28,12 +28,13 @@ class TopHeader extends StatelessWidget {
           ),
           const Gap(8),
           Text(
-            'Paste a YouTube URL and select a playlist to add it to',
+            'Add a video, create a playlist, or import from YouTube',
             style: theme.textTheme.bodyMedium?.copyWith(
               color: theme.colorScheme.onPrimaryContainer.withValues(alpha: 0.8),
             ),
             textAlign: TextAlign.center,
           ),
+          const Gap(8),
         ],
       ),
     );
