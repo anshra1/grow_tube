@@ -222,19 +222,15 @@ class PlaylistRepositoryImpl implements PlaylistRepository {
       final playlist = playlistBox.get(id);
       if (playlist == null) return;
 
-      final videoIdsToRemove = playlist.videos.map((v) => v.id).toSet();
+      // Each video belongs exclusively to one playlist, so we can
+      // delete them all directly without any orphan checks.
+      final videoIdsToRemove = playlist.videos.map((v) => v.id).toList();
+      if (videoIdsToRemove.isNotEmpty) {
+        videoBox.removeMany(videoIdsToRemove);
+      }
+
+      // Now delete the playlist itself.
       playlistBox.remove(id);
-
-      final allOtherPlaylists = playlistBox.getAll();
-      final usedVideoIds = <int>{};
-      for (final p in allOtherPlaylists) {
-        usedVideoIds.addAll(p.videos.map((v) => v.id));
-      }
-
-      final orphanedVideoIds = videoIdsToRemove.difference(usedVideoIds).toList();
-      if (orphanedVideoIds.isNotEmpty) {
-        videoBox.removeMany(orphanedVideoIds);
-      }
     } on Exception catch (e, st) {
       appLogger.handle(e, st, 'PlaylistRepository: Error deleting playlist');
     }
@@ -285,6 +281,9 @@ class PlaylistRepositoryImpl implements PlaylistRepository {
       }
 
       playlistBox.put(playlist);
+
+      // Permanently delete the video record so no junk accumulates in the DB.
+      videoBox.remove(videoModelId);
     } on Exception catch (e, st) {
       appLogger.handle(e, st, 'PlaylistRepository: Error removing video from playlist');
     }
