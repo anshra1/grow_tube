@@ -103,7 +103,11 @@ class _SettingsPageState extends State<SettingsPage> {
                         return ButtonSegment<ThemeMode>(
                           value: mode,
                           icon: Icon(icon),
-                          label: Text(label),
+                          label: Text(
+                            maxLines: 2,
+                            label,
+                            style: const TextStyle(overflow: TextOverflow.ellipsis),
+                          ),
                         );
                       }).toList(),
                       selected: {themeState.mode},

@@ -1,4 +1,5 @@
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:get_it/get_it.dart';
 import 'package:internet_connection_checker_plus/internet_connection_checker_plus.dart';
 import 'package:levelup_tube/firebase_options.dart';
@@ -9,10 +10,11 @@ import 'package:levelup_tube/src/core/services/crashlytics_service.dart';
 import 'package:levelup_tube/src/core/services/logging_service/app_logger.dart';
 import 'package:levelup_tube/src/core/services/logging_service/talker_logging_service.dart';
 import 'package:levelup_tube/src/core/services/migration_service.dart';
-import 'package:levelup_tube/src/core/services/youtube_api_service.dart';
+import 'package:levelup_tube/src/features/playlist/services/youtube_api_service.dart';
 import 'package:levelup_tube/src/core/theme/theme_cubit.dart';
 import 'package:levelup_tube/src/core/theme/theme_preferences.dart';
 import 'package:levelup_tube/src/features/add/viewmodels/add_cubit.dart';
+import 'package:levelup_tube/src/features/app_update/services/app_update_service.dart';
 import 'package:levelup_tube/src/features/clipboard/models/clipboard_history_model.dart';
 import 'package:levelup_tube/src/features/clipboard/service/clipboard_service.dart';
 import 'package:levelup_tube/src/features/clipboard/viewmodels/clipboard_cubit.dart';
@@ -57,10 +59,15 @@ Future<void> init() async {
     ..registerLazySingleton<AppLogger>(
       () =>
           AppLogger(services: [TalkerLoggingService(sl()), CrashlyticsLoggingService()]),
-    );
+    )
+    ..registerLazySingleton(() => FirebaseRemoteConfig.instance)
+    ..registerLazySingleton(() => AppUpdateService(sl(), sl()));
 
   // MIGRATION SCRIPT
   await MigrationService.run(store, prefs, sl());
+
+  // APP UPDATE INIT
+  await sl<AppUpdateService>().init();
 
   sl
     ..registerLazySingleton(ConnectivityToastController.new)

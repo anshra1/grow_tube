@@ -1,5 +1,4 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:levelup_tube/main.dart';
 import 'package:levelup_tube/src/core/error/exception.dart';
 import 'package:levelup_tube/src/features/add/viewmodels/add_state.dart';
 import 'package:levelup_tube/src/features/playlist/repositories/playlist_repository.dart';
@@ -78,8 +77,7 @@ class AddCubit extends Cubit<AddState> {
       final newId = await _repository.importYoutubePlaylist(url);
       emit(ImportPlaylistSuccess(newId));
       await loadPlaylists();
-    } on Exception catch (e, st) {
-      talker.debug('AddCubit: Error importing playlist: $e\n$st');
+    } on Exception catch (e) {
       // Temporarily exposing raw exception string to help user debug
       emit(AddError(e.toString()));
       await loadPlaylists();

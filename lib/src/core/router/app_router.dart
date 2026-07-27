@@ -12,11 +12,8 @@ import 'package:levelup_tube/src/features/playlist/views/playlist_detail_page.da
 import 'package:levelup_tube/src/features/playlist/views/playlists_page.dart';
 import 'package:levelup_tube/src/features/settings/pages/settings_page.dart';
 
-// Root navigator key — used for pushes that appear above the shell
 // (e.g., the playlist import flow triggered from the clipboard toast).
-final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>(
-  debugLabel: 'root',
-);
+// Moved inside AppRouter as a static property below.
 
 // Per-branch navigator keys — each branch maintains its own back-stack.
 final GlobalKey<NavigatorState> _homeNavigatorKey = GlobalKey<NavigatorState>(
@@ -30,8 +27,12 @@ final GlobalKey<NavigatorState> _settingsNavigatorKey = GlobalKey<NavigatorState
 );
 
 class AppRouter {
+  static final GlobalKey<NavigatorState> rootNavigatorKey = GlobalKey<NavigatorState>(
+    debugLabel: 'root',
+  );
+
   static final router = GoRouter(
-    navigatorKey: _rootNavigatorKey,
+    navigatorKey: rootNavigatorKey,
     initialLocation: '/',
     routes: [
       // ── Shell: wraps Home, Playlists, and Settings with the bottom nav bar ──
@@ -130,10 +131,10 @@ class AppRouter {
       ),
 
       // ── Above-shell route: playlist import pushed from clipboard toast ──
-      // Uses parentNavigatorKey: _rootNavigatorKey so it renders above the
+      // Uses parentNavigatorKey: rootNavigatorKey so it renders above the
       // shell (full-screen, bottom nav bar hidden) — avoids shell branch conflicts.
       GoRoute(
-        parentNavigatorKey: _rootNavigatorKey,
+        parentNavigatorKey: rootNavigatorKey,
         path: '/playlists',
         builder: (context, state) {
           final importUrl = state.uri.queryParameters['importUrl'];
@@ -141,7 +142,7 @@ class AppRouter {
         },
         routes: [
           GoRoute(
-            parentNavigatorKey: _rootNavigatorKey,
+            parentNavigatorKey: rootNavigatorKey,
             path: ':id',
             builder: (context, state) {
               final id = int.parse(state.pathParameters['id']!);

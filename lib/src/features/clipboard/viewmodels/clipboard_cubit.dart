@@ -13,7 +13,6 @@ class ClipboardCubit extends Cubit<ClipboardState> {
 
   /// Called from ClipboardVideoPrompt.initState() — always fetches fresh data.
   Future<void> loadPlaylists() async {
-    talker.debug('ClipboardCubit: loadPlaylists called');
     emit(const ClipboardLoadingState());
     try {
       final playlists = await _repository.getAllPlaylists();
@@ -25,9 +24,6 @@ class ClipboardCubit extends Cubit<ClipboardState> {
           selectedPlaylistId: defaultPlaylist?.id,
         ),
       );
-      talker.debug(
-        'ClipboardCubit: Playlists loaded. Count: ${playlists.length}, Default ID: ${defaultPlaylist?.id}',
-      );
     } on Exception catch (e, st) {
       talker.error('ClipboardCubit: loadPlaylists error', e, st);
       emit(ClipboardErrorState(e.toString()));
@@ -36,7 +32,6 @@ class ClipboardCubit extends Cubit<ClipboardState> {
 
   /// User changed the dropdown selection.
   void selectPlaylist(int playlistId) {
-    talker.debug('ClipboardCubit: selectPlaylist called with id: $playlistId');
     final current = state;
     if (current is ClipboardPlaylistsLoadedState) {
       emit(current.copyWith(selectedPlaylistId: playlistId));
@@ -45,32 +40,22 @@ class ClipboardCubit extends Cubit<ClipboardState> {
 
   /// "Add to Playlist" button tapped.
   Future<void> addToPlaylist(String url) async {
-    talker.debug('ClipboardCubit: addToPlaylist called for url: $url');
     final current = state;
     if (current is! ClipboardPlaylistsLoadedState) {
-      talker.debug(
-        'ClipboardCubit: Cannot add, state is not ClipboardPlaylistsLoadedState',
-      );
       return;
     }
 
     final selectedId = current.selectedPlaylistId;
     if (selectedId == null) {
-      talker.debug('ClipboardCubit: Cannot add, selectedId is null');
       return;
     }
 
     try {
       if (selectedId == current.defaultPlaylistId) {
-        talker.debug('ClipboardCubit: Adding video to default library');
         await _repository.addVideoToLibrary(url);
       } else {
-        talker.debug('ClipboardCubit: Adding video to custom playlist $selectedId');
         await _repository.addVideoToPlaylist(selectedId, url);
       }
-      talker.debug(
-        'ClipboardCubit: Video added successfully, emitting ClipboardVideoAddedState',
-      );
       emit(const ClipboardVideoAddedState());
     } on VideoException catch (e, st) {
       talker.error('ClipboardCubit: addToPlaylist VideoException', e, st);
@@ -89,16 +74,13 @@ class ClipboardCubit extends Cubit<ClipboardState> {
 
   /// "Watch Now" button tapped.
   Future<void> watchNow(String url) async {
-    talker.debug('ClipboardCubit: watchNow called for url: $url');
     final current = state;
     if (current is! ClipboardPlaylistsLoadedState) {
-      talker.debug('ClipboardCubit: watchNow failed, state is not loaded');
       return;
     }
 
     final selectedId = current.selectedPlaylistId;
     if (selectedId == null) {
-      talker.debug('ClipboardCubit: watchNow failed, selectedId is null');
       return;
     }
 
@@ -106,10 +88,8 @@ class ClipboardCubit extends Cubit<ClipboardState> {
     // The addition and playing will be handled by PlaylistDetailCubit.addAndPlayVideo
     // which gracefully handles duplicates.
     if (selectedId == current.defaultPlaylistId) {
-      talker.debug('ClipboardCubit: watchNow emitting ClipboardNavigateToDashboardState');
       emit(ClipboardNavigateToDashboardState(url: url));
     } else {
-      talker.debug('ClipboardCubit: watchNow emitting ClipboardNavigateToPlaylistState');
       emit(ClipboardNavigateToPlaylistState(playlistId: selectedId, url: url));
     }
   }

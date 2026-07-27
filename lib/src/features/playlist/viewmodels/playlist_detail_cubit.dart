@@ -1,5 +1,4 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:levelup_tube/main.dart';
 import 'package:levelup_tube/src/core/error/exception.dart';
 import 'package:levelup_tube/src/core/utils/youtube_url_parser.dart';
 import 'package:levelup_tube/src/features/library/models/video.dart';
@@ -39,17 +38,10 @@ class PlaylistDetailCubit extends Cubit<PlaylistDetailState> {
       }
 
       // Convert VideoModel → Video entity for UI consumption
-      final normalVideos = playlist.videos.map((m) {
-        final entity = m.toEntity();
-        talker.debug(
-          'PlaylistDetailCubit: Loaded video - '
-          'id: ${entity.id}, '
-          'youtubeId: ${entity.youtubeId}, '
-          'lastWatchedPositionSeconds: ${entity.lastWatchedPositionSeconds}, '
-          'lastPlayedAt: ${entity.lastPlayedAt}',
-        );
-        return entity;
-      }).toList()..sort((a, b) => b.addedAt.compareTo(a.addedAt));
+      final normalVideos = playlist.videos
+          .map((m) => m.toEntity())
+          .toList()
+        ..sort((a, b) => b.addedAt.compareTo(a.addedAt));
 
       if (normalVideos.isEmpty) {
         emit(PlaylistDetailEmpty(playlist));

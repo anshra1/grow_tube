@@ -33,13 +33,15 @@ class _AddVideoFormState extends State<AddVideoForm> {
 
     return BlocConsumer<AddCubit, AddState>(
       listener: (context, state) {
-        if (state is AddInitial && _selectedPlaylistIdNotifier.value == null && state.defaultPlaylistId != null) {
+        if (state is AddInitial &&
+            _selectedPlaylistIdNotifier.value == null &&
+            state.defaultPlaylistId != null) {
           _selectedPlaylistIdNotifier.value = state.defaultPlaylistId;
         }
       },
       builder: (context, state) {
         final isAdding = state is AddLoading;
-        
+
         List<PlaylistModel>? playlists;
         if (state is AddInitial) {
           playlists = state.playlists;
@@ -79,33 +81,34 @@ class _AddVideoFormState extends State<AddVideoForm> {
               ),
             ),
             const Gap(24),
-            isLoadingPlaylists
-                ? Shimmer.fromColors(
-                    baseColor: theme.colorScheme.surfaceContainerHighest,
-                    highlightColor: theme.colorScheme.surface,
-                    child: Container(
-                      height: 60, // approximate height of dropdown
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(16),
-                        border: Border.all(
-                          color: theme.colorScheme.outline.withValues(alpha: 0.5),
-                        ),
-                      ),
+            if (isLoadingPlaylists)
+              Shimmer.fromColors(
+                baseColor: theme.colorScheme.surfaceContainerHighest,
+                highlightColor: theme.colorScheme.surface,
+                child: Container(
+                  height: 60, // approximate height of dropdown
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(
+                      color: theme.colorScheme.outline.withValues(alpha: 0.5),
                     ),
-                  )
-                : ValueListenableBuilder<int?>(
-                    valueListenable: _selectedPlaylistIdNotifier,
-                    builder: (context, selectedPlaylistId, child) {
-                      return PlaylistSelector(
-                        playlists: playlists!,
-                        selectedId: selectedPlaylistId,
-                        onChanged: (value) {
-                          _selectedPlaylistIdNotifier.value = value;
-                        },
-                      );
-                    },
                   ),
+                ),
+              )
+            else
+              ValueListenableBuilder<int?>(
+                valueListenable: _selectedPlaylistIdNotifier,
+                builder: (context, selectedPlaylistId, child) {
+                  return PlaylistSelector(
+                    playlists: playlists!,
+                    selectedId: selectedPlaylistId,
+                    onChanged: (value) {
+                      _selectedPlaylistIdNotifier.value = value;
+                    },
+                  );
+                },
+              ),
             const Gap(32),
             ListenableBuilder(
               listenable: Listenable.merge([

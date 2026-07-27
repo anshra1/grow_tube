@@ -4,10 +4,10 @@
 import 'package:levelup_tube/objectbox.g.dart';
 import 'package:levelup_tube/src/core/error/exception.dart';
 import 'package:levelup_tube/src/core/services/logging_service/app_logger.dart';
-import 'package:levelup_tube/src/core/services/youtube_api_service.dart';
 import 'package:levelup_tube/src/core/utils/youtube_url_parser.dart';
 import 'package:levelup_tube/src/features/playlist/models/playlist_model.dart';
 import 'package:levelup_tube/src/features/playlist/models/playlist_video_model.dart';
+import 'package:levelup_tube/src/features/playlist/services/youtube_api_service.dart';
 
 abstract class PlaylistRepository {
   /// Fetches all playlists currently stored in the local database, ordered by newest first.
@@ -88,22 +88,18 @@ class PlaylistRepositoryImpl implements PlaylistRepository {
 
   @override
   Future<List<PlaylistModel>> getAllPlaylists() async {
-    appLogger.debug('PlaylistRepository: Fetching all playlists');
     try {
       final query = playlistBox.query()
         ..order(PlaylistModel_.createdAt, flags: Order.descending);
       final playlists = query.build().find();
-      appLogger.debug('PlaylistRepository: Found ${playlists.length} playlists');
       return playlists;
-    } on Exception catch (e, st) {
-      appLogger.handle(e, st, 'PlaylistRepository: Error fetching playlists');
+    } on Exception catch (_) {
       return [];
     }
   }
 
   @override
   Future<PlaylistModel?> getPlaylist(int id) async {
-    appLogger.debug('PlaylistRepository: Fetching playlist ID: $id');
     try {
       final playlist = playlistBox.get(id);
       if (playlist != null) {
@@ -113,7 +109,6 @@ class PlaylistRepositoryImpl implements PlaylistRepository {
       }
       return playlist;
     } on Exception catch (e, st) {
-      appLogger.handle(e, st, 'PlaylistRepository: Error fetching playlist $id');
       return null;
     }
   }
@@ -127,8 +122,7 @@ class PlaylistRepositoryImpl implements PlaylistRepository {
   Future<int> _savePlaylist(PlaylistModel playlist) async {
     try {
       return playlistBox.put(playlist);
-    } catch (e, st) {
-      appLogger.handle(e, st, 'PlaylistRepository: Error saving playlist');
+    } on Exception catch (e) {
       throw DatabaseException(e.toString());
     }
   }
@@ -145,17 +139,14 @@ class PlaylistRepositoryImpl implements PlaylistRepository {
       throw Exception('This playlist has already been imported.');
     }
 
-    appLogger.info('PlaylistRepository: Fetching metadata for playlist $playlistId');
     final playlistMeta = await apiService.fetchPlaylistDetails(playlistId);
 
-    appLogger.info('PlaylistRepository: Fetching video IDs for playlist $playlistId');
     final videoIds = await apiService.fetchPlaylistVideoIds(playlistId);
 
     if (videoIds.isEmpty) {
       throw const VideoException('This playlist has no videos.', code: 'emptyPlaylist');
     }
 
-    appLogger.info('PlaylistRepository: Fetching details for ${videoIds.length} videos');
     final videoModels = <PlaylistVideoModel>[];
 
     for (final videoId in videoIds) {
@@ -195,9 +186,7 @@ class PlaylistRepositoryImpl implements PlaylistRepository {
     for (final video in videoModels) {
       await _internalAddVideoToPlaylist(savedId, video);
     }
-    appLogger.info(
-      'PlaylistRepository: Imported playlist "${playlistMeta['title']}" with ${videoModels.length} videos (ID: $savedId)',
-    );
+
     return savedId;
   }
 
@@ -217,7 +206,6 @@ class PlaylistRepositoryImpl implements PlaylistRepository {
 
   @override
   Future<void> deletePlaylist(int id) async {
-    appLogger.info('PlaylistRepository: Deleting playlist ID: $id');
     try {
       final playlist = playlistBox.get(id);
       if (playlist == null) return;
@@ -332,29 +320,15 @@ class PlaylistRepositoryImpl implements PlaylistRepository {
     bool updateLastPlayed = true,
   }) async {
     try {
-      appLogger.debug(
-        'PlaylistRepository: Updating progress for video $playlistVideoId to $positionSeconds seconds',
-      );
-
       final video = videoBox.get(playlistVideoId);
 
       if (video != null) {
-        appLogger.debug(
-          'PlaylistRepository: Found video - youtubeId: ${video.youtubeId}, old position: ${video.lastWatchedPositionSeconds}',
-        );
-
         video.lastWatchedPositionSeconds = positionSeconds;
         if (updateLastPlayed) {
           video.lastPlayedAt = DateTime.now();
         }
         videoBox.put(video);
-
-        appLogger.debug(
-          'PlaylistRepository: Progress saved successfully for video $playlistVideoId',
-        );
-      } else {
-        appLogger.debug('PlaylistRepository: Video $playlistVideoId not found');
-      }
+      } else {}
     } on Exception catch (e, st) {
       appLogger.handle(e, st, 'PlaylistRepository: Error updating video progress');
     }

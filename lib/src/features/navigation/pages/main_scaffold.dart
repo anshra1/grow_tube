@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:levelup_tube/main.dart';
 import 'package:levelup_tube/src/features/clipboard/mixins/clipboard_monitor_mixin.dart';
 import 'package:levelup_tube/src/features/clipboard/viewmodels/clipboard_cubit.dart';
 import 'package:levelup_tube/src/features/clipboard/viewmodels/clipboard_state.dart';
@@ -40,26 +39,20 @@ class _MainScaffoldState extends State<MainScaffold>
       builder: (bottomSheetContext) {
         return BlocListener<ClipboardCubit, ClipboardState>(
           listener: (context, state) {
-            talker.debug('MainScaffold BlocListener: Received state $state');
             if (state is ClipboardVideoAddedState ||
                 state is ClipboardNavigateToDashboardState ||
                 state is ClipboardNavigateToPlaylistState) {
               Navigator.of(bottomSheetContext).pop();
             }
             if (state is ClipboardNavigateToDashboardState) {
-              talker.debug('MainScaffold: Navigating to Dashboard with url ${state.url}');
               widget.navigationShell.goBranch(0);
               context.go('/', extra: state.url);
             }
             if (state is ClipboardNavigateToPlaylistState) {
-              talker.debug(
-                'MainScaffold: Navigating to Playlist ${state.playlistId} with url ${state.url}',
-              );
               widget.navigationShell.goBranch(1);
               context.go('/playlists/${state.playlistId}', extra: state.url);
             }
             if (state is ClipboardVideoAlreadyExistsState) {
-              talker.debug('MainScaffold: Showing Already Exists warning toast');
               toastification.show(
                 context: context,
                 type: ToastificationType.warning,

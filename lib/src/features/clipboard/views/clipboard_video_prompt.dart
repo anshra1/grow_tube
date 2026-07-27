@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
-import 'package:levelup_tube/main.dart';
 import 'package:levelup_tube/src/core/constants/app_icons.dart';
 import 'package:levelup_tube/src/core/design_system/app_radius.dart';
 import 'package:levelup_tube/src/core/design_system/app_sizes.dart';
@@ -34,15 +33,11 @@ class _ClipboardVideoPromptState extends State<ClipboardVideoPrompt> {
 
     return BlocBuilder<ClipboardCubit, ClipboardState>(
       buildWhen: (previous, current) {
-        talker.debug(
-          'ClipboardVideoPrompt buildWhen: previous=$previous, current=$current',
-        );
         return current is ClipboardPlaylistsLoadedState ||
             current is ClipboardLoadingState ||
             current is ClipboardInitial;
       },
       builder: (context, state) {
-        talker.debug('ClipboardVideoPrompt builder: state=$state');
         final playlists = state is ClipboardPlaylistsLoadedState
             ? state.playlists
             : <PlaylistModel>[];
@@ -177,7 +172,6 @@ class _ClipboardVideoPromptState extends State<ClipboardVideoPrompt> {
                   Expanded(
                     child: OutlinedButton.icon(
                       onPressed: () {
-                        talker.debug('ClipboardVideoPrompt: Add to List button pressed');
                         context.read<ClipboardCubit>().addToPlaylist(widget.url);
                       },
                       icon: const Icon(AppIcons.add),
@@ -200,7 +194,6 @@ class _ClipboardVideoPromptState extends State<ClipboardVideoPrompt> {
                   Expanded(
                     child: FilledButton.icon(
                       onPressed: () {
-                        talker.debug('ClipboardVideoPrompt: Watch Now button pressed');
                         context.read<ClipboardCubit>().watchNow(widget.url);
                       },
                       icon: const Icon(AppIcons.play),
