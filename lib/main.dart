@@ -11,10 +11,10 @@ import 'package:levelup_tube/src/core/router/app_router.dart';
 import 'package:levelup_tube/src/core/services/logging_service/talker_bloc_observer.dart';
 import 'package:levelup_tube/src/core/theme/theme_cubit.dart';
 import 'package:levelup_tube/src/core/widgets/pages/startup_error_app.dart';
+import 'package:levelup_tube/src/features/add/viewmodels/add_cubit.dart';
+import 'package:levelup_tube/src/features/clipboard/viewmodels/clipboard_cubit.dart';
 import 'package:levelup_tube/src/features/connectivity/presentation/bloc/connectivity_cubit.dart';
 import 'package:levelup_tube/src/features/connectivity/presentation/widgets/connectivity_toast_listener.dart';
-import 'package:levelup_tube/src/features/clipboard/viewmodels/clipboard_cubit.dart';
-import 'package:levelup_tube/src/features/add/viewmodels/add_cubit.dart';
 import 'package:levelup_tube/src/features/navigation/cubit/fullscreen_video_cubit.dart';
 import 'package:levelup_tube/src/features/settings/viewmodels/settings_cubit.dart';
 import 'package:talker_flutter/talker_flutter.dart';
@@ -65,6 +65,9 @@ class LevelUpTube extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ToastificationWrapper(
+      config: const ToastificationConfig(
+        maxToastLimit: 1,
+      ),
       child: MultiBlocProvider(
         providers: [
           BlocProvider(create: (context) => di.sl<ThemeCubit>()..load()),
@@ -77,7 +80,7 @@ class LevelUpTube extends StatelessWidget {
         child: BlocBuilder<ThemeCubit, ThemeState>(
           builder: (context, themeState) {
             return MaterialApp.router(
-              title: 'LevelUp Tube',
+              title: 'LevelUp',
               debugShowCheckedModeBanner: false,
               theme: AppTheme.light(),
               darkTheme: AppTheme.dark(),

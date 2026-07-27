@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:levelup_tube/main.dart';
 import 'package:levelup_tube/src/core/error/exception.dart';
 import 'package:levelup_tube/src/features/add/viewmodels/add_state.dart';
 import 'package:levelup_tube/src/features/playlist/repositories/playlist_repository.dart';
@@ -13,13 +14,10 @@ class AddCubit extends Cubit<AddState> {
     try {
       final playlists = await _repository.getAllPlaylists();
       final defaultPlaylist = await _repository.getOrCreateDefaultLibrary();
-      
-      // Filter out pinned playlists to put them at the top, if desired, 
+
+      // Filter out pinned playlists to put them at the top, if desired,
       // or just list them all. The dropdown usually just needs a list.
-      emit(AddInitial(
-        playlists: playlists,
-        defaultPlaylistId: defaultPlaylist.id,
-      ));
+      emit(AddInitial(playlists: playlists, defaultPlaylistId: defaultPlaylist.id));
     } on Exception catch (e) {
       emit(AddError(_exceptionMessage(e)));
     }
@@ -30,7 +28,7 @@ class AddCubit extends Cubit<AddState> {
     emit(const AddLoading());
     try {
       await _repository.addVideoToPlaylist(playlistId, url);
-      emit(const AddVideoSuccess());
+      emit(AddVideoSuccess(playlistId, url));
       // Reload playlists to reset the UI state
       await loadPlaylists();
     } on Exception catch (e) {
@@ -50,12 +48,15 @@ class AddCubit extends Cubit<AddState> {
     emit(const AddLoading());
     try {
       final id = await _repository.createCustomPlaylist(title);
-      
+
       // If a thumbnail was provided, update the playlist details.
       if (localThumbnailPath != null) {
-        await _repository.updatePlaylistDetails(id, localThumbnailPath: localThumbnailPath);
+        await _repository.updatePlaylistDetails(
+          id,
+          localThumbnailPath: localThumbnailPath,
+        );
       }
-      
+
       emit(const CreatePlaylistSuccess());
       await loadPlaylists();
     } on Exception catch (e) {
@@ -74,19 +75,23 @@ class AddCubit extends Cubit<AddState> {
 
     emit(const AddLoading());
     try {
-      await _repository.importYoutubePlaylist(url);
-      emit(const ImportPlaylistSuccess());
+      final newId = await _repository.importYoutubePlaylist(url);
+      emit(ImportPlaylistSuccess(newId));
       await loadPlaylists();
-    } on Exception catch (e) {
-      emit(AddError(_exceptionMessage(e)));
+    } on Exception catch (e, st) {
+      talker.debug('AddCubit: Error importing playlist: $e\n$st');
+      // Temporarily exposing raw exception string to help user debug
+      emit(AddError(e.toString()));
       await loadPlaylists();
     }
   }
 
   String _exceptionMessage(Object exception) {
+    // If it's our own AppException, use its message
     if (exception is AppException && exception.message.isNotEmpty) {
       return exception.message;
     }
-    return 'Something went wrong. Please try again.';
+    // For debugging, we return the full string representation
+    return exception.toString();
   }
 }

@@ -119,7 +119,8 @@ class AppBaseButton extends StatelessWidget {
               if (states.contains(WidgetState.disabled)) {
                 // Gray out background when disabled
                 final theme = Theme.of(context);
-                return theme.colorScheme.onSurface.withOpacity(0.12);
+               return theme.colorScheme.onSurface.withValues(alpha: 0.12);
+
               }
               // Use provided background color when enabled
               if (backgroundColor is Color) return backgroundColor as Color;
@@ -132,7 +133,7 @@ class AppBaseButton extends StatelessWidget {
               if (states.contains(WidgetState.disabled)) {
                 // Gray out text when disabled
                 final theme = Theme.of(context);
-                return theme.colorScheme.onSurface.withOpacity(0.38);
+                return theme.colorScheme.onSurface.withValues(alpha:0.38);
               }
               // Use provided foreground color when enabled
               if (foregroundColor is Color) return foregroundColor as Color;

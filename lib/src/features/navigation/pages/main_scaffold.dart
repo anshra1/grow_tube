@@ -8,8 +8,6 @@ import 'package:levelup_tube/src/features/clipboard/viewmodels/clipboard_state.d
 import 'package:levelup_tube/src/features/clipboard/views/clipboard_playlist_prompt.dart';
 import 'package:levelup_tube/src/features/clipboard/views/clipboard_video_prompt.dart';
 import 'package:levelup_tube/src/features/navigation/cubit/fullscreen_video_cubit.dart';
-import 'package:levelup_tube/src/features/playlist/viewmodels/playlist_detail_cubit.dart';
-import 'package:levelup_tube/src/features/settings/viewmodels/setting_state.dart';
 import 'package:levelup_tube/src/features/settings/viewmodels/settings_cubit.dart';
 import 'package:toastification/toastification.dart';
 
@@ -146,41 +144,41 @@ class _MainScaffoldState extends State<MainScaffold>
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<FullscreenVideoCubit, bool>(
-        builder: (context, isFullscreen) {
-          return Scaffold(
-            body: widget.navigationShell,
-            bottomNavigationBar: isFullscreen
-                ? null
-                : NavigationBar(
-                    selectedIndex: _effectiveIndex,
-                    onDestinationSelected: _onDestinationSelected,
-                    destinations: const [
-                      NavigationDestination(
-                        icon: Icon(Icons.home_outlined),
-                        selectedIcon: Icon(Icons.home),
-                        label: 'Home',
-                      ),
-                      NavigationDestination(
-                        icon: Icon(Icons.playlist_play_outlined),
-                        selectedIcon: Icon(Icons.playlist_play),
-                        label: 'Playlists',
-                      ),
-                      // "Add" is an action, not a tab — visual affordance only.
-                      NavigationDestination(
-                        icon: Icon(Icons.add_circle_outline),
-                        selectedIcon: Icon(Icons.add_circle),
-                        label: 'Add',
-                      ),
-                      NavigationDestination(
-                        icon: Icon(Icons.settings_outlined),
-                        selectedIcon: Icon(Icons.settings),
-                        label: 'Settings',
-                      ),
-                    ],
-                  ),
-          );
-        },
-      );
+      builder: (context, isFullscreen) {
+        return Scaffold(
+          body: widget.navigationShell,
+          bottomNavigationBar: isFullscreen
+              ? null
+              : NavigationBar(
+                  selectedIndex: _effectiveIndex,
+                  onDestinationSelected: _onDestinationSelected,
+                  destinations: const [
+                    NavigationDestination(
+                      icon: Icon(Icons.home_outlined),
+                      selectedIcon: Icon(Icons.home),
+                      label: 'Home',
+                    ),
+                    NavigationDestination(
+                      icon: Icon(Icons.playlist_play_outlined),
+                      selectedIcon: Icon(Icons.playlist_play),
+                      label: 'Playlists',
+                    ),
+                    // "Add" is an action, not a tab — visual affordance only.
+                    NavigationDestination(
+                      icon: Icon(Icons.add_circle_outline),
+                      selectedIcon: Icon(Icons.add_circle),
+                      label: 'Add',
+                    ),
+                    NavigationDestination(
+                      icon: Icon(Icons.settings_outlined),
+                      selectedIcon: Icon(Icons.settings),
+                      label: 'Settings',
+                    ),
+                  ],
+                ),
+        );
+      },
+    );
   }
 
   int get _effectiveIndex => widget.navigationShell.currentIndex;

@@ -6,12 +6,11 @@ import 'package:levelup_tube/src/core/widgets/atoms/buttons/app_primary_button.d
 import 'package:levelup_tube/src/features/add/viewmodels/add_cubit.dart';
 import 'package:levelup_tube/src/features/add/viewmodels/add_state.dart';
 import 'package:levelup_tube/src/features/playlist/models/playlist_model.dart';
+import 'package:levelup_tube/src/features/playlist/views/playlist_page_widgets/playlist_selector.dart';
+import 'package:shimmer/shimmer.dart';
 
 class AddVideoForm extends StatefulWidget {
-  const AddVideoForm({
-    required this.urlController,
-    super.key,
-  });
+  const AddVideoForm({required this.urlController, super.key});
 
   final TextEditingController urlController;
 
@@ -32,17 +31,23 @@ class _AddVideoFormState extends State<AddVideoForm> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return BlocBuilder<AddCubit, AddState>(
+    return BlocConsumer<AddCubit, AddState>(
+      listener: (context, state) {
+        if (state is AddInitial && _selectedPlaylistIdNotifier.value == null && state.defaultPlaylistId != null) {
+          _selectedPlaylistIdNotifier.value = state.defaultPlaylistId;
+        }
+      },
       builder: (context, state) {
         final isAdding = state is AddLoading;
-        List<PlaylistModel> playlists = [];
         
+        List<PlaylistModel>? playlists;
         if (state is AddInitial) {
           playlists = state.playlists;
-          if (_selectedPlaylistIdNotifier.value == null && state.defaultPlaylistId != null) {
-            _selectedPlaylistIdNotifier.value = state.defaultPlaylistId;
-          }
+        } else if (context.read<AddCubit>().state is AddInitial) {
+          playlists = (context.read<AddCubit>().state as AddInitial).playlists;
         }
+
+        final isLoadingPlaylists = playlists == null;
 
         return Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -74,46 +79,33 @@ class _AddVideoFormState extends State<AddVideoForm> {
               ),
             ),
             const Gap(24),
-            ValueListenableBuilder<int?>(
-              valueListenable: _selectedPlaylistIdNotifier,
-              builder: (context, selectedPlaylistId, child) {
-                return DropdownButtonFormField<int>(
-                  value: selectedPlaylistId,
-                  decoration: InputDecoration(
-                    labelText: 'Select Playlist',
-                    prefixIcon: const Icon(Icons.playlist_play),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(16)),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(16),
-                      borderSide: BorderSide(
-                        color: theme.colorScheme.outline.withValues(alpha: 0.5),
+            isLoadingPlaylists
+                ? Shimmer.fromColors(
+                    baseColor: theme.colorScheme.surfaceContainerHighest,
+                    highlightColor: theme.colorScheme.surface,
+                    child: Container(
+                      height: 60, // approximate height of dropdown
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(
+                          color: theme.colorScheme.outline.withValues(alpha: 0.5),
+                        ),
                       ),
                     ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(16),
-                      borderSide: BorderSide(
-                        color: theme.colorScheme.primary,
-                        width: 2,
-                      ),
-                    ),
-                    filled: true,
-                    fillColor: theme.colorScheme.surfaceContainerHighest.withValues(
-                      alpha: 0.5,
-                    ),
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+                  )
+                : ValueListenableBuilder<int?>(
+                    valueListenable: _selectedPlaylistIdNotifier,
+                    builder: (context, selectedPlaylistId, child) {
+                      return PlaylistSelector(
+                        playlists: playlists!,
+                        selectedId: selectedPlaylistId,
+                        onChanged: (value) {
+                          _selectedPlaylistIdNotifier.value = value;
+                        },
+                      );
+                    },
                   ),
-                  onChanged: (value) {
-                    _selectedPlaylistIdNotifier.value = value;
-                  },
-                  items: playlists.map((playlist) {
-                    return DropdownMenuItem(
-                      value: playlist.id,
-                      child: Text(playlist.title),
-                    );
-                  }).toList(),
-                );
-              },
-            ),
             const Gap(32),
             ListenableBuilder(
               listenable: Listenable.merge([
@@ -121,7 +113,8 @@ class _AddVideoFormState extends State<AddVideoForm> {
                 _selectedPlaylistIdNotifier,
               ]),
               builder: (context, child) {
-                final isEnabled = widget.urlController.text.trim().isNotEmpty &&
+                final isEnabled =
+                    widget.urlController.text.trim().isNotEmpty &&
                     _selectedPlaylistIdNotifier.value != null &&
                     !isAdding;
 
@@ -139,9 +132,9 @@ class _AddVideoFormState extends State<AddVideoForm> {
                   onPressed: isEnabled
                       ? () {
                           context.read<AddCubit>().addVideoToPlaylist(
-                                _selectedPlaylistIdNotifier.value!,
-                                widget.urlController.text.trim(),
-                              );
+                            _selectedPlaylistIdNotifier.value!,
+                            widget.urlController.text.trim(),
+                          );
                         }
                       : null,
                   padding: const EdgeInsets.symmetric(vertical: 18),

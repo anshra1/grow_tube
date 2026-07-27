@@ -9,6 +9,7 @@ import 'package:levelup_tube/src/core/extensions/context_extensions.dart';
 import 'package:levelup_tube/src/features/clipboard/viewmodels/clipboard_cubit.dart';
 import 'package:levelup_tube/src/features/clipboard/viewmodels/clipboard_state.dart';
 import 'package:levelup_tube/src/features/playlist/models/playlist_model.dart';
+import 'package:levelup_tube/src/features/playlist/views/playlist_page_widgets/playlist_selector.dart';
 
 class ClipboardVideoPrompt extends StatefulWidget {
   const ClipboardVideoPrompt({required this.url, required this.onDismiss, super.key});
@@ -162,31 +163,11 @@ class _ClipboardVideoPromptState extends State<ClipboardVideoPrompt> {
               if (isLoading)
                 const LinearProgressIndicator()
               else if (playlists.isNotEmpty)
-                DropdownButtonFormField<int>(
-                  initialValue: selectedId,
-                  decoration: const InputDecoration(
-                    prefixIcon: Icon(Icons.playlist_play_rounded),
-                    border: OutlineInputBorder(borderRadius: AppRadius.roundedL),
-                    contentPadding: EdgeInsets.symmetric(
-                      horizontal: AppSizes.p12,
-                      vertical: AppSizes.p8,
-                    ),
-                  ),
-                  items: playlists.map((p) {
-                    final isDefault = p.id == defaultId;
-                    return DropdownMenuItem<int>(
-                      value: p.id,
-                      child: Text(
-                        isDefault ? '${p.title} (Default)' : p.title,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    );
-                  }).toList(),
-                  onChanged: (value) {
-                    if (value != null) {
-                      context.read<ClipboardCubit>().selectPlaylist(value);
-                    }
-                  },
+                PlaylistSelector(
+                  playlists: playlists,
+                  selectedId: selectedId,
+                  defaultId: defaultId,
+                  onChanged: (id) => context.read<ClipboardCubit>().selectPlaylist(id),
                 ),
               const Gap(16),
 

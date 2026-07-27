@@ -11,6 +11,7 @@ import 'package:levelup_tube/src/core/widgets/atoms/top_header.dart';
 import 'package:levelup_tube/src/core/widgets/template/app_scaffold.dart';
 import 'package:levelup_tube/src/features/settings/pages/setting_page_widgets/section_header.dart';
 import 'package:levelup_tube/src/features/settings/pages/setting_page_widgets/setting_card.dart';
+import 'package:levelup_tube/src/features/settings/pages/setting_page_widgets/setting_shimmer.dart';
 import 'package:levelup_tube/src/features/settings/viewmodels/setting_state.dart';
 import 'package:levelup_tube/src/features/settings/viewmodels/settings_cubit.dart';
 import 'package:talker_flutter/talker_flutter.dart';
@@ -123,10 +124,7 @@ class _SettingsPageState extends State<SettingsPage> {
               child: BlocBuilder<SettingsCubit, SettingsState>(
                 builder: (context, state) {
                   if (state is SettingsLoadingState || state is SettingsInitialState) {
-                    return const Padding(
-                      padding: EdgeInsets.all(AppSizes.p16),
-                      child: Center(child: CircularProgressIndicator()),
-                    );
+                    return const SettingCardShimmer();
                   }
 
                   if (state is SettingsErrorState) {

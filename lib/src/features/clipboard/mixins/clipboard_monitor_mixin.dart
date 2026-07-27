@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:levelup_tube/main.dart';
-import 'package:levelup_tube/src/core/di/injection_container.dart';
 import 'package:levelup_tube/src/features/clipboard/service/clipboard_service.dart';
-import 'package:levelup_tube/src/features/playlist/repositories/playlist_repository.dart';
 
 mixin ClipboardMonitorMixin<T extends StatefulWidget>
     on State<T>, WidgetsBindingObserver {
@@ -34,26 +31,15 @@ mixin ClipboardMonitorMixin<T extends StatefulWidget>
     final text = await _clipboardService.getClipboardText();
     if (text == null) return;
 
+    if (_clipboardService.hasBeenProcessed(text)) {
+      return;
+    }
+
     // Check for Playlist first
     final playlistId = _clipboardService.extractYouTubePlaylistId(text);
     if (playlistId != null) {
-      var isAlreadyImported = false;
-      try {
-        isAlreadyImported = await sl<PlaylistRepository>().isPlaylistImported(playlistId);
-      } on Exception catch (e) {
-        talker.error('ClipboardMonitorMixin: DB Error checking playlistId: $e');
-        isAlreadyImported = true; // safe default
-      }
-
-      if (isAlreadyImported) {
-        return;
-      }
-
-      if (!_clipboardService.isNewUrl(text)) {
-        return;
-      }
-
       if (mounted) {
+        _clipboardService.markAsProcessed(text);
         onClipboardPlaylistDetected(text, playlistId);
       }
       return;
@@ -63,30 +49,8 @@ mixin ClipboardMonitorMixin<T extends StatefulWidget>
     final videoId = _clipboardService.extractYouTubeId(text);
     if (videoId == null) return;
 
-    // DB is the authoritative source — always check it first
-    var isAlreadyAdded = true; // safe default
-    try {
-      final library = await sl<PlaylistRepository>().getDefaultLibrary();
-      final video = library.videos.where((v) => v.youtubeId == videoId).firstOrNull;
-      if (video != null) {
-        isAlreadyAdded = true;
-      } else {
-        isAlreadyAdded = false;
-      }
-    } on Exception catch (e) {
-      talker.error('ClipboardMonitorMixin: DB Error checking videoId: $e');
-    }
-
-    if (isAlreadyAdded) {
-      return;
-    }
-
-    // Same-session dedup: don't show popup for same URL twice in one session
-    if (!_clipboardService.isNewUrl(text)) {
-      return;
-    }
-
     if (mounted) {
+      _clipboardService.markAsProcessed(text);
       onClipboardUrlDetected(text, videoId);
     }
   }

@@ -222,6 +222,10 @@ class PlaylistRepositoryImpl implements PlaylistRepository {
       final playlist = playlistBox.get(id);
       if (playlist == null) return;
 
+      if (playlist.isSystemDefault) {
+        throw Exception('Cannot delete the default playlist.');
+      }
+
       // Each video belongs exclusively to one playlist, so we can
       // delete them all directly without any orphan checks.
       final videoIdsToRemove = playlist.videos.map((v) => v.id).toList();

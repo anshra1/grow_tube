@@ -1,4 +1,6 @@
 import 'package:flutter/services.dart';
+import 'package:levelup_tube/objectbox.g.dart';
+import 'package:levelup_tube/src/features/clipboard/models/clipboard_history_model.dart';
 
 class ClipboardService {
   factory ClipboardService() => _instance;
@@ -6,8 +8,6 @@ class ClipboardService {
   // Singleton pattern
   static final ClipboardService _instance =
       ClipboardService._internal();
-
-  String? _lastProcessedUrl;
 
   /// Reads text from the system clipboard.
   Future<String?> getClipboardText() async {
@@ -53,17 +53,37 @@ class ClipboardService {
     return null;
   }
 
-  /// Checks if the given URL is new and hasn't been processed yet.
-  bool isNewUrl(String url) {
-    if (url.isNotEmpty && url != _lastProcessedUrl) {
-      _lastProcessedUrl = url;
-      return true;
-    }
-    return false;
+  Box<ClipboardHistoryModel>? _box;
+  final List<String> _recentUrls = [];
+
+  /// Initializes the service with the ObjectBox store.
+  void init(Box<ClipboardHistoryModel> box) {
+    _box = box;
+    final history = _box?.getAll() ?? [];
+    _recentUrls.addAll(history.map((e) => e.copiedText));
   }
 
-  /// Clears the last processed URL, allowing it to be processed again.
-  void clearLastUrl() {
-    _lastProcessedUrl = null;
+  /// Checks if the given URL is in the recent history.
+  bool hasBeenProcessed(String url) {
+    if (url.isEmpty) return true;
+    return _recentUrls.contains(url);
+  }
+
+  /// Marks a URL as processed and saves it to history.
+  void markAsProcessed(String url) {
+    if (url.isEmpty || _recentUrls.contains(url)) return;
+    
+    _recentUrls.add(url);
+    if (_recentUrls.length > 3) {
+      _recentUrls.removeAt(0); // keep only last 3
+    }
+
+    // Update ObjectBox
+    if (_box != null) {
+      _box!.removeAll(); // Clear old
+      _box!.putMany(
+        _recentUrls.map((e) => ClipboardHistoryModel(copiedText: e)).toList(),
+      );
+    }
   }
 }

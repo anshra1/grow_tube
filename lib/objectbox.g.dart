@@ -14,6 +14,7 @@ import 'package:objectbox/internal.dart'
 import 'package:objectbox/objectbox.dart' as obx;
 import 'package:objectbox_flutter_libs/objectbox_flutter_libs.dart';
 
+import 'src/features/clipboard/models/clipboard_history_model.dart';
 import 'src/features/library/data/models/video_model.dart';
 import 'src/features/playlist/models/playlist_model.dart';
 import 'src/features/playlist/models/playlist_video_model.dart';
@@ -232,6 +233,28 @@ final _entities = <obx_int.ModelEntity>[
     relations: <obx_int.ModelRelation>[],
     backlinks: <obx_int.ModelBacklink>[],
   ),
+  obx_int.ModelEntity(
+    id: const obx_int.IdUid(4, 721821355102057125),
+    name: 'ClipboardHistoryModel',
+    lastPropertyId: const obx_int.IdUid(2, 2575741554419896648),
+    flags: 0,
+    properties: <obx_int.ModelProperty>[
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(1, 7778262782302324491),
+        name: 'id',
+        type: 6,
+        flags: 1,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(2, 2575741554419896648),
+        name: 'copiedText',
+        type: 9,
+        flags: 0,
+      ),
+    ],
+    relations: <obx_int.ModelRelation>[],
+    backlinks: <obx_int.ModelBacklink>[],
+  ),
 ];
 
 /// Shortcut for [obx.Store.new] that passes [getObjectBoxModel] and for Flutter
@@ -277,7 +300,7 @@ obx_int.ModelDefinition getObjectBoxModel() {
     // Typically, this is done with `dart run build_runner build`.
     generatorVersion: obx_int.GeneratorVersion.v2025_12_16,
     entities: _entities,
-    lastEntityId: const obx_int.IdUid(3, 726241950308333869),
+    lastEntityId: const obx_int.IdUid(4, 721821355102057125),
     lastIndexId: const obx_int.IdUid(1, 4065306276962701119),
     lastRelationId: const obx_int.IdUid(1, 7202673744005411862),
     lastSequenceId: const obx_int.IdUid(0, 0),
@@ -581,6 +604,42 @@ obx_int.ModelDefinition getObjectBoxModel() {
         return object;
       },
     ),
+    ClipboardHistoryModel: obx_int.EntityDefinition<ClipboardHistoryModel>(
+      model: _entities[3],
+      toOneRelations: (ClipboardHistoryModel object) => [],
+      toManyRelations: (ClipboardHistoryModel object) => {},
+      getId: (ClipboardHistoryModel object) => object.id,
+      setId: (ClipboardHistoryModel object, int id) {
+        object.id = id;
+      },
+      objectToFB: (ClipboardHistoryModel object, fb.Builder fbb) {
+        final copiedTextOffset = fbb.writeString(object.copiedText);
+        fbb.startTable(3);
+        fbb.addInt64(0, object.id);
+        fbb.addOffset(1, copiedTextOffset);
+        fbb.finish(fbb.endTable());
+        return object.id;
+      },
+      objectFromFB: (obx.Store store, ByteData fbData) {
+        final buffer = fb.BufferContext(fbData);
+        final rootOffset = buffer.derefObject(0);
+        final idParam = const fb.Int64Reader().vTableGet(
+          buffer,
+          rootOffset,
+          4,
+          0,
+        );
+        final copiedTextParam = const fb.StringReader(
+          asciiOptimization: true,
+        ).vTableGet(buffer, rootOffset, 6, '');
+        final object = ClipboardHistoryModel(
+          id: idParam,
+          copiedText: copiedTextParam,
+        );
+
+        return object;
+      },
+    ),
   };
 
   return obx_int.ModelDefinition(model, bindings);
@@ -741,5 +800,18 @@ class PlaylistVideoModel_ {
   /// See [PlaylistVideoModel.isPinned].
   static final isPinned = obx.QueryBooleanProperty<PlaylistVideoModel>(
     _entities[2].properties[9],
+  );
+}
+
+/// [ClipboardHistoryModel] entity fields to define ObjectBox queries.
+class ClipboardHistoryModel_ {
+  /// See [ClipboardHistoryModel.id].
+  static final id = obx.QueryIntegerProperty<ClipboardHistoryModel>(
+    _entities[3].properties[0],
+  );
+
+  /// See [ClipboardHistoryModel.copiedText].
+  static final copiedText = obx.QueryStringProperty<ClipboardHistoryModel>(
+    _entities[3].properties[1],
   );
 }

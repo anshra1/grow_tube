@@ -182,9 +182,28 @@
         }
       ],
       "relations": []
+    },
+    {
+      "id": "4:721821355102057125",
+      "lastPropertyId": "2:2575741554419896648",
+      "name": "ClipboardHistoryModel",
+      "properties": [
+        {
+          "id": "1:7778262782302324491",
+          "name": "id",
+          "type": 6,
+          "flags": 1
+        },
+        {
+          "id": "2:2575741554419896648",
+          "name": "copiedText",
+          "type": 9
+        }
+      ],
+      "relations": []
     }
   ],
-  "lastEntityId": "3:726241950308333869",
+  "lastEntityId": "4:721821355102057125",
   "lastIndexId": "1:4065306276962701119",
   "lastRelationId": "1:7202673744005411862",
   "lastSequenceId": "0:0",

@@ -9,5 +9,9 @@ linter:
     one_member_abstracts: false
     sort_pub_dependencies: false
 analyzer:
+  exclude:
+    - lib/objectbox.g.dart
+    - "**/*.g.dart"
+    - "**/*.freezed.dart"
   errors:
     lines_longer_than_80_chars: ignore

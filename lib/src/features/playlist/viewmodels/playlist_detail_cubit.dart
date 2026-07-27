@@ -1,9 +1,9 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:levelup_tube/main.dart';
 import 'package:levelup_tube/src/core/error/exception.dart';
+import 'package:levelup_tube/src/core/utils/youtube_url_parser.dart';
 import 'package:levelup_tube/src/features/library/models/video.dart';
 import 'package:levelup_tube/src/features/playlist/repositories/playlist_repository.dart';
-import 'package:levelup_tube/src/core/utils/youtube_url_parser.dart';
 import 'package:levelup_tube/src/features/playlist/viewmodels/playlist_detail_state.dart';
 
 class PlaylistDetailCubit extends Cubit<PlaylistDetailState> {
@@ -263,12 +263,11 @@ class PlaylistDetailCubit extends Cubit<PlaylistDetailState> {
     final currentState = state;
     if (currentState is PlaylistDetailLoaded &&
         currentState.videosState.videos.isNotEmpty) {
-      
       final youtubeId = YoutubeUrlParser.extractVideoId(url);
       final videoToPlay = currentState.videosState.videos
           .where((v) => v.youtubeId == youtubeId)
           .firstOrNull;
-          
+
       if (videoToPlay != null) {
         await selectVideo(videoToPlay);
       } else {

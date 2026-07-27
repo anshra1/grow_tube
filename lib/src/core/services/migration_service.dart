@@ -35,6 +35,8 @@ class MigrationService {
           title: 'My Library',
           createdAt: DateTime.now(),
           isSystemDefault: true,
+          isPinned: true,
+          description: 'Your saved videos',
         );
 
       // 2. Fetch all old videos and convert
@@ -57,8 +59,11 @@ class MigrationService {
         }
       }
 
-      // 3. Set video count explicitly
+      // 3. Set video count and initial thumbnail explicitly
       defaultPlaylist.videoCount = defaultPlaylist.videos.length;
+      if (defaultPlaylist.thumbnailUrl == null && defaultPlaylist.videos.isNotEmpty) {
+        defaultPlaylist.thumbnailUrl = defaultPlaylist.videos.first.thumbnailUrl;
+      }
 
       // 4. Save playlist
       playlistBox.put(defaultPlaylist);

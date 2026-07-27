@@ -1,0 +1,170 @@
+Analyzing grow_tube...                                          
+
+   info • Missing documentation explaining why the diagnostic is ignored • lib/objectbox.g.dart:6:1 • document_ignores
+   info • Missing documentation explaining why the diagnostic is ignored • lib/objectbox.g.dart:6:1 • document_ignores
+   info • Use 'package:' imports for files in the 'lib' directory • lib/objectbox.g.dart:17:8 • always_use_package_imports
+   info • Use 'package:' imports for files in the 'lib' directory • lib/objectbox.g.dart:17:8 • always_use_package_imports
+   info • Use 'package:' imports for files in the 'lib' directory • lib/objectbox.g.dart:18:8 • always_use_package_imports
+   info • Use 'package:' imports for files in the 'lib' directory • lib/objectbox.g.dart:18:8 • always_use_package_imports
+   info • Use 'package:' imports for files in the 'lib' directory • lib/objectbox.g.dart:19:8 • always_use_package_imports
+   info • Use 'package:' imports for files in the 'lib' directory • lib/objectbox.g.dart:19:8 • always_use_package_imports
+   info • Integer literal can't be represented exactly when compiled to JavaScript • lib/objectbox.g.dart:25:32 • avoid_js_rounded_ints
+   info • Integer literal can't be represented exactly when compiled to JavaScript • lib/objectbox.g.dart:25:32 • avoid_js_rounded_ints
+   info • Integer literal can't be represented exactly when compiled to JavaScript • lib/objectbox.g.dart:27:44 • avoid_js_rounded_ints
+   info • Integer literal can't be represented exactly when compiled to JavaScript • lib/objectbox.g.dart:27:44 • avoid_js_rounded_ints
+   info • Integer literal can't be represented exactly when compiled to JavaScript • lib/objectbox.g.dart:31:36 • avoid_js_rounded_ints
+   info • Integer literal can't be represented exactly when compiled to JavaScript • lib/objectbox.g.dart:31:36 • avoid_js_rounded_ints
+   info • Integer literal can't be represented exactly when compiled to JavaScript • lib/objectbox.g.dart:37:36 • avoid_js_rounded_ints
+   info • Integer literal can't be represented exactly when compiled to JavaScript • lib/objectbox.g.dart:37:36 • avoid_js_rounded_ints
+   info • Integer literal can't be represented exactly when compiled to JavaScript • lib/objectbox.g.dart:41:41 • avoid_js_rounded_ints
+   info • Integer literal can't be represented exactly when compiled to JavaScript • lib/objectbox.g.dart:41:41 • avoid_js_rounded_ints
+   info • Integer literal can't be represented exactly when compiled to JavaScript • lib/objectbox.g.dart:44:36 • avoid_js_rounded_ints
+   info • Integer literal can't be represented exactly when compiled to JavaScript • lib/objectbox.g.dart:44:36 • avoid_js_rounded_ints
+   info • Integer literal can't be represented exactly when compiled to JavaScript • lib/objectbox.g.dart:50:36 • avoid_js_rounded_ints
+   info • Integer literal can't be represented exactly when compiled to JavaScript • lib/objectbox.g.dart:50:36 • avoid_js_rounded_ints
+   info • Integer literal can't be represented exactly when compiled to JavaScript • lib/objectbox.g.dart:56:36 • avoid_js_rounded_ints
+   info • Integer literal can't be represented exactly when compiled to JavaScript • lib/objectbox.g.dart:56:36 • avoid_js_rounded_ints
+   info • Integer literal can't be represented exactly when compiled to JavaScript • lib/objectbox.g.dart:62:36 • avoid_js_rounded_ints
+   info • Integer literal can't be represented exactly when compiled to JavaScript • lib/objectbox.g.dart:62:36 • avoid_js_rounded_ints
+   info • Integer literal can't be represented exactly when compiled to JavaScript • lib/objectbox.g.dart:68:36 • avoid_js_rounded_ints
+   info • Integer literal can't be represented exactly when compiled to JavaScript • lib/objectbox.g.dart:68:36 • avoid_js_rounded_ints
+   info • Integer literal can't be represented exactly when compiled to JavaScript • lib/objectbox.g.dart:74:36 • avoid_js_rounded_ints
+   info • Integer literal can't be represented exactly when compiled to JavaScript • lib/objectbox.g.dart:74:36 • avoid_js_rounded_ints
+   info • Integer literal can't be represented exactly when compiled to JavaScript • lib/objectbox.g.dart:80:36 • avoid_js_rounded_ints
+   info • Integer literal can't be represented exactly when compiled to JavaScript • lib/objectbox.g.dart:80:36 • avoid_js_rounded_ints
+   info • Integer literal can't be represented exactly when compiled to JavaScript • lib/objectbox.g.dart:90:32 • avoid_js_rounded_ints
+   info • Integer literal can't be represented exactly when compiled to JavaScript • lib/objectbox.g.dart:90:32 • avoid_js_rounded_ints
+   info • Integer literal can't be represented exactly when compiled to JavaScript • lib/objectbox.g.dart:92:45 • avoid_js_rounded_ints
+   info • Integer literal can't be represented exactly when compiled to JavaScript • lib/objectbox.g.dart:92:45 • avoid_js_rounded_ints
+   info • Integer literal can't be represented exactly when compiled to JavaScript • lib/objectbox.g.dart:96:36 • avoid_js_rounded_ints
+   info • Integer literal can't be represented exactly when compiled to JavaScript • lib/objectbox.g.dart:96:36 • avoid_js_rounded_ints
+   info • Integer literal can't be represented exactly when compiled to JavaScript • lib/objectbox.g.dart:102:36 • avoid_js_rounded_ints
+   info • Integer literal can't be represented exactly when compiled to JavaScript • lib/objectbox.g.dart:102:36 • avoid_js_rounded_ints
+   info • Integer literal can't be represented exactly when compiled to JavaScript • lib/objectbox.g.dart:108:36 • avoid_js_rounded_ints
+   info • Integer literal can't be represented exactly when compiled to JavaScript • lib/objectbox.g.dart:108:36 • avoid_js_rounded_ints
+   info • Integer literal can't be represented exactly when compiled to JavaScript • lib/objectbox.g.dart:114:36 • avoid_js_rounded_ints
+   info • Integer literal can't be represented exactly when compiled to JavaScript • lib/objectbox.g.dart:114:36 • avoid_js_rounded_ints
+   info • Integer literal can't be represented exactly when compiled to JavaScript • lib/objectbox.g.dart:120:36 • avoid_js_rounded_ints
+   info • Integer literal can't be represented exactly when compiled to JavaScript • lib/objectbox.g.dart:120:36 • avoid_js_rounded_ints
+   info • Integer literal can't be represented exactly when compiled to JavaScript • lib/objectbox.g.dart:126:36 • avoid_js_rounded_ints
+   info • Integer literal can't be represented exactly when compiled to JavaScript • lib/objectbox.g.dart:126:36 • avoid_js_rounded_ints
+   info • Integer literal can't be represented exactly when compiled to JavaScript • lib/objectbox.g.dart:132:36 • avoid_js_rounded_ints
+   info • Integer literal can't be represented exactly when compiled to JavaScript • lib/objectbox.g.dart:132:36 • avoid_js_rounded_ints
+   info • Integer literal can't be represented exactly when compiled to JavaScript • lib/objectbox.g.dart:138:36 • avoid_js_rounded_ints
+   info • Integer literal can't be represented exactly when compiled to JavaScript • lib/objectbox.g.dart:138:36 • avoid_js_rounded_ints
+   info • Integer literal can't be represented exactly when compiled to JavaScript • lib/objectbox.g.dart:144:36 • avoid_js_rounded_ints
+   info • Integer literal can't be represented exactly when compiled to JavaScript • lib/objectbox.g.dart:144:36 • avoid_js_rounded_ints
+   info • Integer literal can't be represented exactly when compiled to JavaScript • lib/objectbox.g.dart:150:37 • avoid_js_rounded_ints
+   info • Integer literal can't be represented exactly when compiled to JavaScript • lib/objectbox.g.dart:150:37 • avoid_js_rounded_ints
+   info • Integer literal can't be represented exactly when compiled to JavaScript • lib/objectbox.g.dart:158:36 • avoid_js_rounded_ints
+   info • Integer literal can't be represented exactly when compiled to JavaScript • lib/objectbox.g.dart:158:36 • avoid_js_rounded_ints
+   info • Integer literal can't be represented exactly when compiled to JavaScript • lib/objectbox.g.dart:160:42 • avoid_js_rounded_ints
+   info • Integer literal can't be represented exactly when compiled to JavaScript • lib/objectbox.g.dart:160:42 • avoid_js_rounded_ints
+   info • Integer literal can't be represented exactly when compiled to JavaScript • lib/objectbox.g.dart:166:32 • avoid_js_rounded_ints
+   info • Integer literal can't be represented exactly when compiled to JavaScript • lib/objectbox.g.dart:166:32 • avoid_js_rounded_ints
+   info • Integer literal can't be represented exactly when compiled to JavaScript • lib/objectbox.g.dart:168:45 • avoid_js_rounded_ints
+   info • Integer literal can't be represented exactly when compiled to JavaScript • lib/objectbox.g.dart:168:45 • avoid_js_rounded_ints
+   info • Integer literal can't be represented exactly when compiled to JavaScript • lib/objectbox.g.dart:172:36 • avoid_js_rounded_ints
+   info • Integer literal can't be represented exactly when compiled to JavaScript • lib/objectbox.g.dart:172:36 • avoid_js_rounded_ints
+   info • Integer literal can't be represented exactly when compiled to JavaScript • lib/objectbox.g.dart:178:36 • avoid_js_rounded_ints
+   info • Integer literal can't be represented exactly when compiled to JavaScript • lib/objectbox.g.dart:178:36 • avoid_js_rounded_ints
+   info • Integer literal can't be represented exactly when compiled to JavaScript • lib/objectbox.g.dart:184:36 • avoid_js_rounded_ints
+   info • Integer literal can't be represented exactly when compiled to JavaScript • lib/objectbox.g.dart:184:36 • avoid_js_rounded_ints
+   info • Integer literal can't be represented exactly when compiled to JavaScript • lib/objectbox.g.dart:190:36 • avoid_js_rounded_ints
+   info • Integer literal can't be represented exactly when compiled to JavaScript • lib/objectbox.g.dart:190:36 • avoid_js_rounded_ints
+   info • Integer literal can't be represented exactly when compiled to JavaScript • lib/objectbox.g.dart:196:36 • avoid_js_rounded_ints
+   info • Integer literal can't be represented exactly when compiled to JavaScript • lib/objectbox.g.dart:196:36 • avoid_js_rounded_ints
+   info • Integer literal can't be represented exactly when compiled to JavaScript • lib/objectbox.g.dart:202:36 • avoid_js_rounded_ints
+   info • Integer literal can't be represented exactly when compiled to JavaScript • lib/objectbox.g.dart:202:36 • avoid_js_rounded_ints
+   info • Integer literal can't be represented exactly when compiled to JavaScript • lib/objectbox.g.dart:208:36 • avoid_js_rounded_ints
+   info • Integer literal can't be represented exactly when compiled to JavaScript • lib/objectbox.g.dart:208:36 • avoid_js_rounded_ints
+   info • Integer literal can't be represented exactly when compiled to JavaScript • lib/objectbox.g.dart:214:36 • avoid_js_rounded_ints
+   info • Integer literal can't be represented exactly when compiled to JavaScript • lib/objectbox.g.dart:214:36 • avoid_js_rounded_ints
+   info • Integer literal can't be represented exactly when compiled to JavaScript • lib/objectbox.g.dart:220:36 • avoid_js_rounded_ints
+   info • Integer literal can't be represented exactly when compiled to JavaScript • lib/objectbox.g.dart:220:36 • avoid_js_rounded_ints
+   info • Integer literal can't be represented exactly when compiled to JavaScript • lib/objectbox.g.dart:226:37 • avoid_js_rounded_ints
+   info • Integer literal can't be represented exactly when compiled to JavaScript • lib/objectbox.g.dart:226:37 • avoid_js_rounded_ints
+   info • Integer literal can't be represented exactly when compiled to JavaScript • lib/objectbox.g.dart:280:42 • avoid_js_rounded_ints
+   info • Integer literal can't be represented exactly when compiled to JavaScript • lib/objectbox.g.dart:280:42 • avoid_js_rounded_ints
+   info • Integer literal can't be represented exactly when compiled to JavaScript • lib/objectbox.g.dart:281:41 • avoid_js_rounded_ints
+   info • Integer literal can't be represented exactly when compiled to JavaScript • lib/objectbox.g.dart:281:41 • avoid_js_rounded_ints
+   info • Integer literal can't be represented exactly when compiled to JavaScript • lib/objectbox.g.dart:282:44 • avoid_js_rounded_ints
+   info • Integer literal can't be represented exactly when compiled to JavaScript • lib/objectbox.g.dart:282:44 • avoid_js_rounded_ints
+warning • The generic type 'EntityDefinition<dynamic>' should have explicit type arguments but doesn't • lib/objectbox.g.dart:293:27 • strict_raw_type
+warning • The generic type 'EntityDefinition<dynamic>' should have explicit type arguments but doesn't • lib/objectbox.g.dart:293:27 • strict_raw_type
+   info • Unnecessary duplication of receiver • lib/objectbox.g.dart:308:9 • cascade_invocations
+   info • Unnecessary duplication of receiver • lib/objectbox.g.dart:308:9 • cascade_invocations
+   info • Unnecessary duplication of receiver • lib/objectbox.g.dart:309:9 • cascade_invocations
+   info • Unnecessary duplication of receiver • lib/objectbox.g.dart:309:9 • cascade_invocations
+   info • Unnecessary duplication of receiver • lib/objectbox.g.dart:310:9 • cascade_invocations
+   info • Unnecessary duplication of receiver • lib/objectbox.g.dart:310:9 • cascade_invocations
+   info • Unnecessary duplication of receiver • lib/objectbox.g.dart:311:9 • cascade_invocations
+   info • Unnecessary duplication of receiver • lib/objectbox.g.dart:311:9 • cascade_invocations
+   info • Unnecessary duplication of receiver • lib/objectbox.g.dart:312:9 • cascade_invocations
+   info • Unnecessary duplication of receiver • lib/objectbox.g.dart:312:9 • cascade_invocations
+   info • Unnecessary duplication of receiver • lib/objectbox.g.dart:313:9 • cascade_invocations
+   info • Unnecessary duplication of receiver • lib/objectbox.g.dart:313:9 • cascade_invocations
+   info • Unnecessary duplication of receiver • lib/objectbox.g.dart:314:9 • cascade_invocations
+   info • Unnecessary duplication of receiver • lib/objectbox.g.dart:314:9 • cascade_invocations
+   info • Unnecessary duplication of receiver • lib/objectbox.g.dart:315:9 • cascade_invocations
+   info • Unnecessary duplication of receiver • lib/objectbox.g.dart:315:9 • cascade_invocations
+   info • Unnecessary duplication of receiver • lib/objectbox.g.dart:316:9 • cascade_invocations
+   info • Unnecessary duplication of receiver • lib/objectbox.g.dart:316:9 • cascade_invocations
+   info • Unnecessary duplication of receiver • lib/objectbox.g.dart:322:9 • cascade_invocations
+   info • Unnecessary duplication of receiver • lib/objectbox.g.dart:322:9 • cascade_invocations
+   info • Unnecessary duplication of receiver • lib/objectbox.g.dart:404:9 • cascade_invocations
+   info • Unnecessary duplication of receiver • lib/objectbox.g.dart:404:9 • cascade_invocations
+   info • Unnecessary duplication of receiver • lib/objectbox.g.dart:405:9 • cascade_invocations
+   info • Unnecessary duplication of receiver • lib/objectbox.g.dart:405:9 • cascade_invocations
+   info • Unnecessary duplication of receiver • lib/objectbox.g.dart:406:9 • cascade_invocations
+   info • Unnecessary duplication of receiver • lib/objectbox.g.dart:406:9 • cascade_invocations
+   info • Unnecessary duplication of receiver • lib/objectbox.g.dart:407:9 • cascade_invocations
+   info • Unnecessary duplication of receiver • lib/objectbox.g.dart:407:9 • cascade_invocations
+   info • Unnecessary duplication of receiver • lib/objectbox.g.dart:408:9 • cascade_invocations
+   info • Unnecessary duplication of receiver • lib/objectbox.g.dart:408:9 • cascade_invocations
+   info • Unnecessary duplication of receiver • lib/objectbox.g.dart:409:9 • cascade_invocations
+   info • Unnecessary duplication of receiver • lib/objectbox.g.dart:409:9 • cascade_invocations
+   info • Unnecessary duplication of receiver • lib/objectbox.g.dart:410:9 • cascade_invocations
+   info • Unnecessary duplication of receiver • lib/objectbox.g.dart:410:9 • cascade_invocations
+   info • Unnecessary duplication of receiver • lib/objectbox.g.dart:411:9 • cascade_invocations
+   info • Unnecessary duplication of receiver • lib/objectbox.g.dart:411:9 • cascade_invocations
+   info • Unnecessary duplication of receiver • lib/objectbox.g.dart:412:9 • cascade_invocations
+   info • Unnecessary duplication of receiver • lib/objectbox.g.dart:412:9 • cascade_invocations
+   info • Unnecessary duplication of receiver • lib/objectbox.g.dart:413:9 • cascade_invocations
+   info • Unnecessary duplication of receiver • lib/objectbox.g.dart:413:9 • cascade_invocations
+   info • Unnecessary duplication of receiver • lib/objectbox.g.dart:414:9 • cascade_invocations
+   info • Unnecessary duplication of receiver • lib/objectbox.g.dart:414:9 • cascade_invocations
+   info • Unnecessary duplication of receiver • lib/objectbox.g.dart:491:9 • cascade_invocations
+   info • Unnecessary duplication of receiver • lib/objectbox.g.dart:491:9 • cascade_invocations
+   info • Unnecessary duplication of receiver • lib/objectbox.g.dart:492:9 • cascade_invocations
+   info • Unnecessary duplication of receiver • lib/objectbox.g.dart:492:9 • cascade_invocations
+   info • Unnecessary duplication of receiver • lib/objectbox.g.dart:493:9 • cascade_invocations
+   info • Unnecessary duplication of receiver • lib/objectbox.g.dart:493:9 • cascade_invocations
+   info • Unnecessary duplication of receiver • lib/objectbox.g.dart:494:9 • cascade_invocations
+   info • Unnecessary duplication of receiver • lib/objectbox.g.dart:494:9 • cascade_invocations
+   info • Unnecessary duplication of receiver • lib/objectbox.g.dart:495:9 • cascade_invocations
+   info • Unnecessary duplication of receiver • lib/objectbox.g.dart:495:9 • cascade_invocations
+   info • Unnecessary duplication of receiver • lib/objectbox.g.dart:496:9 • cascade_invocations
+   info • Unnecessary duplication of receiver • lib/objectbox.g.dart:496:9 • cascade_invocations
+   info • Unnecessary duplication of receiver • lib/objectbox.g.dart:497:9 • cascade_invocations
+   info • Unnecessary duplication of receiver • lib/objectbox.g.dart:497:9 • cascade_invocations
+   info • Unnecessary duplication of receiver • lib/objectbox.g.dart:498:9 • cascade_invocations
+   info • Unnecessary duplication of receiver • lib/objectbox.g.dart:498:9 • cascade_invocations
+   info • Unnecessary duplication of receiver • lib/objectbox.g.dart:499:9 • cascade_invocations
+   info • Unnecessary duplication of receiver • lib/objectbox.g.dart:499:9 • cascade_invocations
+   info • Unnecessary duplication of receiver • lib/objectbox.g.dart:505:9 • cascade_invocations
+   info • Unnecessary duplication of receiver • lib/objectbox.g.dart:505:9 • cascade_invocations
+   info • Unnecessary duplication of receiver • lib/objectbox.g.dart:506:9 • cascade_invocations
+   info • Unnecessary duplication of receiver • lib/objectbox.g.dart:506:9 • cascade_invocations
+warning • Unused import: 'package:levelup_tube/src/features/add/viewmodels/add_cubit.dart' • lib/src/core/router/app_router.dart:5:8 • unused_import
+warning • Unused import: 'package:levelup_tube/src/features/add/viewmodels/add_cubit.dart' • lib/src/core/router/app_router.dart:5:8 • unused_import
+warning • Unused import: 'package:levelup_tube/src/features/add/viewmodels/add_cubit.dart' • lib/src/core/router/app_router.dart:5:8 • unused_import
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/src/core/widgets/atoms/buttons/app_base_button.dart:122:52 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/src/core/widgets/atoms/buttons/app_base_button.dart:122:52 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/src/core/widgets/atoms/buttons/app_base_button.dart:122:52 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/src/core/widgets/atoms/buttons/app_base_button.dart:122:52 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/src/core/widgets/atoms/buttons/app_base_button.dart:135:52 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/src/core/widgets/atoms/buttons/app_base_button.dart:135:52 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/src/core/widgets/atoms/buttons/app_base_button.dart:135:52 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/src/core/widgets/atoms/buttons/app_base_button.dart:135:52 • deprecated_member_use
+

@@ -22,7 +22,12 @@ final class AddLoading extends AddState {
 }
 
 final class AddVideoSuccess extends AddState {
-  const AddVideoSuccess();
+  const AddVideoSuccess(this.playlistId, this.videoUrl);
+  final int playlistId;
+  final String videoUrl;
+
+  @override
+  List<Object?> get props => [playlistId, videoUrl];
 }
 
 final class CreatePlaylistSuccess extends AddState {
@@ -30,7 +35,11 @@ final class CreatePlaylistSuccess extends AddState {
 }
 
 final class ImportPlaylistSuccess extends AddState {
-  const ImportPlaylistSuccess();
+  const ImportPlaylistSuccess(this.playlistId);
+  final int playlistId;
+
+  @override
+  List<Object?> get props => [playlistId];
 }
 
 final class AddError extends AddState {

@@ -19,28 +19,27 @@ class DashboardVideoListShimmer extends StatelessWidget {
       itemBuilder: (context, index) {
         return Padding(
           padding: const EdgeInsets.only(bottom: AppSizes.p16),
-          child: Shimmer.fromColors(
-            baseColor: context.colorScheme.surfaceContainerHighest,
-            highlightColor: context.colorScheme.surface,
-            child: Container(
-              decoration: BoxDecoration(
-                color: context.colorScheme.surface,
-                borderRadius: AppRadius.roundedL,
-                border: Border.all(
-                  color: context.colorScheme.outlineVariant
-                      .withValues(alpha: 0.5),
-                ),
-                boxShadow: AppShadows.card,
+          child: Container(
+            decoration: BoxDecoration(
+              color: context.colorScheme.surface,
+              borderRadius: AppRadius.roundedL,
+              border: Border.all(
+                color: context.colorScheme.outlineVariant.withValues(alpha: 0.5),
               ),
-              padding: const EdgeInsets.all(AppSizes.p12),
+              boxShadow: AppShadows.card,
+            ),
+            padding: const EdgeInsets.all(AppSizes.p12),
+            child: Shimmer.fromColors(
+              baseColor: context.colorScheme.surfaceContainerHighest,
+              highlightColor: context.colorScheme.surface,
               child: Row(
                 children: [
                   // Thumbnail skeleton
                   Container(
                     width: 120,
                     height: 70,
-                    decoration: BoxDecoration(
-                      color: context.colorScheme.surface,
+                    decoration: const BoxDecoration(
+                      color: Colors.white,
                       borderRadius: AppRadius.roundedM,
                     ),
                   ),
@@ -56,14 +55,20 @@ class DashboardVideoListShimmer extends StatelessWidget {
                         Container(
                           width: double.infinity,
                           height: 14,
-                          color: context.colorScheme.surface,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(4),
+                          ),
                         ),
                         const SizedBox(height: AppSizes.p4),
                         // Title line 2
                         Container(
                           width: 140,
                           height: 14,
-                          color: context.colorScheme.surface,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(4),
+                          ),
                         ),
                         const SizedBox(height: AppSizes.p8),
 
@@ -71,25 +76,33 @@ class DashboardVideoListShimmer extends StatelessWidget {
                         Container(
                           width: 80,
                           height: 10,
-                          color: context.colorScheme.surface,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(4),
+                          ),
                         ),
                         const SizedBox(height: AppSizes.p12),
 
                         // Progress Bar & Percentage
                         Column(
-                          crossAxisAlignment:
-                              CrossAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Container(
                               width: double.infinity,
                               height: 4,
-                              color: context.colorScheme.surface,
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(2),
+                              ),
                             ),
                             const SizedBox(height: AppSizes.p4),
                             Container(
                               width: 60,
                               height: 10,
-                              color: context.colorScheme.surface,
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(2),
+                              ),
                             ),
                           ],
                         ),

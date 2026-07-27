@@ -12,14 +12,16 @@ import 'package:levelup_tube/src/core/services/migration_service.dart';
 import 'package:levelup_tube/src/core/services/youtube_api_service.dart';
 import 'package:levelup_tube/src/core/theme/theme_cubit.dart';
 import 'package:levelup_tube/src/core/theme/theme_preferences.dart';
+import 'package:levelup_tube/src/features/add/viewmodels/add_cubit.dart';
+import 'package:levelup_tube/src/features/clipboard/models/clipboard_history_model.dart';
+import 'package:levelup_tube/src/features/clipboard/service/clipboard_service.dart';
+import 'package:levelup_tube/src/features/clipboard/viewmodels/clipboard_cubit.dart';
 import 'package:levelup_tube/src/features/connectivity/data/internet_connection_service.dart';
 import 'package:levelup_tube/src/features/connectivity/presentation/bloc/connectivity_cubit.dart';
 import 'package:levelup_tube/src/features/connectivity/presentation/widgets/connectivity_toast_controller.dart';
 import 'package:levelup_tube/src/features/playlist/models/playlist_model.dart';
 import 'package:levelup_tube/src/features/playlist/models/playlist_video_model.dart';
 import 'package:levelup_tube/src/features/playlist/repositories/playlist_repository.dart';
-import 'package:levelup_tube/src/features/clipboard/viewmodels/clipboard_cubit.dart';
-import 'package:levelup_tube/src/features/add/viewmodels/add_cubit.dart';
 import 'package:levelup_tube/src/features/playlist/viewmodels/playlist_cubit.dart';
 import 'package:levelup_tube/src/features/settings/viewmodels/settings_cubit.dart';
 import 'package:path_provider/path_provider.dart';
@@ -53,9 +55,8 @@ Future<void> init() async {
     // Services
     ..registerSingleton<Talker>(talker)
     ..registerLazySingleton<AppLogger>(
-      () => AppLogger(
-        services: [TalkerLoggingService(sl()), CrashlyticsLoggingService()],
-      ),
+      () =>
+          AppLogger(services: [TalkerLoggingService(sl()), CrashlyticsLoggingService()]),
     );
 
   // MIGRATION SCRIPT
@@ -64,19 +65,18 @@ Future<void> init() async {
   sl
     ..registerLazySingleton(ConnectivityToastController.new)
     ..registerLazySingleton(
-      () => InternetConnection.createInstance(
-        checkInterval: const Duration(seconds: 3),
-      ),
+      () => InternetConnection.createInstance(checkInterval: const Duration(seconds: 3)),
     )
     ..registerLazySingleton(() => InternetConnectionService(sl()))
     // ============================================================
     // Repositories
     // ============================================================
-    ..registerLazySingleton<Box<PlaylistModel>>(
-      () => sl<Store>().box<PlaylistModel>(),
-    )
+    ..registerLazySingleton<Box<PlaylistModel>>(() => sl<Store>().box<PlaylistModel>())
     ..registerLazySingleton<Box<PlaylistVideoModel>>(
       () => sl<Store>().box<PlaylistVideoModel>(),
+    )
+    ..registerLazySingleton<Box<ClipboardHistoryModel>>(
+      () => sl<Store>().box<ClipboardHistoryModel>(),
     )
     ..registerLazySingleton<PlaylistRepository>(
       () => PlaylistRepositoryImpl(
@@ -95,4 +95,6 @@ Future<void> init() async {
     ..registerFactory(() => SettingsCubit(sl()))
     ..registerFactory(() => AddCubit(sl()))
     ..registerLazySingleton(() => ClipboardCubit(repository: sl()));
+
+  ClipboardService().init(sl<Box<ClipboardHistoryModel>>());
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
+import 'package:go_router/go_router.dart';
 import 'package:levelup_tube/src/core/widgets/template/app_scaffold.dart';
 import 'package:levelup_tube/src/features/add/viewmodels/add_cubit.dart';
 import 'package:levelup_tube/src/features/add/viewmodels/add_state.dart';
@@ -48,13 +49,23 @@ class _AddPageState extends State<AddPage> {
       listener: (context, state) {
         if (state is AddVideoSuccess) {
           _videoUrlController.clear();
-          _showToast(context, 'Success!', 'Video added successfully.', ToastificationType.success);
+          _showActionToast(
+            context, 
+            'Video added successfully.', 
+            'WATCH', 
+            () => context.go('/playlists/${state.playlistId}', extra: state.videoUrl),
+          );
         } else if (state is CreatePlaylistSuccess) {
           _playlistNameController.clear();
           _showToast(context, 'Success!', 'Playlist created successfully.', ToastificationType.success);
         } else if (state is ImportPlaylistSuccess) {
           _importUrlController.clear();
-          _showToast(context, 'Success!', 'Playlist import started.', ToastificationType.success);
+          _showActionToast(
+            context,
+            'Playlist imported successfully.',
+            'OPEN',
+            () => context.go('/playlists/${state.playlistId}'),
+          );
         } else if (state is AddError) {
           FocusManager.instance.primaryFocus?.unfocus();
           _showToast(context, 'Error!', state.message, ToastificationType.error);
@@ -146,6 +157,58 @@ class _AddPageState extends State<AddPage> {
       description: Text(description),
       autoCloseDuration: const Duration(seconds: 4),
       alignment: Alignment.bottomCenter,
+    );
+  }
+  
+  void _showActionToast(BuildContext context, String title, String actionLabel, VoidCallback onAction) {
+    final theme = Theme.of(context);
+    toastification.showCustom(
+      context: context,
+      autoCloseDuration: const Duration(seconds: 5),
+      alignment: Alignment.bottomCenter,
+      builder: (context, holder) {
+        return Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          decoration: BoxDecoration(
+            color: theme.colorScheme.inverseSurface,
+            borderRadius: BorderRadius.circular(12),
+            boxShadow: const [
+              BoxShadow(color: Colors.black12, blurRadius: 16, offset: Offset(0, 8)),
+            ],
+          ),
+          child: Row(
+            children: [
+              Expanded(
+                child: Text(
+                  title,
+                  style: TextStyle(
+                    color: theme.colorScheme.onInverseSurface,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+              TextButton(
+                onPressed: () {
+                  toastification.dismissById(holder.id);
+                  onAction();
+                },
+                child: Text(
+                  actionLabel,
+                  style: TextStyle(
+                    color: theme.colorScheme.inversePrimary,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              IconButton(
+                onPressed: () => toastification.dismissById(holder.id),
+                icon: Icon(Icons.close, color: theme.colorScheme.onInverseSurface, size: 20),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }
