@@ -1,5 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:levelup_tube/main.dart';
+import 'package:levelup_tube/src/core/di/injection_container.dart' as di;
+import 'package:levelup_tube/src/core/services/logging_service/app_logger.dart';
 import 'package:levelup_tube/src/core/error/exception.dart';
 import 'package:levelup_tube/src/features/clipboard/viewmodels/clipboard_state.dart';
 import 'package:levelup_tube/src/features/playlist/repositories/playlist_repository.dart';
@@ -25,7 +26,7 @@ class ClipboardCubit extends Cubit<ClipboardState> {
         ),
       );
     } on Exception catch (e, st) {
-      talker.error('ClipboardCubit: loadPlaylists error', e, st);
+      di.sl<AppLogger>().handle(e, st, 'ClipboardCubit: loadPlaylists error');
       emit(ClipboardErrorState(e.toString()));
     }
   }
@@ -58,7 +59,7 @@ class ClipboardCubit extends Cubit<ClipboardState> {
       }
       emit(const ClipboardVideoAddedState());
     } on VideoException catch (e, st) {
-      talker.error('ClipboardCubit: addToPlaylist VideoException', e, st);
+      di.sl<AppLogger>().handle(e, st, 'ClipboardCubit: addToPlaylist VideoException');
       if (e.code == 'already_exists') {
         emit(const ClipboardVideoAlreadyExistsState());
         // Re-emit loaded state so the UI dropdown doesn't break
@@ -67,7 +68,7 @@ class ClipboardCubit extends Cubit<ClipboardState> {
         emit(ClipboardErrorState(e.message));
       }
     } on Exception catch (e, st) {
-      talker.error('ClipboardCubit: addToPlaylist Exception', e, st);
+      di.sl<AppLogger>().handle(e, st, 'ClipboardCubit: addToPlaylist Exception');
       emit(ClipboardErrorState(e.toString()));
     }
   }

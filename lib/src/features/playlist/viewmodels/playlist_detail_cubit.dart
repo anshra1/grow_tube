@@ -1,4 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:levelup_tube/src/core/di/injection_container.dart' as di;
+import 'package:levelup_tube/src/core/services/logging_service/app_logger.dart';
 import 'package:levelup_tube/src/core/error/exception.dart';
 import 'package:levelup_tube/src/core/utils/youtube_url_parser.dart';
 import 'package:levelup_tube/src/features/library/models/video.dart';
@@ -77,7 +79,8 @@ class PlaylistDetailCubit extends Cubit<PlaylistDetailState> {
       emit(
         PlaylistDetailLoaded(videosState: videosState, heroVideoState: heroVideoState),
       );
-    } on Object catch (e) {
+    } on Object catch (e, st) {
+      di.sl<AppLogger>().handle(e, st, 'PlaylistDetailCubit: loadPlaylist error');
       emit(PlaylistDetailError(_exceptionMessage(e)));
     }
   }
@@ -170,7 +173,8 @@ class PlaylistDetailCubit extends Cubit<PlaylistDetailState> {
           );
         }
       }
-    } on Exception catch (_) {
+    } on Exception catch (e, st) {
+      di.sl<AppLogger>().handle(e, st, 'PlaylistDetailCubit: updateProgress error');
       // Progress save runs in the background, ignore errors to not interrupt UI
     }
   }
@@ -184,7 +188,8 @@ class PlaylistDetailCubit extends Cubit<PlaylistDetailState> {
         await _repository.removeVideoFromPlaylist(playlistId!, videoModelId);
       }
       await loadPlaylist();
-    } on Exception catch (e) {
+    } on Exception catch (e, st) {
+      di.sl<AppLogger>().handle(e, st, 'PlaylistDetailCubit: removeVideo error');
       emit(PlaylistDetailError(_exceptionMessage(e)));
       await loadPlaylist(); // Recover UI
     }
@@ -197,7 +202,8 @@ class PlaylistDetailCubit extends Cubit<PlaylistDetailState> {
       await _repository.addVideoToPlaylist(playlistId, url);
       emit(const VideoAddPlaylistSuccessState()); // Triggers the success toast
       await loadPlaylist(); // <--- NEW: Recovers the Dashboard UI
-    } on Exception catch (e) {
+    } on Exception catch (e, st) {
+      di.sl<AppLogger>().handle(e, st, 'PlaylistDetailCubit: addVideoToPlaylist error');
       emit(PlaylistDetailError(_exceptionMessage(e))); // Triggers the error toast
       await loadPlaylist(); // <--- NEW: Recovers the Dashboard UI
     }
@@ -212,7 +218,8 @@ class PlaylistDetailCubit extends Cubit<PlaylistDetailState> {
         await _repository.addVideoToPlaylist(playlistId!, url);
       }
       await loadPlaylist();
-    } on Exception catch (e) {
+    } on Exception catch (e, st) {
+      di.sl<AppLogger>().handle(e, st, 'PlaylistDetailCubit: addVideo error');
       emit(PlaylistDetailError(_exceptionMessage(e)));
       await loadPlaylist(); // Recover UI
     }
@@ -236,14 +243,16 @@ class PlaylistDetailCubit extends Cubit<PlaylistDetailState> {
       } else {
         await _repository.addVideoToPlaylist(playlistId!, url);
       }
-    } on VideoException catch (e) {
+    } on VideoException catch (e, st) {
+      di.sl<AppLogger>().handle(e, st, 'PlaylistDetailCubit: addAndPlayVideo VideoException');
       if (e.code != 'already_exists') {
         emit(PlaylistDetailError(_exceptionMessage(e)));
         await loadPlaylist(); // Recover UI
         return;
       }
       // If it already exists, we just catch it and continue to play it.
-    } on Exception catch (e) {
+    } on Exception catch (e, st) {
+      di.sl<AppLogger>().handle(e, st, 'PlaylistDetailCubit: addAndPlayVideo Exception');
       emit(PlaylistDetailError(_exceptionMessage(e)));
       await loadPlaylist(); // Recover UI
       return;
@@ -274,7 +283,8 @@ class PlaylistDetailCubit extends Cubit<PlaylistDetailState> {
     try {
       await _repository.setVideoPinned(videoId, isPinned);
       await loadPlaylist();
-    } on Exception catch (e) {
+    } on Exception catch (e, st) {
+      di.sl<AppLogger>().handle(e, st, 'PlaylistDetailCubit: setVideoPinned error');
       emit(PlaylistDetailError(_exceptionMessage(e)));
       await loadPlaylist();
     }

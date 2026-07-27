@@ -134,13 +134,13 @@ class UpdateDialog extends StatelessWidget {
                           Container(
                             height: 4,
                             width: 24,
-                            color: Colors.white.withOpacity(0.8),
+                            color: Colors.white.withValues(alpha: .8),
                           ),
                           const SizedBox(height: 4),
                           Container(
                             height: 4,
                             width: 44,
-                            color: Colors.white.withOpacity(0.8),
+                            color: Colors.white.withValues(alpha: .8),
                           ),
                         ],
                       ),

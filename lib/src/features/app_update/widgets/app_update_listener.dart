@@ -53,6 +53,8 @@ class _AppUpdateListenerState extends State<AppUpdateListener> with WidgetsBindi
         if (dialogContext == null) return;
 
         await showDialog<void>(
+          // 
+          // ignore: use_build_context_synchronously
           context: dialogContext,
           barrierDismissible: !isHardUpdate,
           builder: (context) => UpdateDialog(

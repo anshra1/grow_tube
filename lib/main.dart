@@ -43,7 +43,8 @@ Future<void> main() async {
   // Initialize DI
   try {
     await di.init();
-  } on AppConfigurationException catch (e) {
+  } on AppConfigurationException catch (e, st) {
+  await  FirebaseCrashlytics.instance. recordError(e, st, reason: 'Failed to initialize DI');
     runApp(
       StartupErrorApp(
         title: 'Configuration Error',
@@ -57,11 +58,11 @@ Future<void> main() async {
   // Initialize Bloc Observer
   Bloc.observer = TalkerBlocObserver(talker: talker);
 
-  runApp(const LevelUpTube());
+  runApp(const LevelUp());
 }
 
-class LevelUpTube extends StatelessWidget {
-  const LevelUpTube({super.key});
+class LevelUp extends StatelessWidget {
+  const LevelUp({super.key});
 
   @override
   Widget build(BuildContext context) {

@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'package:levelup_tube/src/core/di/injection_container.dart' as di;
+import 'package:levelup_tube/src/core/services/logging_service/app_logger.dart';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:levelup_tube/src/features/playlist/repositories/playlist_repository.dart';
@@ -20,7 +22,8 @@ class SettingsCubit extends Cubit<SettingsState> {
           defaultPlaylistId: defaultPlaylist?.id,
         ),
       );
-    } on Exception catch (e) {
+    } on Exception catch (e, st) {
+      di.sl<AppLogger>().handle(e, st, 'SettingsCubit: loadAllPlaylist error');
       emit(SettingsErrorState(e.toString()));
     }
   }
@@ -33,7 +36,8 @@ class SettingsCubit extends Cubit<SettingsState> {
     try {
       await _repository.setDefaultPlaylist(playlistId);
       emit(currentState.copyWith(defaultPlaylistId: playlistId));
-    } on Exception catch (e) {
+    } on Exception catch (e, st) {
+      di.sl<AppLogger>().handle(e, st, 'SettingsCubit: setDefaultPlaylist error');
       emit(SettingsErrorState(e.toString()));
       // Recover back to the last good state
       emit(currentState);

@@ -109,6 +109,7 @@ class PlaylistRepositoryImpl implements PlaylistRepository {
       }
       return playlist;
     } on Exception catch (e, st) {
+       appLogger.warning('PlaylistRepository: error  $e — $st');
       return null;
     }
   }

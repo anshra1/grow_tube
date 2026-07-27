@@ -12,6 +12,7 @@ class AppUpdateService {
   final FirebaseRemoteConfig _remoteConfig;
   final AppLogger _logger;
 
+// Todo: need to update this later
   Future<void> init() async {
     try {
       await _remoteConfig.setConfigSettings(

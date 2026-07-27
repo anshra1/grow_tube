@@ -1,4 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:levelup_tube/src/core/di/injection_container.dart' as di;
+import 'package:levelup_tube/src/core/services/logging_service/app_logger.dart';
 import 'package:levelup_tube/src/core/error/exception.dart';
 import 'package:levelup_tube/src/features/playlist/models/playlist_model.dart';
 import 'package:levelup_tube/src/features/playlist/repositories/playlist_repository.dart';
@@ -20,7 +22,8 @@ class PlaylistCubit extends Cubit<PlaylistState> {
       } else {
         emit(PlaylistLoadedState(_pinnedFirst(playlists)));
       }
-    } on Exception catch (e) {
+    } on Exception catch (e, st) {
+      di.sl<AppLogger>().handle(e, st, 'PlaylistCubit: loadPlaylists error');
       emit(PlaylistErrorState(_exceptionMessage(e)));
     }
   }
@@ -32,7 +35,8 @@ class PlaylistCubit extends Cubit<PlaylistState> {
       // Wait for the screen transition to finish before showing the importing state
       await Future<void>.delayed(const Duration(milliseconds: 500));
       await importPlaylist(url);
-    } on Exception catch (e) {
+    } on Exception catch (e, st) {
+      di.sl<AppLogger>().handle(e, st, 'PlaylistCubit: loadAndImport error');
       emit(PlaylistErrorState(_exceptionMessage(e)));
       await loadPlaylists(); // recover UI
     }
@@ -50,7 +54,8 @@ class PlaylistCubit extends Cubit<PlaylistState> {
     try {
       await _repository.createCustomPlaylist(title);
       await loadPlaylists();
-    } on Exception catch (e) {
+    } on Exception catch (e, st) {
+      di.sl<AppLogger>().handle(e, st, 'PlaylistCubit: createPlaylist error');
       emit(PlaylistErrorState(_exceptionMessage(e)));
       await loadPlaylists(); // recover UI
     }
@@ -67,7 +72,8 @@ class PlaylistCubit extends Cubit<PlaylistState> {
     try {
       await _repository.importYoutubePlaylist(url);
       await loadPlaylists();
-    } on Exception catch (e) {
+    } on Exception catch (e, st) {
+      di.sl<AppLogger>().handle(e, st, 'PlaylistCubit: importPlaylist error');
       emit(PlaylistErrorState(_exceptionMessage(e)));
       await loadPlaylists(); // recover UI
     }
@@ -78,7 +84,8 @@ class PlaylistCubit extends Cubit<PlaylistState> {
     try {
       await _repository.deletePlaylist(id);
       await loadPlaylists();
-    } on Exception catch (e) {
+    } on Exception catch (e, st) {
+      di.sl<AppLogger>().handle(e, st, 'PlaylistCubit: deletePlaylist error');
       emit(PlaylistErrorState(_exceptionMessage(e)));
       await loadPlaylists(); // recover UI
     }
@@ -89,7 +96,8 @@ class PlaylistCubit extends Cubit<PlaylistState> {
     try {
       await _repository.setPlaylistPinned(playlistId, isPinned);
       await loadPlaylists();
-    } on Exception catch (e) {
+    } on Exception catch (e, st) {
+      di.sl<AppLogger>().handle(e, st, 'PlaylistCubit: setPlaylistPinned error');
       emit(PlaylistErrorState(_exceptionMessage(e)));
       await loadPlaylists();
     }
@@ -101,7 +109,8 @@ class PlaylistCubit extends Cubit<PlaylistState> {
       await _repository.updatePlaylistDetails(id, title: title, localThumbnailPath: localThumbnailPath);
       emit(const PlaylistUpdateSuccessState());
       await loadPlaylists();
-    } on Exception catch (e) {
+    } on Exception catch (e, st) {
+      di.sl<AppLogger>().handle(e, st, 'PlaylistCubit: updatePlaylistDetails error');
       emit(PlaylistErrorState(_exceptionMessage(e)));
       await loadPlaylists();
     }
