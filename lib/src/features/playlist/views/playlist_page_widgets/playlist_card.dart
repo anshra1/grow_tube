@@ -37,9 +37,9 @@ class PlaylistCard extends StatelessWidget {
           boxShadow: AppShadows.card,
         ),
         child: Material(
-          color: context.colorScheme.surface,
-          borderRadius: AppRadius.roundedL,
-          clipBehavior: Clip.antiAlias,
+           color: context.colorScheme.surface,
+           borderRadius: AppRadius.roundedL,
+           clipBehavior: Clip.antiAlias,
           child: InkWell(
             borderRadius: AppRadius.roundedL,
             overlayColor: WidgetStateProperty.resolveWith((states) {
@@ -69,6 +69,7 @@ class PlaylistCard extends StatelessWidget {
                           Padding(
                             padding: const EdgeInsets.symmetric(vertical: 2),
                             child: SizedBox(
+                              height: 90,
                               width: 144, // Constrain thumbnail width
                               child: ClipRRect(
                                 borderRadius: AppRadius.roundedM,

@@ -117,7 +117,7 @@ class DashboardVideoCard extends StatelessWidget {
                                     width: 120,
                                     height: 67,
                                     child: CachedNetworkImage(
-                                      scale: 1.2,
+                                    //  scale: 1.2,
                                       imageUrl: video.thumbnailUrl,
                                       fit: BoxFit.cover, // Fill the whole box
                                     ),
