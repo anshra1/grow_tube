@@ -184,6 +184,11 @@ class _LoadedDashboardBody extends StatelessWidget {
             .findAncestorWidgetOfExactType<DashboardPage>()!
             ._showVideoOptionsBottomSheet(context, video);
       },
+      onVideoLongPress: (video) {
+        context
+            .findAncestorWidgetOfExactType<DashboardPage>()!
+            ._showVideoOptionsBottomSheet(context, video);
+      },
     );
   }
 }

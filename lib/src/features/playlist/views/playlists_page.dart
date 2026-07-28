@@ -152,9 +152,7 @@ class _PlaylistsPageContent extends StatelessWidget {
           child: PlaylistCard(
             playlist: playlist,
             onTap: () => context.push('/playlists/${playlist.id}'),
-            onLongPress: playlist.isSystemDefault
-                ? null
-                : () => _showDeleteDialog(context, playlist),
+            onLongPress: () => _showPlaylistOptionsBottomSheet(context, playlist),
             onOptionsTap: () => _showPlaylistOptionsBottomSheet(context, playlist),
           ),
         );

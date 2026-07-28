@@ -181,7 +181,7 @@ class _LoadedPlaylistBody extends StatelessWidget {
       onVideoLongPress: (video) {
         context
             .findAncestorWidgetOfExactType<PlaylistDetailPage>()!
-            ._showRemoveFromPlaylistDialog(context, video);
+            ._showVideoOptionsBottomSheet(context, video);
       },
       onOptionsTap: (video) {
         context

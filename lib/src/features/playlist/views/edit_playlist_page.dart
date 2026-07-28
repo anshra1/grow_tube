@@ -48,10 +48,14 @@ class _EditPlaylistPageState extends State<EditPlaylistPage> {
   Future<void> _pickImage() async {
     final image = await _picker.pickImage(source: ImageSource.gallery);
     if (image != null) {
+      if (!mounted) return;
       try {
         final croppedFile = await ImageCropper().cropImage(
           sourcePath: image.path,
           aspectRatio: const CropAspectRatio(ratioX: 16, ratioY: 9),
+          compressQuality: 80,
+          maxWidth: 1280,
+          maxHeight: 720,
           uiSettings: [
             AndroidUiSettings(
               toolbarTitle: 'Crop Image',
