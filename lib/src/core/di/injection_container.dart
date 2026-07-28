@@ -1,3 +1,4 @@
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:get_it/get_it.dart';
@@ -6,6 +7,7 @@ import 'package:levelup_tube/firebase_options.dart';
 import 'package:levelup_tube/main.dart';
 import 'package:levelup_tube/objectbox.g.dart'; // Generated
 import 'package:levelup_tube/src/core/config/app_config.dart';
+import 'package:levelup_tube/src/core/services/analytics_service.dart';
 import 'package:levelup_tube/src/core/services/crashlytics_service.dart';
 import 'package:levelup_tube/src/core/services/logging_service/app_logger.dart';
 import 'package:levelup_tube/src/core/services/logging_service/talker_logging_service.dart';
@@ -60,8 +62,11 @@ Future<void> init() async {
       () =>
           AppLogger(services: [TalkerLoggingService(sl()), CrashlyticsLoggingService()]),
     )
+    ..registerLazySingleton<AnalyticsService>(
+      () => FirebaseAnalyticsService(analytics: FirebaseAnalytics.instance),
+    )
     ..registerLazySingleton(() => FirebaseRemoteConfig.instance)
-    ..registerLazySingleton(() => AppUpdateService(sl(), sl()));
+    ..registerLazySingleton(() => AppUpdateService(sl(), sl(), sl()));
 
   // MIGRATION SCRIPT
   await MigrationService.run(store, prefs, sl());

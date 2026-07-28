@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
 import 'package:levelup_tube/main.dart';
 import 'package:levelup_tube/src/core/constants/app_links.dart';
 import 'package:levelup_tube/src/core/design_system/app_sizes.dart';
@@ -198,21 +197,6 @@ class _SettingsPageState extends State<SettingsPage> {
                 title: const Text('Privacy Policy'),
                 trailing: const Icon(Icons.open_in_new, size: 18),
                 onTap: _handlePrivacyTap,
-              ),
-            ),
-          ),
-
-          // ── Development Section ───────────────────────────────────────
-          const SectionHeader(title: 'Development'),
-          SliverToBoxAdapter(
-            child: SettingsCard(
-              child: ListTile(
-                leading: const Icon(Icons.system_update_alt),
-                title: const Text('Test Shorebird Updates'),
-                trailing: const Icon(Icons.chevron_right, size: 18),
-                onTap: () {
-                  context.push('/settings/shorebird-test');
-                },
               ),
             ),
           ),

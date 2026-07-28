@@ -3,14 +3,17 @@ import 'package:flutter/foundation.dart';
 import 'package:levelup_tube/src/core/services/logging_service/app_logger.dart';
 import 'package:levelup_tube/src/features/app_update/utils/version_comparator.dart';
 import 'package:package_info_plus/package_info_plus.dart';
-
+import 'package:shared_preferences/shared_preferences.dart';
 enum UpdateStatus { upToDate, softUpdate, hardUpdate }
 
 class AppUpdateService {
-  AppUpdateService(this._remoteConfig, this._logger);
+  AppUpdateService(this._remoteConfig, this._logger, this._prefs);
 
   final FirebaseRemoteConfig _remoteConfig;
   final AppLogger _logger;
+  final SharedPreferences _prefs;
+
+  static const _skippedVersionKey = 'skipped_update_version';
 
 
   Future<void> init() async {
@@ -50,6 +53,10 @@ class AppUpdateService {
       if (VersionComparator.isVersionLower(currentVersion, minVersion)) {
         return UpdateStatus.hardUpdate;
       } else if (VersionComparator.isVersionLower(currentVersion, latestVersion)) {
+        final skippedVersion = _prefs.getString(_skippedVersionKey);
+        if (skippedVersion == latestVersion) {
+          return UpdateStatus.upToDate;
+        }
         return UpdateStatus.softUpdate;
       }
       return UpdateStatus.upToDate;
@@ -58,6 +65,12 @@ class AppUpdateService {
       return UpdateStatus.upToDate;
     }
   }
+
+  Future<void> skipUpdate(String version) async {
+    await _prefs.setString(_skippedVersionKey, version);
+  }
+
+  String get latestAppVersion => _remoteConfig.getString('latest_app_version');
 
   String get storeUrl {
     return defaultTargetPlatform == TargetPlatform.iOS

@@ -1,6 +1,9 @@
+import 'dart:async';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:levelup_tube/src/core/di/injection_container.dart' as di;
 import 'package:levelup_tube/src/core/error/exception.dart';
+import 'package:levelup_tube/src/core/services/analytics_service.dart';
 import 'package:levelup_tube/src/core/services/logging_service/app_logger.dart';
 import 'package:levelup_tube/src/features/playlist/models/playlist_model.dart';
 import 'package:levelup_tube/src/features/playlist/repositories/playlist_repository.dart';
@@ -16,6 +19,10 @@ class PlaylistCubit extends Cubit<PlaylistState> {
     emit(const PlaylistLoadingState());
     try {
       final playlists = await _repository.getAllPlaylists();
+      unawaited(di.sl<AnalyticsService>().setUserProperty(
+        name: 'total_playlists',
+        value: playlists.length.toString(),
+      ));
       if (playlists.isEmpty) {
         emit(const PlaylistEmptyState());
       } else {
@@ -50,6 +57,7 @@ class PlaylistCubit extends Cubit<PlaylistState> {
     }
     try {
       await _repository.createCustomPlaylist(title);
+      unawaited(di.sl<AnalyticsService>().logEvent(name: 'playlist_created'));
       await loadPlaylists();
     } on Exception catch (e, st) {
       di.sl<AppLogger>().handle(e, st, 'PlaylistCubit: createPlaylist error');
@@ -68,6 +76,7 @@ class PlaylistCubit extends Cubit<PlaylistState> {
 
     try {
       await _repository.importYoutubePlaylist(url);
+      unawaited(di.sl<AnalyticsService>().logEvent(name: 'playlist_imported'));
       await loadPlaylists();
     } on Exception catch (e, st) {
       di.sl<AppLogger>().handle(e, st, 'PlaylistCubit: importPlaylist error');
@@ -80,6 +89,7 @@ class PlaylistCubit extends Cubit<PlaylistState> {
   Future<void> deletePlaylist(int id) async {
     try {
       await _repository.deletePlaylist(id);
+      unawaited(di.sl<AnalyticsService>().logEvent(name: 'playlist_deleted'));
       await loadPlaylists();
     } on Exception catch (e, st) {
       di.sl<AppLogger>().handle(e, st, 'PlaylistCubit: deletePlaylist error');

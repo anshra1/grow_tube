@@ -60,7 +60,7 @@ class UpdateDialog extends StatelessWidget {
               SizedBox(
                 width: double.infinity,
                 child: TextButton(
-                  onPressed: () => Navigator.of(context).pop(),
+                  onPressed: () => Navigator.of(context).pop(true),
                   style: TextButton.styleFrom(foregroundColor: Colors.grey.shade600),
                   child: const Text('Later'),
                 ),

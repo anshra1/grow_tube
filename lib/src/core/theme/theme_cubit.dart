@@ -1,5 +1,9 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:levelup_tube/src/core/di/injection_container.dart' as di;
+import 'package:levelup_tube/src/core/services/analytics_service.dart';
 import 'package:levelup_tube/src/core/theme/theme_preferences.dart';
 
 @immutable
@@ -62,6 +66,10 @@ class ThemeCubit extends Cubit<ThemeState> with WidgetsBindingObserver {
 
   Future<void> setThemeMode(ThemeMode mode) async {
     await _preferences.writeThemeMode(mode);
+    unawaited(di.sl<AnalyticsService>().setUserProperty(
+      name: 'theme_preference',
+      value: mode.name,
+    ));
     emit(state.copyWith(mode: mode));
   }
 

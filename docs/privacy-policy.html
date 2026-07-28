@@ -196,11 +196,15 @@
       <h2>1. Information We Use</h2>
       <p>LevelUp Tube is designed to use as little data as possible. The app may process the following information:</p>
       <ul>
-        <li><strong>YouTube links you provide</strong> to add videos to your library.</li>
+        <li><strong>YouTube links you provide</strong> to add videos or import playlists to your library.</li>
         <li><strong>Clipboard text</strong> when the app checks whether you recently copied a YouTube link.</li>
         <li><strong>Video metadata</strong> such as title, thumbnail, channel name, and duration, fetched from the YouTube Data API.</li>
         <li><strong>Playback progress</strong> so the app can resume videos where you left off.</li>
         <li><strong>Theme preference and basic local settings</strong> stored on your device.</li>
+        <li><strong>Usage data</strong> via analytics to help us improve the app.</li>
+        <li><strong>App version info</strong> to notify you about important updates.</li>
+        <li><strong>Crash reports</strong> to help identify and fix bugs when the app crashes.</li>
+        <li><strong>Images from your device</strong> if you choose to set a custom cover image for a playlist.</li>
       </ul>
     </section>
 
@@ -209,7 +213,7 @@
         <h2>2. What We Store on Your Device</h2>
         <p>The following data is stored locally on your device:</p>
         <ul>
-          <li>Your saved video library.</li>
+          <li>Your saved video library and playlists.</li>
           <li>Your watch progress and last played position.</li>
           <li>Your app theme preference.</li>
         </ul>
@@ -217,14 +221,13 @@
       </section>
 
       <section class="card">
-        <h2>3. Clipboard Access</h2>
+        <h2>3. Device Permissions</h2>
         <p>
-          The app may read clipboard text to detect copied YouTube links and offer a quick
-          “Add” or “Watch Now” prompt.
+          <strong>Clipboard:</strong> The app may read clipboard text to detect copied YouTube links and offer a quick
+          “Add” or “Watch Now” prompt. Clipboard text is processed locally and is never sent to our servers.
         </p>
         <p>
-          Clipboard text is processed locally on your device. It is not stored remotely and
-          is not sent to our servers.
+          <strong>Photo Library:</strong> The app requests access to your photos only if you choose to set a custom cover image for a playlist. Selected images are stored locally on your device and are never uploaded.
         </p>
       </section>
     </section>
@@ -236,14 +239,17 @@
         <li><strong>YouTube Data API v3</strong> to fetch video details for links you add.</li>
         <li><strong>YouTube embedded player services</strong> to play videos inside the app.</li>
         <li><strong>Network connectivity checks</strong> to detect when your device is offline or back online.</li>
+        <li><strong>Firebase Analytics</strong> to collect basic, anonymous usage statistics to help us improve the app experience.</li>
+        <li><strong>Firebase Remote Config</strong> to check for app updates and deliver configuration changes.</li>
+        <li><strong>Firebase Crashlytics</strong> to automatically send crash reports if the app encounters an error.</li>
+        <li><strong>Shorebird</strong> to deliver over-the-air (OTA) bug fixes and app updates efficiently.</li>
       </ul>
       <p>
         These services may receive technical request data such as your device IP address as part
         of normal internet communication.
       </p>
       <div class="note">
-        LevelUp Tube does not provide its own account system, does not require login, and does not include ads,
-        analytics, or crash reporting in the current release.
+        LevelUp Tube does not provide its own account system, does not require login, and does not include ads.
       </div>
     </section>
 

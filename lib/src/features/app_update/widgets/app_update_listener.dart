@@ -52,7 +52,7 @@ class _AppUpdateListenerState extends State<AppUpdateListener> with WidgetsBindi
         final dialogContext = AppRouter.rootNavigatorKey.currentContext;
         if (dialogContext == null) return;
 
-        await showDialog<void>(
+        final result = await showDialog<bool>(
           // 
           // ignore: use_build_context_synchronously
           context: dialogContext,
@@ -62,6 +62,10 @@ class _AppUpdateListenerState extends State<AppUpdateListener> with WidgetsBindi
             storeUrl: _updateService.storeUrl,
           ),
         );
+
+        if (result ?? false) {
+          await _updateService.skipUpdate(_updateService.latestAppVersion);
+        }
       }
     } finally {
       if (mounted) {

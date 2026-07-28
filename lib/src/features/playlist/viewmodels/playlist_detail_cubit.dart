@@ -1,6 +1,9 @@
+import 'dart:async';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:levelup_tube/src/core/di/injection_container.dart' as di;
 import 'package:levelup_tube/src/core/error/exception.dart';
+import 'package:levelup_tube/src/core/services/analytics_service.dart';
 import 'package:levelup_tube/src/core/services/logging_service/app_logger.dart';
 import 'package:levelup_tube/src/core/utils/youtube_url_parser.dart';
 import 'package:levelup_tube/src/features/library/models/video.dart';
@@ -90,6 +93,7 @@ class PlaylistDetailCubit extends Cubit<PlaylistDetailState> {
     if (currentState is PlaylistDetailLoaded) {
       _selectedHeroId = video.id;
       await _repository.markVideoAsLastPlayed(video.id);
+      unawaited(di.sl<AnalyticsService>().logEvent(name: 'video_played'));
 
       // Check if this is the same video as current hero
       final isSameVideo = currentState.heroVideoState.heroVideo?.id == video.id;
@@ -185,6 +189,7 @@ class PlaylistDetailCubit extends Cubit<PlaylistDetailState> {
       } else {
         await _repository.removeVideoFromPlaylist(playlistId!, videoModelId);
       }
+      unawaited(di.sl<AnalyticsService>().logEvent(name: 'video_removed'));
       await loadPlaylist();
     } on Exception catch (e, st) {
       di.sl<AppLogger>().handle(e, st, 'PlaylistDetailCubit: removeVideo error');
@@ -198,6 +203,7 @@ class PlaylistDetailCubit extends Cubit<PlaylistDetailState> {
 
     try {
       await _repository.addVideoToPlaylist(playlistId, url);
+      unawaited(di.sl<AnalyticsService>().logEvent(name: 'video_added'));
       emit(const VideoAddPlaylistSuccessState()); // Triggers the success toast
       await loadPlaylist(); // <--- NEW: Recovers the Dashboard UI
     } on Exception catch (e, st) {
@@ -215,6 +221,7 @@ class PlaylistDetailCubit extends Cubit<PlaylistDetailState> {
       } else {
         await _repository.addVideoToPlaylist(playlistId!, url);
       }
+      unawaited(di.sl<AnalyticsService>().logEvent(name: 'video_added'));
       await loadPlaylist();
     } on Exception catch (e, st) {
       di.sl<AppLogger>().handle(e, st, 'PlaylistDetailCubit: addVideo error');
@@ -241,6 +248,7 @@ class PlaylistDetailCubit extends Cubit<PlaylistDetailState> {
       } else {
         await _repository.addVideoToPlaylist(playlistId!, url);
       }
+      unawaited(di.sl<AnalyticsService>().logEvent(name: 'video_added'));
     } on VideoException catch (e, st) {
       di.sl<AppLogger>().handle(
         e,
