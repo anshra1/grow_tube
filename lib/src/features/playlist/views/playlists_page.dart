@@ -70,7 +70,9 @@ class _PlaylistsPageContent extends StatelessWidget {
         ),
       ],
       child: AppScaffold(
-        appBar: AppBar(title: const TopHeaderText('Playlist')),
+        appBar: AppBar(
+          title: const TopHeaderText('Playlist'),
+        ),
         body: BlocConsumer<PlaylistCubit, PlaylistState>(
           listener: (context, state) {
             if (state is PlaylistErrorState) {

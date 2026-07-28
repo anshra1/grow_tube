@@ -44,7 +44,11 @@ Future<void> main() async {
   try {
     await di.init();
   } on AppConfigurationException catch (e, st) {
-  await  FirebaseCrashlytics.instance. recordError(e, st, reason: 'Failed to initialize DI');
+    await FirebaseCrashlytics.instance.recordError(
+      e,
+      st,
+      reason: 'Failed to initialize DI',
+    );
     runApp(
       StartupErrorApp(
         title: 'Configuration Error',
@@ -67,9 +71,7 @@ class LevelUp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ToastificationWrapper(
-      config: const ToastificationConfig(
-        maxToastLimit: 1,
-      ),
+      config: const ToastificationConfig(maxToastLimit: 1),
       child: MultiBlocProvider(
         providers: [
           BlocProvider(create: (context) => di.sl<ThemeCubit>()..load()),

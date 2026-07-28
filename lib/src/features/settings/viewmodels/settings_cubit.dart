@@ -1,8 +1,8 @@
 import 'dart:async';
-import 'package:levelup_tube/src/core/di/injection_container.dart' as di;
-import 'package:levelup_tube/src/core/services/logging_service/app_logger.dart';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:levelup_tube/src/core/di/injection_container.dart' as di;
+import 'package:levelup_tube/src/core/services/logging_service/app_logger.dart';
 import 'package:levelup_tube/src/features/playlist/repositories/playlist_repository.dart';
 import 'package:levelup_tube/src/features/settings/viewmodels/setting_state.dart';
 

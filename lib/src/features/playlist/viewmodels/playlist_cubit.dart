@@ -1,14 +1,13 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:levelup_tube/src/core/di/injection_container.dart' as di;
-import 'package:levelup_tube/src/core/services/logging_service/app_logger.dart';
 import 'package:levelup_tube/src/core/error/exception.dart';
+import 'package:levelup_tube/src/core/services/logging_service/app_logger.dart';
 import 'package:levelup_tube/src/features/playlist/models/playlist_model.dart';
 import 'package:levelup_tube/src/features/playlist/repositories/playlist_repository.dart';
 import 'package:levelup_tube/src/features/playlist/viewmodels/playlist_state.dart';
 
 class PlaylistCubit extends Cubit<PlaylistState> {
-  PlaylistCubit(this._repository)
-    : super(const PlaylistInitialState());
+  PlaylistCubit(this._repository) : super(const PlaylistInitialState());
 
   final PlaylistRepository _repository;
 
@@ -45,9 +44,7 @@ class PlaylistCubit extends Cubit<PlaylistState> {
   /// Create a new custom (empty) playlist.
   Future<void> createPlaylist(String title) async {
     if (title.trim().isEmpty) {
-      emit(
-        const PlaylistErrorState('Playlist name cannot be empty.'),
-      );
+      emit(const PlaylistErrorState('Playlist name cannot be empty.'));
       await loadPlaylists(); // recover UI
       return;
     }
@@ -90,8 +87,9 @@ class PlaylistCubit extends Cubit<PlaylistState> {
       await loadPlaylists(); // recover UI
     }
   }
+
   // Set playlist as pinned or not.
-  // ignore: avoid_positional_boolean_parameters  
+  // ignore: avoid_positional_boolean_parameters
   Future<void> setPlaylistPinned(int playlistId, bool isPinned) async {
     try {
       await _repository.setPlaylistPinned(playlistId, isPinned);
@@ -104,9 +102,17 @@ class PlaylistCubit extends Cubit<PlaylistState> {
   }
 
   /// Update playlist details.
-  Future<void> updatePlaylistDetails(int id, {String? title, String? localThumbnailPath}) async {
+  Future<void> updatePlaylistDetails(
+    int id, {
+    String? title,
+    String? localThumbnailPath,
+  }) async {
     try {
-      await _repository.updatePlaylistDetails(id, title: title, localThumbnailPath: localThumbnailPath);
+      await _repository.updatePlaylistDetails(
+        id,
+        title: title,
+        localThumbnailPath: localThumbnailPath,
+      );
       emit(const PlaylistUpdateSuccessState());
       await loadPlaylists();
     } on Exception catch (e, st) {

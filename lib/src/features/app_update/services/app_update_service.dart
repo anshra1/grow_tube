@@ -12,13 +12,13 @@ class AppUpdateService {
   final FirebaseRemoteConfig _remoteConfig;
   final AppLogger _logger;
 
-// Todo: need to update this later
+
   Future<void> init() async {
     try {
       await _remoteConfig.setConfigSettings(
         RemoteConfigSettings(
-          fetchTimeout: const Duration(seconds: 10),
-          minimumFetchInterval: Duration.zero,
+          fetchTimeout: const Duration(seconds: 30),
+          minimumFetchInterval: const Duration(hours: 12) ,
         ),
       );
 
@@ -28,7 +28,8 @@ class AppUpdateService {
         'android_store_url': '',
         'ios_store_url': '',
       });
-    } on Object catch (e, stack) {
+      
+    } on Exception catch (e, stack) {
       _logger.error(
         'Failed to init Remote Config for app update',
         error: e,
@@ -39,26 +40,18 @@ class AppUpdateService {
 
   Future<UpdateStatus> checkUpdate() async {
     try {
-      _logger.debug('AppUpdate: starting fetchAndActivate');
-      final fetched = await _remoteConfig.fetchAndActivate();
-      _logger.debug('AppUpdate: fetchAndActivate completed, fetched=$fetched');
-
       final packageInfo = await PackageInfo.fromPlatform();
       final currentVersion = packageInfo.version;
 
       final minVersion = _remoteConfig.getString('min_app_version');
       final latestVersion = _remoteConfig.getString('latest_app_version');
 
-      _logger.debug('AppUpdate: current=$currentVersion, min=$minVersion, latest=$latestVersion');
 
       if (VersionComparator.isVersionLower(currentVersion, minVersion)) {
-        _logger.debug('AppUpdate: Requires Hard Update');
         return UpdateStatus.hardUpdate;
       } else if (VersionComparator.isVersionLower(currentVersion, latestVersion)) {
-        _logger.debug('AppUpdate: Requires Soft Update');
         return UpdateStatus.softUpdate;
       }
-      _logger.debug('AppUpdate: Up to date');
       return UpdateStatus.upToDate;
     } on Exception catch (e, stack) {
       _logger.error('Failed to check app update status', error: e, stackTrace: stack);

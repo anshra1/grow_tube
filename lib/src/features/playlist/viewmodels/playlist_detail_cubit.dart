@@ -1,7 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:levelup_tube/src/core/di/injection_container.dart' as di;
-import 'package:levelup_tube/src/core/services/logging_service/app_logger.dart';
 import 'package:levelup_tube/src/core/error/exception.dart';
+import 'package:levelup_tube/src/core/services/logging_service/app_logger.dart';
 import 'package:levelup_tube/src/core/utils/youtube_url_parser.dart';
 import 'package:levelup_tube/src/features/library/models/video.dart';
 import 'package:levelup_tube/src/features/playlist/repositories/playlist_repository.dart';
@@ -40,9 +40,7 @@ class PlaylistDetailCubit extends Cubit<PlaylistDetailState> {
       }
 
       // Convert VideoModel → Video entity for UI consumption
-      final normalVideos = playlist.videos
-          .map((m) => m.toEntity())
-          .toList()
+      final normalVideos = playlist.videos.map((m) => m.toEntity()).toList()
         ..sort((a, b) => b.addedAt.compareTo(a.addedAt));
 
       if (normalVideos.isEmpty) {
@@ -244,7 +242,11 @@ class PlaylistDetailCubit extends Cubit<PlaylistDetailState> {
         await _repository.addVideoToPlaylist(playlistId!, url);
       }
     } on VideoException catch (e, st) {
-      di.sl<AppLogger>().handle(e, st, 'PlaylistDetailCubit: addAndPlayVideo VideoException');
+      di.sl<AppLogger>().handle(
+        e,
+        st,
+        'PlaylistDetailCubit: addAndPlayVideo VideoException',
+      );
       if (e.code != 'already_exists') {
         emit(PlaylistDetailError(_exceptionMessage(e)));
         await loadPlaylist(); // Recover UI
