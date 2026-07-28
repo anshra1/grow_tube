@@ -25,7 +25,7 @@ final _entities = <obx_int.ModelEntity>[
   obx_int.ModelEntity(
     id: const obx_int.IdUid(1, 5863521568893898851),
     name: 'VideoModel',
-    lastPropertyId: const obx_int.IdUid(9, 6494778161434609773),
+    lastPropertyId: const obx_int.IdUid(10, 3510794220504583301),
     flags: 0,
     properties: <obx_int.ModelProperty>[
       obx_int.ModelProperty(
@@ -81,6 +81,12 @@ final _entities = <obx_int.ModelEntity>[
         id: const obx_int.IdUid(9, 6494778161434609773),
         name: 'lastPlayedAt',
         type: 12,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(10, 3510794220504583301),
+        name: 'originalUrl',
+        type: 9,
         flags: 0,
       ),
     ],
@@ -166,7 +172,7 @@ final _entities = <obx_int.ModelEntity>[
   obx_int.ModelEntity(
     id: const obx_int.IdUid(3, 726241950308333869),
     name: 'PlaylistVideoModel',
-    lastPropertyId: const obx_int.IdUid(10, 3389916046029107257),
+    lastPropertyId: const obx_int.IdUid(11, 6216244095954012703),
     flags: 0,
     properties: <obx_int.ModelProperty>[
       obx_int.ModelProperty(
@@ -227,6 +233,12 @@ final _entities = <obx_int.ModelEntity>[
         id: const obx_int.IdUid(10, 3389916046029107257),
         name: 'isPinned',
         type: 1,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(11, 6216244095954012703),
+        name: 'originalUrl',
+        type: 9,
         flags: 0,
       ),
     ],
@@ -327,7 +339,10 @@ obx_int.ModelDefinition getObjectBoxModel() {
         final titleOffset = fbb.writeString(object.title);
         final channelNameOffset = fbb.writeString(object.channelName);
         final thumbnailUrlOffset = fbb.writeString(object.thumbnailUrl);
-        fbb.startTable(10);
+        final originalUrlOffset = object.originalUrl == null
+            ? null
+            : fbb.writeString(object.originalUrl!);
+        fbb.startTable(11);
         fbb.addInt64(0, object.id);
         fbb.addOffset(1, youtubeIdOffset);
         fbb.addOffset(2, titleOffset);
@@ -342,6 +357,7 @@ obx_int.ModelDefinition getObjectBoxModel() {
               ? null
               : object.lastPlayedAt!.microsecondsSinceEpoch * 1000,
         );
+        fbb.addOffset(9, originalUrlOffset);
         fbb.finish(fbb.endTable());
         return object.id;
       },
@@ -388,6 +404,9 @@ obx_int.ModelDefinition getObjectBoxModel() {
             : DateTime.fromMicrosecondsSinceEpoch(
                 (lastPlayedAtValue / 1000).round(),
               );
+        final originalUrlParam = const fb.StringReader(
+          asciiOptimization: true,
+        ).vTableGetNullable(buffer, rootOffset, 22);
         final object = VideoModel(
           youtubeId: youtubeIdParam,
           title: titleParam,
@@ -398,6 +417,7 @@ obx_int.ModelDefinition getObjectBoxModel() {
           id: idParam,
           lastWatchedPositionSeconds: lastWatchedPositionSecondsParam,
           lastPlayedAt: lastPlayedAtParam,
+          originalUrl: originalUrlParam,
         );
 
         return object;
@@ -520,7 +540,10 @@ obx_int.ModelDefinition getObjectBoxModel() {
         final titleOffset = fbb.writeString(object.title);
         final channelNameOffset = fbb.writeString(object.channelName);
         final thumbnailUrlOffset = fbb.writeString(object.thumbnailUrl);
-        fbb.startTable(11);
+        final originalUrlOffset = object.originalUrl == null
+            ? null
+            : fbb.writeString(object.originalUrl!);
+        fbb.startTable(12);
         fbb.addInt64(0, object.id);
         fbb.addOffset(1, youtubeIdOffset);
         fbb.addOffset(2, titleOffset);
@@ -536,6 +559,7 @@ obx_int.ModelDefinition getObjectBoxModel() {
               : object.lastPlayedAt!.microsecondsSinceEpoch * 1000,
         );
         fbb.addBool(9, object.isPinned);
+        fbb.addOffset(10, originalUrlOffset);
         fbb.finish(fbb.endTable());
         return object.id;
       },
@@ -588,6 +612,9 @@ obx_int.ModelDefinition getObjectBoxModel() {
           22,
           false,
         );
+        final originalUrlParam = const fb.StringReader(
+          asciiOptimization: true,
+        ).vTableGetNullable(buffer, rootOffset, 24);
         final object = PlaylistVideoModel(
           youtubeId: youtubeIdParam,
           title: titleParam,
@@ -599,6 +626,7 @@ obx_int.ModelDefinition getObjectBoxModel() {
           lastWatchedPositionSeconds: lastWatchedPositionSecondsParam,
           lastPlayedAt: lastPlayedAtParam,
           isPinned: isPinnedParam,
+          originalUrl: originalUrlParam,
         );
 
         return object;
@@ -623,18 +651,18 @@ obx_int.ModelDefinition getObjectBoxModel() {
       objectFromFB: (obx.Store store, ByteData fbData) {
         final buffer = fb.BufferContext(fbData);
         final rootOffset = buffer.derefObject(0);
+        final copiedTextParam = const fb.StringReader(
+          asciiOptimization: true,
+        ).vTableGet(buffer, rootOffset, 6, '');
         final idParam = const fb.Int64Reader().vTableGet(
           buffer,
           rootOffset,
           4,
           0,
         );
-        final copiedTextParam = const fb.StringReader(
-          asciiOptimization: true,
-        ).vTableGet(buffer, rootOffset, 6, '');
         final object = ClipboardHistoryModel(
-          id: idParam,
           copiedText: copiedTextParam,
+          id: idParam,
         );
 
         return object;
@@ -689,6 +717,11 @@ class VideoModel_ {
   /// See [VideoModel.lastPlayedAt].
   static final lastPlayedAt = obx.QueryDateNanoProperty<VideoModel>(
     _entities[0].properties[8],
+  );
+
+  /// See [VideoModel.originalUrl].
+  static final originalUrl = obx.QueryStringProperty<VideoModel>(
+    _entities[0].properties[9],
   );
 }
 
@@ -800,6 +833,11 @@ class PlaylistVideoModel_ {
   /// See [PlaylistVideoModel.isPinned].
   static final isPinned = obx.QueryBooleanProperty<PlaylistVideoModel>(
     _entities[2].properties[9],
+  );
+
+  /// See [PlaylistVideoModel.originalUrl].
+  static final originalUrl = obx.QueryStringProperty<PlaylistVideoModel>(
+    _entities[2].properties[10],
   );
 }
 

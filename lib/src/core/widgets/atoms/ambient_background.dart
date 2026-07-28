@@ -35,9 +35,9 @@ class AmbientBackground extends StatelessWidget {
       children: [
         // 1 & 2. The base image with a heavy blur effect
         Opacity(
-          opacity: 0.5, // Darken it so text remains readable
+          opacity: 0.85, // Darken it slightly so text remains readable but effect is vibrant
           child: ImageFiltered(
-            imageFilter: ImageFilter.blur(sigmaX: 80, sigmaY: 80, tileMode: TileMode.decal),
+            imageFilter: ImageFilter.blur(sigmaX: 40, sigmaY: 40, tileMode: TileMode.decal),
             child: CachedNetworkImage(
               imageUrl: url,
               fit: BoxFit.cover,

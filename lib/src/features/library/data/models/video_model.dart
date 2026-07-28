@@ -13,6 +13,7 @@ class VideoModel {
     this.id = 0,
     this.lastWatchedPositionSeconds = 0,
     this.lastPlayedAt,
+    this.originalUrl,
   });
 
   @Id()
@@ -33,6 +34,9 @@ class VideoModel {
   @Property(type: PropertyType.dateNano)
   DateTime? lastPlayedAt;
 
+  /// The original full URL used to add this video
+  String? originalUrl;
+
   /// Maps Model -> Entity
   Video toEntity() {
     return Video(
@@ -45,6 +49,7 @@ class VideoModel {
       lastWatchedPositionSeconds: lastWatchedPositionSeconds,
       addedAt: addedAt,
       lastPlayedAt: lastPlayedAt,
+      originalUrl: originalUrl,
     );
   }
 
@@ -61,6 +66,7 @@ class VideoModel {
       lastWatchedPositionSeconds: entity.lastWatchedPositionSeconds,
       addedAt: entity.addedAt,
       lastPlayedAt: entity.lastPlayedAt,
+      originalUrl: entity.originalUrl,
     );
   }
 }

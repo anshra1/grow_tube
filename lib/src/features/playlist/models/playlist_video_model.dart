@@ -14,6 +14,7 @@ class PlaylistVideoModel {
     this.lastWatchedPositionSeconds = 0,
     this.lastPlayedAt,
     this.isPinned = false,
+    this.originalUrl,
   });
 
   @Id()
@@ -39,6 +40,9 @@ class PlaylistVideoModel {
   /// Keeps this playlist-owned video row at the top of its video list.
   bool isPinned;
 
+  /// The original full URL used to add this video
+  String? originalUrl;
+
   /// Maps Model -> Entity so the UI can consume it exactly like a normal video.
   Video toEntity() {
     return Video(
@@ -52,6 +56,7 @@ class PlaylistVideoModel {
       addedAt: addedAt,
       lastPlayedAt: lastPlayedAt,
       isPinned: isPinned,
+      originalUrl: originalUrl,
     );
   }
 }

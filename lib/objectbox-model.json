@@ -5,7 +5,7 @@
   "entities": [
     {
       "id": "1:5863521568893898851",
-      "lastPropertyId": "9:6494778161434609773",
+      "lastPropertyId": "10:3510794220504583301",
       "name": "VideoModel",
       "properties": [
         {
@@ -55,6 +55,11 @@
           "id": "9:6494778161434609773",
           "name": "lastPlayedAt",
           "type": 12
+        },
+        {
+          "id": "10:3510794220504583301",
+          "name": "originalUrl",
+          "type": 9
         }
       ],
       "relations": []
@@ -126,7 +131,7 @@
     },
     {
       "id": "3:726241950308333869",
-      "lastPropertyId": "10:3389916046029107257",
+      "lastPropertyId": "11:6216244095954012703",
       "name": "PlaylistVideoModel",
       "properties": [
         {
@@ -179,6 +184,11 @@
           "id": "10:3389916046029107257",
           "name": "isPinned",
           "type": 1
+        },
+        {
+          "id": "11:6216244095954012703",
+          "name": "originalUrl",
+          "type": 9
         }
       ],
       "relations": []

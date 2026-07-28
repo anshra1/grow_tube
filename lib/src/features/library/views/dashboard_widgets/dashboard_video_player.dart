@@ -13,9 +13,11 @@ import 'package:levelup_tube/src/core/di/injection_container.dart' as di;
 import 'package:levelup_tube/src/core/services/logging_service/app_logger.dart';
 import 'package:levelup_tube/src/features/connectivity/presentation/bloc/connectivity_cubit.dart';
 import 'package:levelup_tube/src/features/library/models/video.dart';
+import 'package:levelup_tube/src/features/library/views/dashboard_widgets/external_url_lanucher_widget.dart';
 import 'package:levelup_tube/src/features/navigation/cubit/fullscreen_video_cubit.dart';
 import 'package:levelup_tube/src/features/playlist/viewmodels/playlist_detail_cubit.dart';
 import 'package:toastification/toastification.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:youtube_player_iframe/youtube_player_iframe.dart';
 
 class DashboardVideoPlayer extends StatefulWidget {
@@ -204,9 +206,11 @@ class _DashboardVideoPlayerState extends State<DashboardVideoPlayer>
     final controller = YoutubePlayerController(
       params: const YoutubePlayerParams(
         enableCaption: false,
-        origin: 'https://www.youtube-nocookie.com',
+        // this trigger the error if we use default origin
+      //  origin: 'https://www.youtube-nocookie.com',
         showVideoAnnotations: false,
         strictRelatedVideos: true,
+      
       ),
     );
 
@@ -242,6 +246,20 @@ class _DashboardVideoPlayerState extends State<DashboardVideoPlayer>
           'VideoPlayer: YouTube error ${value.error.code} '
           '(${value.error.name}) for video ${widget.video.youtubeId}',
         );
+
+        if (mounted) {
+          toastification.showCustom(
+            context: context,
+            autoCloseDuration: const Duration(seconds: 10),
+            alignment: Alignment.bottomCenter,
+            builder: (context, holder) {
+              return ExternalUrlLanucher(
+                widget: widget,
+                holder: holder,
+              );
+            },
+          );
+        }
       }
 
       // Log player state and position for debugging
@@ -437,3 +455,4 @@ class _DashboardVideoPlayerState extends State<DashboardVideoPlayer>
     );
   }
 }
+

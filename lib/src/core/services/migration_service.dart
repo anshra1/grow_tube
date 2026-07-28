@@ -65,6 +65,7 @@ class MigrationService {
               addedAt: old.addedAt,
               lastWatchedPositionSeconds: old.lastWatchedPositionSeconds,
               lastPlayedAt: old.lastPlayedAt,
+              originalUrl: old.originalUrl,
             );
             newVideosToSave.add(newVideo);
           }
@@ -74,6 +75,8 @@ class MigrationService {
         if (newVideosToSave.isNotEmpty) {
           // EXPLICITLY save all new videos to their own box first
           final playlistVideoBox = store.box<PlaylistVideoModel>();
+          //
+          // ignore: cascade_invocations
           playlistVideoBox.putMany(newVideosToSave);
 
           // Now add the saved entities to the relation

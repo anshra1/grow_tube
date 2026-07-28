@@ -309,6 +309,7 @@ class PlaylistRepositoryImpl implements PlaylistRepository {
       thumbnailUrl: data['thumbnailUrl'] as String,
       durationSeconds: data['durationSeconds'] as int,
       addedAt: DateTime.now(),
+      originalUrl: videoUrl,
     );
 
     await _internalAddVideoToPlaylist(playlistId, model);

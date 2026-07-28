@@ -19,6 +19,7 @@ abstract class Video with _$Video {
     required DateTime addedAt,
     DateTime? lastPlayedAt,
     @Default(false) bool isPinned,
+    String? originalUrl,
   }) = _Video;
   const Video._();
 
