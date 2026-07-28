@@ -29,52 +29,76 @@ class MigrationService {
     appLogger.info('[TESTING_LOG] MigrationService: Starting Library V1 migration of $oldVideosCount videos.');
 
     try {
-      // 1. Find or create default playlist
-      var defaultPlaylist = playlistBox.query(PlaylistModel_.isSystemDefault.equals(true)).build().findFirst();
-      defaultPlaylist ??= PlaylistModel(
+      // Wrap in a write transaction to ensure atomicity. If anything fails,
+      // it rolls back and NO data is deleted.
+      store.runInTransaction(TxMode.write, () {
+        // 1. Find or create default playlist
+        var defaultPlaylist = playlistBox.query(PlaylistModel_.isSystemDefault.equals(true)).build().findFirst();
+        defaultPlaylist ??= PlaylistModel(
           title: 'My Library',
           createdAt: DateTime.now(),
           isSystemDefault: true,
           isPinned: true,
           description: 'Your saved videos',
         );
-
-      // 2. Fetch all old videos and convert
-      final allOldVideos = videoBox.getAll();
-      for (final old in allOldVideos) {
-        // Only add if not already present
-        final exists = defaultPlaylist.videos.any((v) => v.youtubeId == old.youtubeId);
-        if (!exists) {
-          final newVideo = PlaylistVideoModel(
-            youtubeId: old.youtubeId,
-            title: old.title,
-            channelName: old.channelName,
-            thumbnailUrl: old.thumbnailUrl,
-            durationSeconds: old.durationSeconds,
-            addedAt: old.addedAt,
-            lastWatchedPositionSeconds: old.lastWatchedPositionSeconds,
-            lastPlayedAt: old.lastPlayedAt,
-          );
-          defaultPlaylist.videos.add(newVideo);
+        
+        // Put the playlist first if it's new so it becomes attached. 
+        if (defaultPlaylist.id == 0) {
+          playlistBox.put(defaultPlaylist);
         }
-      }
 
-      // 3. Set video count and initial thumbnail explicitly
-      defaultPlaylist.videoCount = defaultPlaylist.videos.length;
-      if (defaultPlaylist.thumbnailUrl == null && defaultPlaylist.videos.isNotEmpty) {
-        defaultPlaylist.thumbnailUrl = defaultPlaylist.videos.first.thumbnailUrl;
-      }
+        // Fast O(1) lookup to prevent freezing the app on large lists
+        final existingYoutubeIds = defaultPlaylist.videos.map((v) => v.youtubeId).toSet();
 
-      // 4. Save playlist
-      playlistBox.put(defaultPlaylist);
-      
-      // 5. Commit flag
+        // 2. Fetch all old videos and convert
+        final allOldVideos = videoBox.getAll();
+        final newVideosToSave = <PlaylistVideoModel>[];
+
+        for (final old in allOldVideos) {
+          if (!existingYoutubeIds.contains(old.youtubeId)) {
+            final newVideo = PlaylistVideoModel(
+              youtubeId: old.youtubeId,
+              title: old.title,
+              channelName: old.channelName,
+              thumbnailUrl: old.thumbnailUrl,
+              durationSeconds: old.durationSeconds,
+              addedAt: old.addedAt,
+              lastWatchedPositionSeconds: old.lastWatchedPositionSeconds,
+              lastPlayedAt: old.lastPlayedAt,
+            );
+            newVideosToSave.add(newVideo);
+          }
+        }
+
+        // Only save if we actually made changes
+        if (newVideosToSave.isNotEmpty) {
+          // EXPLICITLY save all new videos to their own box first
+          final playlistVideoBox = store.box<PlaylistVideoModel>();
+          playlistVideoBox.putMany(newVideosToSave);
+
+          // Now add the saved entities to the relation
+          defaultPlaylist.videos.addAll(newVideosToSave);
+
+          // 3. Set video count and initial thumbnail explicitly
+          defaultPlaylist.videoCount = defaultPlaylist.videos.length;
+          if (defaultPlaylist.thumbnailUrl == null && defaultPlaylist.videos.isNotEmpty) {
+            defaultPlaylist.thumbnailUrl = defaultPlaylist.videos.first.thumbnailUrl;
+          }
+
+          // 4. Save playlist properties
+          playlistBox.put(defaultPlaylist);
+          
+          // CRITICAL FIX: explicitly save the ToMany relation to the database
+          defaultPlaylist.videos.applyToDb();
+        }
+
+        // 5. Delete old box entries safely only inside the successful transaction
+        videoBox.removeAll();
+      });
+
+      // 6. Commit flag
       await prefs.setBool(_migratedLibraryV1Key, true);
-      appLogger.info('[TESTING_LOG] MigrationService: Migration completed successfully. Flag set.');
-      
-      // 6. Delete old box entries safely
-      videoBox.removeAll();
-      appLogger.info('[TESTING_LOG] MigrationService: Old VideoModel box cleared.');
+      appLogger.info('[TESTING_LOG] MigrationService: Migration completed successfully. Flag set. Old VideoModel box cleared.');
 
     } on Exception catch (e, st) {
       appLogger.handle(e, st, '[TESTING_LOG] MigrationService: Failed to complete Library V1 migration');
