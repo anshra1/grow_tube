@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:levelup_tube/src/features/clipboard/mixins/clipboard_monitor_mixin.dart';
+import 'package:levelup_tube/src/features/clipboard/mixins/share_intent_monitor_mixin.dart';
 import 'package:levelup_tube/src/features/clipboard/viewmodels/clipboard_cubit.dart';
 import 'package:levelup_tube/src/features/clipboard/viewmodels/clipboard_state.dart';
 import 'package:levelup_tube/src/features/clipboard/views/clipboard_playlist_prompt.dart';
@@ -22,7 +23,7 @@ class MainScaffold extends StatefulWidget {
 }
 
 class _MainScaffoldState extends State<MainScaffold>
-    with WidgetsBindingObserver, ClipboardMonitorMixin {
+    with WidgetsBindingObserver, ClipboardMonitorMixin, ShareIntentMonitorMixin {
   // ---------------------------------------------------------------------------
   // ClipboardMonitorMixin overrides
   // (Mixin lives here so clipboard detection works on ALL tabs, not just Home)
@@ -99,6 +100,18 @@ class _MainScaffoldState extends State<MainScaffold>
         );
       },
     );
+  }
+
+  @override
+  void onShareUrlDetected(String url, String videoId) {
+    // Route exactly to the clipboard handler
+    onClipboardUrlDetected(url, videoId);
+  }
+
+  @override
+  void onSharePlaylistDetected(String url, String playlistId) {
+    // Route exactly to the clipboard handler
+    onClipboardPlaylistDetected(url, playlistId);
   }
 
   // ---------------------------------------------------------------------------

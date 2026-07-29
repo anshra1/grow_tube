@@ -7,11 +7,11 @@ import 'package:levelup_tube/src/features/add/views/add_page.dart';
 import 'package:levelup_tube/src/features/library/views/dashboard_page.dart';
 import 'package:levelup_tube/src/features/navigation/pages/main_scaffold.dart';
 import 'package:levelup_tube/src/features/playlist/models/playlist_model.dart';
+import 'package:levelup_tube/src/features/playlist/viewmodels/playlist_cubit.dart';
 import 'package:levelup_tube/src/features/playlist/viewmodels/playlist_detail_cubit.dart';
 import 'package:levelup_tube/src/features/playlist/views/edit_playlist_page.dart';
 import 'package:levelup_tube/src/features/playlist/views/playlist_detail_page.dart';
 import 'package:levelup_tube/src/features/playlist/views/playlists_page.dart';
-import 'package:levelup_tube/src/features/playlist/viewmodels/playlist_cubit.dart';
 import 'package:levelup_tube/src/features/settings/pages/settings_page.dart';
 
 // (e.g., the playlist import flow triggered from the clipboard toast).

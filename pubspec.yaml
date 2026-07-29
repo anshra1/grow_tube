@@ -35,6 +35,7 @@ dependencies:
   objectbox_flutter_libs: ^5.2.0
   package_info_plus: ^8.0.0
   path_provider: ^2.1.2
+  receive_sharing_intent: 1.8.0
   shared_preferences: ^2.2.3
   shimmer: ^3.0.0
   talker: ^5.1.13
