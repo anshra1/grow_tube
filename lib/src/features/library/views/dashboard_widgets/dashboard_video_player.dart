@@ -17,7 +17,6 @@ import 'package:levelup_tube/src/features/library/views/dashboard_widgets/extern
 import 'package:levelup_tube/src/features/navigation/cubit/fullscreen_video_cubit.dart';
 import 'package:levelup_tube/src/features/playlist/viewmodels/playlist_detail_cubit.dart';
 import 'package:toastification/toastification.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:youtube_player_iframe/youtube_player_iframe.dart';
 
 class DashboardVideoPlayer extends StatefulWidget {
@@ -207,10 +206,9 @@ class _DashboardVideoPlayerState extends State<DashboardVideoPlayer>
       params: const YoutubePlayerParams(
         enableCaption: false,
         // this trigger the error if we use default origin
-      //  origin: 'https://www.youtube-nocookie.com',
+        origin: 'https://www.youtube-nocookie.com',
         showVideoAnnotations: false,
         strictRelatedVideos: true,
-      
       ),
     );
 
@@ -253,10 +251,7 @@ class _DashboardVideoPlayerState extends State<DashboardVideoPlayer>
             autoCloseDuration: const Duration(seconds: 10),
             alignment: Alignment.bottomCenter,
             builder: (context, holder) {
-              return ExternalUrlLanucher(
-                widget: widget,
-                holder: holder,
-              );
+              return ExternalUrlLanucher(widget: widget, holder: holder);
             },
           );
         }
@@ -455,4 +450,3 @@ class _DashboardVideoPlayerState extends State<DashboardVideoPlayer>
     );
   }
 }
-

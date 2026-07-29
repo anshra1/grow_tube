@@ -11,6 +11,7 @@ import 'package:levelup_tube/src/features/playlist/viewmodels/playlist_detail_cu
 import 'package:levelup_tube/src/features/playlist/views/edit_playlist_page.dart';
 import 'package:levelup_tube/src/features/playlist/views/playlist_detail_page.dart';
 import 'package:levelup_tube/src/features/playlist/views/playlists_page.dart';
+import 'package:levelup_tube/src/features/playlist/viewmodels/playlist_cubit.dart';
 import 'package:levelup_tube/src/features/settings/pages/settings_page.dart';
 
 // (e.g., the playlist import flow triggered from the clipboard toast).
@@ -27,6 +28,26 @@ final GlobalKey<NavigatorState> _settingsNavigatorKey = GlobalKey<NavigatorState
   debugLabel: 'settings',
 );
 
+CustomTransitionPage<T> _buildPageWithSlideTransition<T>({
+  required BuildContext context,
+  required GoRouterState state,
+  required Widget child,
+}) {
+  return CustomTransitionPage<T>(
+    key: state.pageKey,
+    child: child,
+    transitionsBuilder: (context, animation, secondaryAnimation, child) {
+      return SlideTransition(
+        position: Tween<Offset>(
+          begin: const Offset(1, 0),
+          end: Offset.zero,
+        ).animate(CurvedAnimation(parent: animation, curve: Curves.easeInOut)),
+        child: child,
+      );
+    },
+  );
+}
+
 class AppRouter {
   static final GlobalKey<NavigatorState> rootNavigatorKey = GlobalKey<NavigatorState>(
     debugLabel: 'root',
@@ -35,9 +56,7 @@ class AppRouter {
   static final router = GoRouter(
     navigatorKey: rootNavigatorKey,
     initialLocation: '/',
-    observers: [
-      FirebaseAnalyticsObserver(analytics: FirebaseAnalytics.instance),
-    ],
+    observers: [FirebaseAnalyticsObserver(analytics: FirebaseAnalytics.instance)],
     routes: [
       // ── Shell: wraps Home, Playlists, and Settings with the bottom nav bar ──
       StatefulShellRoute.indexedStack(
@@ -51,12 +70,16 @@ class AppRouter {
             routes: [
               GoRoute(
                 path: '/',
-                builder: (context, state) {
+                pageBuilder: (context, state) {
                   final url = state.extra as String?;
-                  return BlocProvider(
-                    create: (_) =>
-                        PlaylistDetailCubit(repository: di.sl())..loadAndPlay(url),
-                    child: const DashboardPage(),
+                  return _buildPageWithSlideTransition(
+                    context: context,
+                    state: state,
+                    child: BlocProvider(
+                      create: (_) =>
+                          PlaylistDetailCubit(repository: di.sl())..loadAndPlay(url),
+                      child: const DashboardPage(),
+                    ),
                   );
                 },
               ),
@@ -69,36 +92,59 @@ class AppRouter {
             routes: [
               GoRoute(
                 path: '/playlists',
-                builder: (context, state) {
+                pageBuilder: (context, state) {
                   // importUrl is only present when navigating from the
                   // clipboard toast inside the shell branch (not via push above).
                   final importUrl = state.uri.queryParameters['importUrl'];
-                  return PlaylistsPage(importUrl: importUrl);
+                  return _buildPageWithSlideTransition(
+                    context: context,
+                    state: state,
+                    child: BlocProvider(
+                      create: (_) {
+                        final cubit = di.sl<PlaylistCubit>();
+                        if (importUrl != null) {
+                          cubit.loadAndImport(importUrl);
+                        } else {
+                          cubit.loadPlaylists();
+                        }
+                        return cubit;
+                      },
+                      child: const PlaylistsPage(),
+                    ),
+                  );
                 },
                 routes: [
                   GoRoute(
                     path: ':id',
-                    builder: (context, state) {
+                    pageBuilder: (context, state) {
                       final id = int.parse(state.pathParameters['id']!);
                       final url = state.extra as String?;
-                      return BlocProvider(
-                        create: (_) =>
-                            PlaylistDetailCubit(playlistId: id, repository: di.sl())
-                              ..loadAndPlay(url),
-                        child: const PlaylistDetailPage(),
+                      return _buildPageWithSlideTransition(
+                        context: context,
+                        state: state,
+                        child: BlocProvider(
+                          create: (_) =>
+                              PlaylistDetailCubit(playlistId: id, repository: di.sl())
+                                ..loadAndPlay(url),
+                          child: const PlaylistDetailPage(),
+                        ),
                       );
                     },
                   ),
                   GoRoute(
                     path: 'editPlaylistPage',
-                    builder: (context, state) {
+                    pageBuilder: (context, state) {
                       final playlistModel = state.extra! as PlaylistModel;
-                      return BlocProvider(
-                        create: (_) => PlaylistDetailCubit(
-                          playlistId: playlistModel.id,
-                          repository: di.sl(),
+                      return _buildPageWithSlideTransition(
+                        context: context,
+                        state: state,
+                        child: BlocProvider(
+                          create: (_) => PlaylistDetailCubit(
+                            playlistId: playlistModel.id,
+                            repository: di.sl(),
+                          ),
+                          child: EditPlaylistPage(playlistModel: playlistModel),
                         ),
-                        child: EditPlaylistPage(playlistModel: playlistModel),
                       );
                     },
                   ),
@@ -112,22 +158,30 @@ class AppRouter {
             routes: [
               GoRoute(
                 path: '/add',
-                builder: (context, state) {
+                pageBuilder: (context, state) {
                   final tabStr = state.uri.queryParameters['tab'];
                   final initialTab = tabStr != null ? int.tryParse(tabStr) ?? 0 : 0;
-                  return AddPage(initialTab: initialTab);
+                  return _buildPageWithSlideTransition(
+                    context: context,
+                    state: state,
+                    child: AddPage(initialTab: initialTab),
+                  );
                 },
               ),
             ],
           ),
 
-          // Branch 2 — Settings
+          // Branch 3 — Settings
           StatefulShellBranch(
             navigatorKey: _settingsNavigatorKey,
             routes: [
               GoRoute(
                 path: '/settings',
-                builder: (context, state) => const SettingsPage(),
+                pageBuilder: (context, state) => _buildPageWithSlideTransition(
+                  context: context,
+                  state: state,
+                  child: const SettingsPage(),
+                ),
               ),
             ],
           ),
@@ -140,22 +194,41 @@ class AppRouter {
       GoRoute(
         parentNavigatorKey: rootNavigatorKey,
         path: '/playlists',
-        builder: (context, state) {
+        pageBuilder: (context, state) {
           final importUrl = state.uri.queryParameters['importUrl'];
-          return PlaylistsPage(importUrl: importUrl);
+          return _buildPageWithSlideTransition(
+            context: context,
+            state: state,
+            child: BlocProvider(
+              create: (_) {
+                final cubit = di.sl<PlaylistCubit>();
+                if (importUrl != null) {
+                  cubit.loadAndImport(importUrl);
+                } else {
+                  cubit.loadPlaylists();
+                }
+                return cubit;
+              },
+              child: const PlaylistsPage(),
+            ),
+          );
         },
         routes: [
           GoRoute(
             parentNavigatorKey: rootNavigatorKey,
             path: ':id',
-            builder: (context, state) {
+            pageBuilder: (context, state) {
               final id = int.parse(state.pathParameters['id']!);
               final url = state.extra as String?;
-              return BlocProvider(
-                create: (_) =>
-                    PlaylistDetailCubit(playlistId: id, repository: di.sl())
-                      ..loadAndPlay(url),
-                child: const PlaylistDetailPage(),
+              return _buildPageWithSlideTransition(
+                context: context,
+                state: state,
+                child: BlocProvider(
+                  create: (_) =>
+                      PlaylistDetailCubit(playlistId: id, repository: di.sl())
+                        ..loadAndPlay(url),
+                  child: const PlaylistDetailPage(),
+                ),
               );
             },
           ),

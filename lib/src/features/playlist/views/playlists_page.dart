@@ -3,7 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:levelup_tube/src/core/design_system/app_radius.dart';
 import 'package:levelup_tube/src/core/design_system/app_sizes.dart';
-import 'package:levelup_tube/src/core/di/injection_container.dart';
 import 'package:levelup_tube/src/core/extensions/context_extensions.dart';
 import 'package:levelup_tube/src/core/widgets/atoms/top_header.dart';
 import 'package:levelup_tube/src/core/widgets/template/app_scaffold.dart';
@@ -20,29 +19,7 @@ import 'package:levelup_tube/src/features/settings/viewmodels/settings_cubit.dar
 import 'package:toastification/toastification.dart';
 
 class PlaylistsPage extends StatelessWidget {
-  const PlaylistsPage({this.importUrl, super.key});
-
-  final String? importUrl;
-
-  @override
-  Widget build(BuildContext context) {
-    return BlocProvider<PlaylistCubit>(
-      create: (context) {
-        final cubit = sl<PlaylistCubit>();
-        if (importUrl != null) {
-          cubit.loadAndImport(importUrl!);
-        } else {
-          cubit.loadPlaylists();
-        }
-        return cubit;
-      },
-      child: const _PlaylistsPageContent(),
-    );
-  }
-}
-
-class _PlaylistsPageContent extends StatelessWidget {
-  const _PlaylistsPageContent();
+  const PlaylistsPage({super.key});
 
   @override
   Widget build(BuildContext context) {

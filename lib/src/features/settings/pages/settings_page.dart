@@ -48,9 +48,11 @@ class _SettingsPageState extends State<SettingsPage> {
 
     if (_titleTapCount >= 5) {
       _titleTapCount = 0;
-      Navigator.of(
-        context,
-      ).push(MaterialPageRoute<void>(builder: (context) => TalkerScreen(talker: talker)));
+      Navigator.of(context).push(
+        MaterialPageRoute<void>(
+          builder: (context) => TalkerScreen(talker: talker),
+        ),
+      );
       return;
     }
 
@@ -106,7 +108,9 @@ class _SettingsPageState extends State<SettingsPage> {
                           label: Text(
                             maxLines: 2,
                             label,
-                            style: const TextStyle(overflow: TextOverflow.ellipsis),
+                            style: const TextStyle(
+                              overflow: TextOverflow.ellipsis,
+                            ),
                           ),
                         );
                       }).toList(),
@@ -127,7 +131,8 @@ class _SettingsPageState extends State<SettingsPage> {
             child: SettingsCard(
               child: BlocBuilder<SettingsCubit, SettingsState>(
                 builder: (context, state) {
-                  if (state is SettingsLoadingState || state is SettingsInitialState) {
+                  if (state is SettingsLoadingState ||
+                      state is SettingsInitialState) {
                     return const SettingCardShimmer();
                   }
 
@@ -151,32 +156,49 @@ class _SettingsPageState extends State<SettingsPage> {
 
                     return Column(
                       children: state.allPlaylists.map((playlist) {
-                        final isSelected = playlist.id == state.defaultPlaylistId;
+                        final isSelected =
+                            playlist.id == state.defaultPlaylistId;
                         return ListTile(
                           leading: AnimatedSwitcher(
-                            duration: const Duration(milliseconds: 200),
+                            duration: const Duration(milliseconds: 300),
+                            switchInCurve: Curves.easeOutBack,
+                            switchOutCurve: Curves.easeIn,
+                            transitionBuilder: (child, animation) {
+                              return ScaleTransition(
+                                scale: animation,
+                                child: FadeTransition(
+                                  opacity: animation,
+                                  child: child,
+                                ),
+                              );
+                            },
                             child: Icon(
-                              isSelected ? Icons.check_circle : Icons.circle_outlined,
+                              isSelected
+                                  ? Icons.check_circle
+                                  : Icons.circle_outlined,
                               key: ValueKey(isSelected),
                               color: isSelected
                                   ? context.colorScheme.primary
                                   : context.colorScheme.outline,
                             ),
                           ),
-                          title: Text(
-                            playlist.title,
+                          title: AnimatedDefaultTextStyle(
+                            duration: const Duration(milliseconds: 300),
                             style: TextStyle(
+                              fontSize: 16,
                               fontWeight: isSelected
                                   ? FontWeight.w600
                                   : FontWeight.normal,
+                              color: context.colorScheme.onSurface,
                             ),
+                            child: Text(playlist.title),
                           ),
                           subtitle: Text(
                             '${playlist.videoCount} video${playlist.videoCount == 1 ? '' : 's'}',
                           ),
-                          onTap: () => context.read<SettingsCubit>().setDefaultPlaylist(
-                            playlist.id,
-                          ),
+                          onTap: () => context
+                              .read<SettingsCubit>()
+                              .setDefaultPlaylist(playlist.id),
                         );
                       }).toList(),
                     );

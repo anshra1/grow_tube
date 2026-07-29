@@ -23,7 +23,7 @@ class AddPage extends StatefulWidget {
 
 class _AddPageState extends State<AddPage> {
   late int _selectedTab;
-  
+
   final TextEditingController _videoUrlController = TextEditingController();
   final TextEditingController _playlistNameController = TextEditingController();
   final TextEditingController _importUrlController = TextEditingController();
@@ -50,14 +50,22 @@ class _AddPageState extends State<AddPage> {
         if (state is AddVideoSuccess) {
           _videoUrlController.clear();
           _showActionToast(
-            context, 
-            'Video added successfully.', 
-            'WATCH', 
-            () => context.go('/playlists/${state.playlistId}', extra: state.videoUrl),
+            context,
+            'Video added successfully.',
+            'WATCH',
+            () => context.go(
+              '/playlists/${state.playlistId}',
+              extra: state.videoUrl,
+            ),
           );
         } else if (state is CreatePlaylistSuccess) {
           _playlistNameController.clear();
-          _showToast(context, 'Success!', 'Playlist created successfully.', ToastificationType.success);
+          _showToast(
+            context,
+            'Success!',
+            'Playlist created successfully.',
+            ToastificationType.success,
+          );
         } else if (state is ImportPlaylistSuccess) {
           _importUrlController.clear();
           _showActionToast(
@@ -68,7 +76,12 @@ class _AddPageState extends State<AddPage> {
           );
         } else if (state is AddError) {
           FocusManager.instance.primaryFocus?.unfocus();
-          _showToast(context, 'Error!', state.message, ToastificationType.error);
+          _showToast(
+            context,
+            'Error!',
+            state.message,
+            ToastificationType.error,
+          );
         }
       },
       child: AppScaffold(
@@ -113,8 +126,37 @@ class _AddPageState extends State<AddPage> {
               AnimatedSize(
                 duration: const Duration(milliseconds: 300),
                 curve: Curves.easeInOut,
+                alignment: Alignment.topCenter,
                 child: AnimatedSwitcher(
                   duration: const Duration(milliseconds: 300),
+                  layoutBuilder: (currentChild, previousChildren) {
+                    return Stack(
+                      alignment: Alignment.topCenter,
+                      children: <Widget>[
+                        ...previousChildren.map(
+                          (child) => Positioned(
+                            top: 0,
+                            left: 0,
+                            right: 0,
+                            child: child,
+                          ),
+                        ),
+                        if (currentChild != null) currentChild,
+                      ],
+                    );
+                  },
+                  transitionBuilder: (child, animation) {
+                    return FadeTransition(
+                      opacity: animation,
+                      child: SlideTransition(
+                        position: Tween<Offset>(
+                          begin: const Offset(0, 0.05),
+                          end: Offset.zero,
+                        ).animate(animation),
+                        child: child,
+                      ),
+                    );
+                  },
                   child: _buildSelectedForm(),
                 ),
               ),
@@ -148,7 +190,12 @@ class _AddPageState extends State<AddPage> {
     }
   }
 
-  void _showToast(BuildContext context, String title, String description, ToastificationType type) {
+  void _showToast(
+    BuildContext context,
+    String title,
+    String description,
+    ToastificationType type,
+  ) {
     toastification.show(
       context: context,
       type: type,
@@ -159,8 +206,13 @@ class _AddPageState extends State<AddPage> {
       alignment: Alignment.bottomCenter,
     );
   }
-  
-  void _showActionToast(BuildContext context, String title, String actionLabel, VoidCallback onAction) {
+
+  void _showActionToast(
+    BuildContext context,
+    String title,
+    String actionLabel,
+    VoidCallback onAction,
+  ) {
     final theme = Theme.of(context);
     toastification.showCustom(
       context: context,
@@ -174,7 +226,11 @@ class _AddPageState extends State<AddPage> {
             color: theme.colorScheme.inverseSurface,
             borderRadius: BorderRadius.circular(12),
             boxShadow: const [
-              BoxShadow(color: Colors.black12, blurRadius: 16, offset: Offset(0, 8)),
+              BoxShadow(
+                color: Colors.black12,
+                blurRadius: 16,
+                offset: Offset(0, 8),
+              ),
             ],
           ),
           child: Row(
@@ -203,7 +259,11 @@ class _AddPageState extends State<AddPage> {
               ),
               IconButton(
                 onPressed: () => toastification.dismissById(holder.id),
-                icon: Icon(Icons.close, color: theme.colorScheme.onInverseSurface, size: 20),
+                icon: Icon(
+                  Icons.close,
+                  color: theme.colorScheme.onInverseSurface,
+                  size: 20,
+                ),
               ),
             ],
           ),

@@ -10,8 +10,50 @@ import 'package:levelup_tube/src/features/library/views/dashboard_widgets/video_
 import 'package:levelup_tube/src/features/playlist/viewmodels/playlist_detail_cubit.dart';
 import 'package:levelup_tube/src/features/playlist/viewmodels/playlist_detail_state.dart';
 
-class PlaylistDetailPage extends StatelessWidget {
+class PlaylistDetailPage extends StatefulWidget {
   const PlaylistDetailPage({super.key});
+
+  @override
+  State<PlaylistDetailPage> createState() => _PlaylistDetailPageState();
+}
+
+class _PlaylistDetailPageState extends State<PlaylistDetailPage> {
+  bool _isTransitionCompleted = false;
+  Animation<double>? _routeAnimation;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_routeAnimation == null) {
+      _routeAnimation = ModalRoute.of(context)?.animation;
+      if (_routeAnimation != null) {
+        if (_routeAnimation!.isCompleted) {
+          _isTransitionCompleted = true;
+        } else {
+          _routeAnimation!.addStatusListener(_handleAnimationStatus);
+        }
+      } else {
+        _isTransitionCompleted = true; // Fallback if no animation found
+      }
+    }
+  }
+
+  void _handleAnimationStatus(AnimationStatus status) {
+    if (status == AnimationStatus.completed) {
+      if (mounted) {
+        setState(() {
+          _isTransitionCompleted = true;
+        });
+      }
+      _routeAnimation?.removeStatusListener(_handleAnimationStatus);
+    }
+  }
+
+  @override
+  void dispose() {
+    _routeAnimation?.removeStatusListener(_handleAnimationStatus);
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -38,7 +80,8 @@ class PlaylistDetailPage extends StatelessWidget {
             ).showSnackBar(SnackBar(content: Text(state.message)));
           }
         },
-        buildWhen: (previous, current) => current is! VideoAddPlaylistSuccessState,
+        buildWhen: (previous, current) =>
+            current is! VideoAddPlaylistSuccessState,
         builder: (context, state) {
           String? title;
           if (state is PlaylistDetailLoaded) {
@@ -49,7 +92,9 @@ class PlaylistDetailPage extends StatelessWidget {
 
           Widget body = const SizedBox.shrink();
 
-          if (state is PlaylistDetailInitial || state is PlaylistDetailLoading) {
+          if (state is PlaylistDetailInitial ||
+              state is PlaylistDetailLoading ||
+              !_isTransitionCompleted) {
             body = const VideoListWithPlayer(isLoading: true, isEmpty: false);
           } else if (state is PlaylistDetailEmpty) {
             body = const VideoListWithPlayer(
@@ -99,7 +144,9 @@ class PlaylistDetailPage extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             ListTile(
-              leading: Icon(video.isPinned ? Icons.push_pin_outlined : Icons.push_pin),
+              leading: Icon(
+                video.isPinned ? Icons.push_pin_outlined : Icons.push_pin,
+              ),
               title: Text(video.isPinned ? 'Unpin' : 'Pin'),
               onTap: () {
                 Navigator.pop(bottomSheetContext);
@@ -154,11 +201,12 @@ class _LoadedPlaylistBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Use BlocSelector for each independent part of the state
-    final videosState = context.select<PlaylistDetailCubit, PlaylistVideosState?>(
-      (cubit) => cubit.state is PlaylistDetailLoaded
-          ? (cubit.state as PlaylistDetailLoaded).videosState
-          : null,
-    );
+    final videosState = context
+        .select<PlaylistDetailCubit, PlaylistVideosState?>(
+          (cubit) => cubit.state is PlaylistDetailLoaded
+              ? (cubit.state as PlaylistDetailLoaded).videosState
+              : null,
+        );
     final heroVideoState = context.select<PlaylistDetailCubit, HeroVideoState?>(
       (cubit) => cubit.state is PlaylistDetailLoaded
           ? (cubit.state as PlaylistDetailLoaded).heroVideoState
@@ -180,12 +228,12 @@ class _LoadedPlaylistBody extends StatelessWidget {
       },
       onVideoLongPress: (video) {
         context
-            .findAncestorWidgetOfExactType<PlaylistDetailPage>()!
+            .findAncestorStateOfType<_PlaylistDetailPageState>()!
             ._showVideoOptionsBottomSheet(context, video);
       },
       onOptionsTap: (video) {
         context
-            .findAncestorWidgetOfExactType<PlaylistDetailPage>()!
+            .findAncestorStateOfType<_PlaylistDetailPageState>()!
             ._showVideoOptionsBottomSheet(context, video);
       },
       onProgressUpdate: (playlistVideoId, positionSeconds) {
