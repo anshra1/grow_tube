@@ -134,11 +134,18 @@ class _MainScaffoldState extends State<MainScaffold>
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<PipCubit, PipState>(
-      builder: (context, pipState) {
-        return BlocBuilder<FullscreenVideoCubit, bool>(
-          builder: (context, isFullscreen) {
-            final hideNavigation = isFullscreen || pipState.isInPipMode;
+    return BlocListener<PipCubit, PipState>(
+      listenWhen: (previous, current) => !previous.isInPipMode && current.isInPipMode,
+      listener: (context, pipState) {
+        if (pipState.isInPipMode && widget.navigationShell.currentIndex != 0) {
+          widget.navigationShell.goBranch(0);
+        }
+      },
+      child: BlocBuilder<PipCubit, PipState>(
+        builder: (context, pipState) {
+          return BlocBuilder<FullscreenVideoCubit, bool>(
+            builder: (context, isFullscreen) {
+              final hideNavigation = isFullscreen || pipState.isInPipMode;
             return Scaffold(
               body: widget.navigationShell,
               bottomNavigationBar: hideNavigation
@@ -174,6 +181,7 @@ class _MainScaffoldState extends State<MainScaffold>
           },
         );
       },
+      ),
     );
   }
 

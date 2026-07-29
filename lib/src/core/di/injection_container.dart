@@ -15,6 +15,7 @@ import 'package:levelup_tube/src/core/services/migration_service.dart';
 import 'package:levelup_tube/src/core/theme/theme_cubit.dart';
 import 'package:levelup_tube/src/core/theme/theme_preferences.dart';
 import 'package:levelup_tube/src/features/add/viewmodels/add_cubit.dart';
+import 'package:levelup_tube/src/features/app_review/services/app_review_service.dart';
 import 'package:levelup_tube/src/features/app_update/services/app_update_service.dart';
 import 'package:levelup_tube/src/features/clipboard/models/clipboard_history_model.dart';
 import 'package:levelup_tube/src/features/clipboard/service/clipboard_service.dart';
@@ -67,6 +68,7 @@ Future<void> init() async {
     ..registerLazySingleton<AnalyticsService>(
       () => FirebaseAnalyticsService(analytics: FirebaseAnalytics.instance),
     )
+    ..registerLazySingleton(() => AppReviewService(sl()))
     ..registerLazySingleton(() => FirebaseRemoteConfig.instance)
     ..registerLazySingleton(() => AppUpdateService(sl(), sl(), sl()));
 

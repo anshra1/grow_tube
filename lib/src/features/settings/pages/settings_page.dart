@@ -5,10 +5,12 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:levelup_tube/main.dart';
 import 'package:levelup_tube/src/core/constants/app_links.dart';
 import 'package:levelup_tube/src/core/design_system/app_sizes.dart';
+import 'package:levelup_tube/src/core/di/injection_container.dart';
 import 'package:levelup_tube/src/core/extensions/context_extensions.dart';
 import 'package:levelup_tube/src/core/theme/theme_cubit.dart';
 import 'package:levelup_tube/src/core/widgets/atoms/top_header.dart';
 import 'package:levelup_tube/src/core/widgets/template/app_scaffold.dart';
+import 'package:levelup_tube/src/features/app_review/services/app_review_service.dart';
 import 'package:levelup_tube/src/features/pip/presentation/bloc/pip_cubit.dart';
 import 'package:levelup_tube/src/features/pip/presentation/bloc/pip_state.dart';
 import 'package:levelup_tube/src/features/settings/pages/setting_page_widgets/section_header.dart';
@@ -79,6 +81,10 @@ class _SettingsPageState extends State<SettingsPage> {
         alignment: Alignment.bottomCenter,
       );
     }
+  }
+
+  Future<void> _handleRateAppTap() async {
+    await sl<AppReviewService>().requestReview();
   }
 
   @override
@@ -232,15 +238,25 @@ class _SettingsPageState extends State<SettingsPage> {
             ),
           ),
 
-          // ── Privacy Section ──────────────────────────────────────────
-          const SectionHeader(title: 'Privacy'),
+          // ── About & Privacy Section ──────────────────────────────────────────
+          const SectionHeader(title: 'About'),
           SliverToBoxAdapter(
             child: SettingsCard(
-              child: ListTile(
-                leading: const Icon(Icons.privacy_tip_outlined),
-                title: const Text('Privacy Policy'),
-                trailing: const Icon(Icons.open_in_new, size: 18),
-                onTap: _handlePrivacyTap,
+              child: Column(
+                children: [
+                  ListTile(
+                    leading: const Icon(Icons.star_rate_rounded),
+                    title: const Text('Rate App'),
+                    trailing: const Icon(Icons.open_in_new, size: 18),
+                    onTap: _handleRateAppTap,
+                  ),
+                  ListTile(
+                    leading: const Icon(Icons.privacy_tip_outlined),
+                    title: const Text('Privacy Policy'),
+                    trailing: const Icon(Icons.open_in_new, size: 18),
+                    onTap: _handlePrivacyTap,
+                  ),
+                ],
               ),
             ),
           ),
