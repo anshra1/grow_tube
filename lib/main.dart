@@ -18,6 +18,7 @@ import 'package:levelup_tube/src/features/clipboard/viewmodels/clipboard_cubit.d
 import 'package:levelup_tube/src/features/connectivity/presentation/bloc/connectivity_cubit.dart';
 import 'package:levelup_tube/src/features/connectivity/presentation/widgets/connectivity_toast_listener.dart';
 import 'package:levelup_tube/src/features/navigation/cubit/fullscreen_video_cubit.dart';
+import 'package:levelup_tube/src/features/pip/presentation/bloc/pip_cubit.dart';
 import 'package:levelup_tube/src/features/settings/viewmodels/settings_cubit.dart';
 import 'package:talker_flutter/talker_flutter.dart';
 import 'package:toastification/toastification.dart';
@@ -84,6 +85,7 @@ class LevelUp extends StatelessWidget {
           BlocProvider(create: (context) => di.sl<ThemeCubit>()..load()),
           BlocProvider(create: (context) => di.sl<ConnectivityCubit>()..initialize()),
           BlocProvider(create: (context) => FullscreenVideoCubit()),
+          BlocProvider(create: (context) => di.sl<PipCubit>()),
           BlocProvider(create: (context) => di.sl<SettingsCubit>()),
           BlocProvider(create: (context) => di.sl<ClipboardCubit>()),
           BlocProvider(create: (context) => di.sl<AddCubit>()),

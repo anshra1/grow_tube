@@ -15,6 +15,8 @@ import 'package:levelup_tube/src/features/connectivity/presentation/bloc/connect
 import 'package:levelup_tube/src/features/library/models/video.dart';
 import 'package:levelup_tube/src/features/library/views/dashboard_widgets/external_url_lanucher_widget.dart';
 import 'package:levelup_tube/src/features/navigation/cubit/fullscreen_video_cubit.dart';
+import 'package:levelup_tube/src/features/pip/presentation/bloc/pip_cubit.dart';
+import 'package:levelup_tube/src/features/pip/presentation/bloc/pip_state.dart';
 import 'package:levelup_tube/src/features/playlist/viewmodels/playlist_detail_cubit.dart';
 import 'package:toastification/toastification.dart';
 import 'package:youtube_player_iframe/youtube_player_iframe.dart';
@@ -36,7 +38,7 @@ class DashboardVideoPlayer extends StatefulWidget {
 }
 
 class _DashboardVideoPlayerState extends State<DashboardVideoPlayer>
-    with SingleTickerProviderStateMixin {
+    with SingleTickerProviderStateMixin, WidgetsBindingObserver {
   YoutubePlayerController? _controller;
   late FullscreenVideoCubit _fullscreenVideoCubit;
   StreamSubscription<YoutubePlayerValue>? _errorSubscription;
@@ -61,6 +63,7 @@ class _DashboardVideoPlayerState extends State<DashboardVideoPlayer>
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _animController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 300),
@@ -69,6 +72,19 @@ class _DashboardVideoPlayerState extends State<DashboardVideoPlayer>
     _maybeInitializeController();
     _listenConnectivity();
     _startHeartbeat();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.inactive || state == AppLifecycleState.hidden) {
+      _controller?.playerState.then((playerState) {
+        if (playerState == PlayerState.playing) {
+          if (mounted && context.read<PipCubit>().state.isSupported) {
+             context.read<PipCubit>().enterPipMode();
+          }
+        }
+      }).catchError((_) {});
+    }
   }
 
   @override
@@ -341,6 +357,7 @@ class _DashboardVideoPlayerState extends State<DashboardVideoPlayer>
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _fullscreenVideoCubit.exitFullscreen();
     _animController.dispose();
     _heartbeatTimer?.cancel();
@@ -364,23 +381,35 @@ class _DashboardVideoPlayerState extends State<DashboardVideoPlayer>
             enableFullScreenOnVerticalDrag: false,
           );
 
-    return PopScope(
-      canPop: !_overlayController.isShowing,
-      onPopInvokedWithResult: (didPop, result) {
-        if (!didPop && _overlayController.isShowing) {
-          _toggleFullScreen();
+    return BlocListener<PipCubit, PipState>(
+      listener: (context, pipState) {
+        if (pipState.isInPipMode) {
+          if (!_overlayController.isShowing) {
+            setState(_overlayController.show);
+          }
+        } else {
+          if (_overlayController.isShowing && !_fullscreenVideoCubit.state) {
+            setState(_overlayController.hide);
+          }
         }
       },
-      child: OverlayPortal(
-        controller: _overlayController,
-        // When fullscreen, leave behind an empty 16:9 box in the structural list
-        // so the UI beneath it doesn't snap upwards.
-        child: _overlayController.isShowing
-            ? const AspectRatio(aspectRatio: 16 / 9, child: SizedBox())
-            : Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  AspectRatio(
+      child: PopScope(
+        canPop: !_overlayController.isShowing,
+        onPopInvokedWithResult: (didPop, result) {
+          if (!didPop && _overlayController.isShowing) {
+            _toggleFullScreen();
+          }
+        },
+        child: OverlayPortal(
+          controller: _overlayController,
+          // When fullscreen, leave behind an empty 16:9 box in the structural list
+          // so the UI beneath it doesn't snap upwards.
+          child: _overlayController.isShowing
+              ? const AspectRatio(aspectRatio: 16 / 9, child: SizedBox())
+              : Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    AspectRatio(
                     aspectRatio: 16 / 9,
                     child: ClipRRect(
                       borderRadius: AppRadius.roundedXL,
@@ -390,29 +419,64 @@ class _DashboardVideoPlayerState extends State<DashboardVideoPlayer>
                   const SizedBox(height: 8),
                   Align(
                     alignment: Alignment.centerRight,
-                    child: InkWell(
-                      onTap: _toggleFullScreen,
-                      borderRadius: BorderRadius.circular(8),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              Icons.screen_rotation,
-                              size: 18,
-                              color: Theme.of(context).colorScheme.onSurfaceVariant,
-                            ),
-                            const SizedBox(width: 4),
-                            Text(
-                              'Landscape',
-                              style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        BlocBuilder<PipCubit, PipState>(
+                          builder: (context, pipState) {
+                            if (!pipState.isSupported) return const SizedBox.shrink();
+                            return InkWell(
+                              onTap: () => context.read<PipCubit>().enterPipMode(),
+                              borderRadius: BorderRadius.circular(8),
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(
+                                      Icons.picture_in_picture_alt_rounded,
+                                      size: 18,
+                                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                    ),
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      'PiP',
+                                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
-                            ),
-                          ],
+                            );
+                          },
                         ),
-                      ),
+                        const SizedBox(width: 8),
+                        InkWell(
+                          onTap: _toggleFullScreen,
+                          borderRadius: BorderRadius.circular(8),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  Icons.screen_rotation,
+                                  size: 18,
+                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                ),
+                                const SizedBox(width: 4),
+                                Text(
+                                  'Landscape',
+                                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ],
@@ -446,6 +510,7 @@ class _DashboardVideoPlayerState extends State<DashboardVideoPlayer>
             ),
           );
         },
+        ),
       ),
     );
   }

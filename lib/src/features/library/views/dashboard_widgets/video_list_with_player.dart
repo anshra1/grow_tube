@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:levelup_tube/src/core/design_system/app_radius.dart';
 import 'package:levelup_tube/src/core/design_system/app_sizes.dart';
 import 'package:levelup_tube/src/core/extensions/context_extensions.dart';
@@ -6,6 +7,8 @@ import 'package:levelup_tube/src/features/library/models/video.dart';
 import 'package:levelup_tube/src/features/library/views/dashboard_widgets/dashboard_video_list.dart';
 import 'package:levelup_tube/src/features/library/views/dashboard_widgets/dashboard_video_list_shimmer.dart';
 import 'package:levelup_tube/src/features/library/views/dashboard_widgets/dashboard_video_player.dart';
+import 'package:levelup_tube/src/features/pip/presentation/bloc/pip_cubit.dart';
+import 'package:levelup_tube/src/features/pip/presentation/bloc/pip_state.dart';
 import 'package:shimmer/shimmer.dart';
 
 class VideoListWithPlayer extends StatelessWidget {
@@ -40,51 +43,57 @@ class VideoListWithPlayer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Column(
-        children: [
-          const SizedBox(height: 4),
-          // Hero Player
-          Padding(
-            padding: heroPadding,
-            child: isLoading
-                ? AspectRatio(
-                    aspectRatio: 16 / 9,
-                    child: Shimmer.fromColors(
-                      baseColor: context.colorScheme.surfaceContainerHighest,
-                      highlightColor: context.colorScheme.surfaceContainer,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: context.colorScheme.surface,
-                          borderRadius: heroShimmerRadius,
-                        ),
-                      ),
+    return BlocBuilder<PipCubit, PipState>(
+      builder: (context, pipState) {
+        final heroWidget = isLoading
+            ? AspectRatio(
+                aspectRatio: 16 / 9,
+                child: Shimmer.fromColors(
+                  baseColor: context.colorScheme.surfaceContainerHighest,
+                  highlightColor: context.colorScheme.surfaceContainer,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: context.colorScheme.surface,
+                      borderRadius: heroShimmerRadius,
                     ),
-                  )
-                : heroVideo != null
-                ? DashboardVideoPlayer(
-                    video: heroVideo!,
-                    forcePlayTimestamp: forcePlayTimestamp,
-                    onProgressUpdate: onProgressUpdate,
-                  )
-                : const SizedBox.shrink(),
-          ),
-          const SizedBox(height: 8),
-          // Video List
-          Expanded(
-            child: isLoading
-                ? const DashboardVideoListShimmer()
-                : isEmpty
-                ? emptyWidget ?? const SizedBox.shrink()
-                : DashboardVideoList(
-                    videos: videos,
-                    onVideoTap: onVideoTap,
-                    onVideoLongPress: onVideoLongPress,
-                    onOptionsTap: onOptionsTap,
                   ),
+                ),
+              )
+            : heroVideo != null
+            ? DashboardVideoPlayer(
+                video: heroVideo!,
+                forcePlayTimestamp: forcePlayTimestamp,
+                onProgressUpdate: onProgressUpdate,
+              )
+            : const SizedBox.shrink();
+
+        return SafeArea(
+          child: Column(
+            children: [
+              const SizedBox(height: 4),
+              // Hero Player
+              Padding(
+                padding: heroPadding,
+                child: heroWidget,
+              ),
+              const SizedBox(height: 8),
+              // Video List
+              Expanded(
+                child: isLoading
+                    ? const DashboardVideoListShimmer()
+                    : isEmpty
+                    ? emptyWidget ?? const SizedBox.shrink()
+                    : DashboardVideoList(
+                        videos: videos,
+                        onVideoTap: onVideoTap,
+                        onVideoLongPress: onVideoLongPress,
+                        onOptionsTap: onOptionsTap,
+                      ),
+              ),
+            ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 }

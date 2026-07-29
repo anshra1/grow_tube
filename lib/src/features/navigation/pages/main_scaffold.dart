@@ -8,6 +8,8 @@ import 'package:levelup_tube/src/features/clipboard/viewmodels/clipboard_state.d
 import 'package:levelup_tube/src/features/clipboard/views/clipboard_playlist_prompt.dart';
 import 'package:levelup_tube/src/features/clipboard/views/clipboard_video_prompt.dart';
 import 'package:levelup_tube/src/features/navigation/cubit/fullscreen_video_cubit.dart';
+import 'package:levelup_tube/src/features/pip/presentation/bloc/pip_cubit.dart';
+import 'package:levelup_tube/src/features/pip/presentation/bloc/pip_state.dart';
 import 'package:levelup_tube/src/features/settings/viewmodels/settings_cubit.dart';
 import 'package:toastification/toastification.dart';
 
@@ -130,39 +132,25 @@ class _MainScaffoldState extends State<MainScaffold>
     );
   }
 
-  // void _showAddBottomSheet() {
-  //   showModalBottomSheet<void>(
-  //     context: context,
-  //     isScrollControlled: true,
-  //     useSafeArea: true,
-  //     builder: (_) => AddVideoBottomSheet(
-  //       onAdd: (url) {
-  //         context.read<PlaylistDetailCubit>().addVideo(url);
-  //       },
-  //     ),
-  //   );
-  // }
-
-  // ---------------------------------------------------------------------------
-  // Build
-  // ---------------------------------------------------------------------------
-
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<FullscreenVideoCubit, bool>(
-      builder: (context, isFullscreen) {
-        return Scaffold(
-          body: widget.navigationShell,
-          bottomNavigationBar: isFullscreen
-              ? null
-              : NavigationBar(
-                  selectedIndex: _effectiveIndex,
-                  onDestinationSelected: _onDestinationSelected,
-                  destinations: const [
-                    NavigationDestination(
-                      icon: Icon(Icons.home_outlined),
-                      selectedIcon: Icon(Icons.home),
-                      label: 'Home',
+    return BlocBuilder<PipCubit, PipState>(
+      builder: (context, pipState) {
+        return BlocBuilder<FullscreenVideoCubit, bool>(
+          builder: (context, isFullscreen) {
+            final hideNavigation = isFullscreen || pipState.isInPipMode;
+            return Scaffold(
+              body: widget.navigationShell,
+              bottomNavigationBar: hideNavigation
+                  ? null
+                  : NavigationBar(
+                      selectedIndex: _effectiveIndex,
+                      onDestinationSelected: _onDestinationSelected,
+                      destinations: const [
+                        NavigationDestination(
+                          icon: Icon(Icons.home_outlined),
+                          selectedIcon: Icon(Icons.home),
+                          label: 'Home',
                     ),
                     NavigationDestination(
                       icon: Icon(Icons.playlist_play_outlined),
@@ -182,6 +170,8 @@ class _MainScaffoldState extends State<MainScaffold>
                     ),
                   ],
                 ),
+            );
+          },
         );
       },
     );

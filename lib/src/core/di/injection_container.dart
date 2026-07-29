@@ -22,6 +22,8 @@ import 'package:levelup_tube/src/features/clipboard/viewmodels/clipboard_cubit.d
 import 'package:levelup_tube/src/features/connectivity/data/internet_connection_service.dart';
 import 'package:levelup_tube/src/features/connectivity/presentation/bloc/connectivity_cubit.dart';
 import 'package:levelup_tube/src/features/connectivity/presentation/widgets/connectivity_toast_controller.dart';
+import 'package:levelup_tube/src/features/pip/data/pip_service.dart';
+import 'package:levelup_tube/src/features/pip/presentation/bloc/pip_cubit.dart';
 import 'package:levelup_tube/src/features/playlist/models/playlist_model.dart';
 import 'package:levelup_tube/src/features/playlist/models/playlist_video_model.dart';
 import 'package:levelup_tube/src/features/playlist/repositories/playlist_repository.dart';
@@ -80,6 +82,11 @@ Future<void> init() async {
       () => InternetConnection.createInstance(checkInterval: const Duration(seconds: 3)),
     )
     ..registerLazySingleton(() => InternetConnectionService(sl()))
+    // ============================================================
+    // PiP
+    // ============================================================
+    ..registerLazySingleton(PipService.new)
+    ..registerFactory(() => PipCubit(sl()))
     // ============================================================
     // Repositories
     // ============================================================
