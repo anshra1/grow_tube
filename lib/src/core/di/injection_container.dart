@@ -86,7 +86,7 @@ Future<void> init() async {
     // PiP
     // ============================================================
     ..registerLazySingleton(PipService.new)
-    ..registerFactory(() => PipCubit(sl()))
+    ..registerFactory(() => PipCubit(sl(), sl()))
     // ============================================================
     // Repositories
     // ============================================================

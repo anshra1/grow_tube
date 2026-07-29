@@ -9,6 +9,8 @@ import 'package:levelup_tube/src/core/extensions/context_extensions.dart';
 import 'package:levelup_tube/src/core/theme/theme_cubit.dart';
 import 'package:levelup_tube/src/core/widgets/atoms/top_header.dart';
 import 'package:levelup_tube/src/core/widgets/template/app_scaffold.dart';
+import 'package:levelup_tube/src/features/pip/presentation/bloc/pip_cubit.dart';
+import 'package:levelup_tube/src/features/pip/presentation/bloc/pip_state.dart';
 import 'package:levelup_tube/src/features/settings/pages/setting_page_widgets/section_header.dart';
 import 'package:levelup_tube/src/features/settings/pages/setting_page_widgets/setting_card.dart';
 import 'package:levelup_tube/src/features/settings/pages/setting_page_widgets/setting_shimmer.dart';
@@ -121,6 +123,26 @@ class _SettingsPageState extends State<SettingsPage> {
                     );
                   },
                 ),
+              ),
+            ),
+          ),
+
+          // ── Picture-in-Picture Section ───────────────────────────────
+          const SectionHeader(title: 'Player'),
+          SliverToBoxAdapter(
+            child: SettingsCard(
+              child: BlocBuilder<PipCubit, PipState>(
+                builder: (context, pipState) {
+                  return SwitchListTile(
+                    title: const Text('Picture-in-Picture (PiP)'),
+                    subtitle: const Text('Continue playing video in a small window when app is closed.'),
+                    value: pipState.isEnabled,
+                    onChanged: pipState.isSupported
+                        ? (value) => context.read<PipCubit>().setPipEnabled(enabled: value)
+                        : null,
+                    secondary: const Icon(Icons.picture_in_picture_alt_rounded),
+                  );
+                },
               ),
             ),
           ),

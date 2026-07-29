@@ -2,19 +2,24 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:levelup_tube/src/features/pip/data/pip_service.dart';
 import 'package:levelup_tube/src/features/pip/presentation/bloc/pip_state.dart';
 
+import 'package:shared_preferences/shared_preferences.dart';
+
 /// Manages Picture-in-Picture state.
 ///
 /// Uses a simple `bool` state — `true` when in PiP, `false` otherwise.
 /// Follows the same pattern as `ConnectivityCubit`.
 class PipCubit extends Cubit<PipState> {
-  PipCubit(this._service) : super(const PipState()) {
+  PipCubit(this._service, this._prefs) : super(const PipState()) {
     _service.onPipChanged = ({required bool isInPipMode}) {
       _onPipChanged(isInPipMode);
     };
+    final isEnabled = _prefs.getBool('pip_enabled') ?? true;
+    emit(state.copyWith(isEnabled: isEnabled));
     _checkSupport();
   }
 
   final PipService _service;
+  final SharedPreferences _prefs;
 
   Future<void> _checkSupport() async {
     final supported = await _service.isPipSupported();
@@ -28,13 +33,18 @@ class PipCubit extends Cubit<PipState> {
   /// Call this to enter PiP mode (e.g. when video goes fullscreen
   /// or user navigates away while video is playing).
   Future<void> enterPipMode({int width = 16, int height = 9}) async {
-    if (!state.isSupported) return;
+    if (!state.isSupported || !state.isEnabled) return;
 
     final entered = await _service.enterPipMode(width: width, height: height);
 
     if (entered) {
       emit(state.copyWith(isInPipMode: true));
     }
+  }
+
+  Future<void> setPipEnabled({required bool enabled}) async {
+    await _prefs.setBool('pip_enabled', enabled);
+    emit(state.copyWith(isEnabled: enabled));
   }
 
   @override

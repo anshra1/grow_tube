@@ -424,7 +424,9 @@ class _DashboardVideoPlayerState extends State<DashboardVideoPlayer>
                       children: [
                         BlocBuilder<PipCubit, PipState>(
                           builder: (context, pipState) {
-                            if (!pipState.isSupported) return const SizedBox.shrink();
+                            if (!pipState.isSupported || !pipState.isEnabled) {
+                              return const SizedBox.shrink();
+                            }
                             return InkWell(
                               onTap: () => context.read<PipCubit>().enterPipMode(),
                               borderRadius: BorderRadius.circular(8),
