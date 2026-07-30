@@ -1,5 +1,3 @@
-import 'dart:math' as math;
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:gap/gap.dart';
@@ -8,6 +6,7 @@ import 'package:levelup_tube/src/core/design_system/app_radius.dart';
 import 'package:levelup_tube/src/core/design_system/app_sizes.dart';
 import 'package:levelup_tube/src/core/extensions/context_extensions.dart';
 import 'package:levelup_tube/src/core/widgets/atoms/buttons/app_primary_button.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class DashboardEmptyState extends StatefulWidget {
   const DashboardEmptyState({required this.onAddVideo, super.key});
@@ -15,8 +14,7 @@ class DashboardEmptyState extends StatefulWidget {
   final ValueChanged<String> onAddVideo;
 
   @override
-  State<DashboardEmptyState> createState() =>
-      _DashboardEmptyStateState();
+  State<DashboardEmptyState> createState() => _DashboardEmptyStateState();
 }
 
 class _DashboardEmptyStateState extends State<DashboardEmptyState>
@@ -60,11 +58,8 @@ class _DashboardEmptyStateState extends State<DashboardEmptyState>
       parent: _staggerController,
       curve: const Interval(0, 0.4, curve: Curves.easeOut),
     );
-    _illustrationSlideAnim =
-        Tween<Offset>(
-          begin: const Offset(0, 0.3),
-          end: Offset.zero,
-        ).animate(
+    _illustrationSlideAnim = Tween<Offset>(begin: const Offset(0, 0.3), end: Offset.zero)
+        .animate(
           CurvedAnimation(
             parent: _staggerController,
             curve: const Interval(0, 0.4, curve: Curves.easeOut),
@@ -76,27 +71,20 @@ class _DashboardEmptyStateState extends State<DashboardEmptyState>
       parent: _staggerController,
       curve: const Interval(0.25, 0.65, curve: Curves.easeOut),
     );
-    _textSlideAnim =
-        Tween<Offset>(
-          begin: const Offset(0, 0.3),
-          end: Offset.zero,
-        ).animate(
-          CurvedAnimation(
-            parent: _staggerController,
-            curve: const Interval(0.25, 0.65, curve: Curves.easeOut),
-          ),
-        );
+    _textSlideAnim = Tween<Offset>(begin: const Offset(0, 0.3), end: Offset.zero).animate(
+      CurvedAnimation(
+        parent: _staggerController,
+        curve: const Interval(0.25, 0.65, curve: Curves.easeOut),
+      ),
+    );
 
     // Input area: 0.5 – 1.0
     _inputFadeAnim = CurvedAnimation(
       parent: _staggerController,
       curve: const Interval(0.5, 1, curve: Curves.easeOut),
     );
-    _inputSlideAnim =
-        Tween<Offset>(
-          begin: const Offset(0, 0.3),
-          end: Offset.zero,
-        ).animate(
+    _inputSlideAnim = Tween<Offset>(begin: const Offset(0, 0.3), end: Offset.zero)
+        .animate(
           CurvedAnimation(
             parent: _staggerController,
             curve: const Interval(0.5, 1, curve: Curves.easeOut),
@@ -109,10 +97,7 @@ class _DashboardEmptyStateState extends State<DashboardEmptyState>
       duration: const Duration(milliseconds: 2500),
     );
     _bounceAnim = Tween<double>(begin: 0, end: -10).animate(
-      CurvedAnimation(
-        parent: _characterBounceController,
-        curve: Curves.easeInOut,
-      ),
+      CurvedAnimation(parent: _characterBounceController, curve: Curves.easeInOut),
     );
 
     // Blob pulse (continuous)
@@ -120,12 +105,10 @@ class _DashboardEmptyStateState extends State<DashboardEmptyState>
       vsync: this,
       duration: const Duration(milliseconds: 3000),
     );
-    _blobScaleAnim = Tween<double>(begin: 0.95, end: 1.05).animate(
-      CurvedAnimation(
-        parent: _blobPulseController,
-        curve: Curves.easeInOut,
-      ),
-    );
+    _blobScaleAnim = Tween<double>(
+      begin: 0.95,
+      end: 1.05,
+    ).animate(CurvedAnimation(parent: _blobPulseController, curve: Curves.easeInOut));
 
     // Focus listener: scroll input into view when keyboard opens
     _focusNode.addListener(_onFocusChanged);
@@ -152,6 +135,13 @@ class _DashboardEmptyStateState extends State<DashboardEmptyState>
     }
   }
 
+  Future<void> _launchYouTube() async {
+    final uri = Uri.parse('https://www.youtube.com/');
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    }
+  }
+
   void _submit() {
     final url = _urlController.text.trim();
     if (url.isNotEmpty) {
@@ -175,9 +165,7 @@ class _DashboardEmptyStateState extends State<DashboardEmptyState>
     final colors = context.colorScheme;
     final screenHeight = MediaQuery.sizeOf(context).height;
     final keyboardInset = MediaQuery.viewInsetsOf(context).bottom;
-    final verticalPadding = keyboardInset > 0
-        ? AppSizes.p16
-        : screenHeight * 0.1;
+    final verticalPadding = keyboardInset > 0 ? AppSizes.p16 : screenHeight * 0.1;
     final scrollPhysics = keyboardInset > 0
         ? const NeverScrollableScrollPhysics()
         : const ClampingScrollPhysics();
@@ -237,7 +225,7 @@ class _DashboardEmptyStateState extends State<DashboardEmptyState>
   }
 
   // ════════════════════════════════════════════════════════════════
-  //  Illustration: Blob Character + YouTube badge
+  //  Illustration: Floating Video Card
   // ════════════════════════════════════════════════════════════════
   Widget _buildIllustrationSection(ColorScheme colors) {
     return SizedBox(
@@ -246,29 +234,22 @@ class _DashboardEmptyStateState extends State<DashboardEmptyState>
         alignment: Alignment.center,
         clipBehavior: Clip.none,
         children: [
-          // ── Pulsing glow behind character ──
+          // ── Pulsing background glow ──
           AnimatedBuilder(
             animation: _blobScaleAnim,
             builder: (context, child) {
-              return Transform.scale(
-                scale: _blobScaleAnim.value,
-                child: child,
-              );
+              return Transform.scale(scale: _blobScaleAnim.value, child: child);
             },
             child: Container(
-              width: 240,
-              height: 240,
+              width: 220,
+              height: 220,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: colors.tertiaryContainer.withValues(
-                  alpha: 0.2,
-                ),
+                color: colors.primary.withValues(alpha: 0.08),
                 boxShadow: [
                   BoxShadow(
-                    color: colors.tertiaryContainer.withValues(
-                      alpha: 0.15,
-                    ),
-                    blurRadius: 80,
+                    color: colors.primary.withValues(alpha: 0.12),
+                    blurRadius: 60,
                     spreadRadius: 20,
                   ),
                 ],
@@ -276,7 +257,7 @@ class _DashboardEmptyStateState extends State<DashboardEmptyState>
             ),
           ),
 
-          // ── Bouncing character blob ──
+          // ── Floating Video Card ──
           AnimatedBuilder(
             animation: _bounceAnim,
             builder: (context, child) {
@@ -285,156 +266,143 @@ class _DashboardEmptyStateState extends State<DashboardEmptyState>
                 child: child,
               );
             },
-            child: Stack(
-              clipBehavior: Clip.none,
-              children: [
-                // The organic blob shape
-                Container(
-                  width: 200,
-                  height: 200,
-                  decoration: BoxDecoration(
-                    color: colors.tertiaryContainer,
-                    borderRadius: const BorderRadius.only(
-                      topLeft: Radius.elliptical(80, 80),
-                      topRight: Radius.elliptical(120, 100),
-                      bottomLeft: Radius.elliptical(140, 120),
-                      bottomRight: Radius.elliptical(60, 100),
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: colors.tertiaryContainer.withValues(
-                          alpha: 0.4,
+            child: Container(
+              width: 180,
+              height: 120,
+              decoration: BoxDecoration(
+                color: colors.surfaceContainerHighest.withValues(alpha: 0.7),
+                borderRadius: BorderRadius.circular(24),
+                border: Border.all(
+                  color: colors.outlineVariant.withValues(alpha: 0.6),
+                  width: 1.5,
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: colors.shadow.withValues(alpha: 0.08),
+                    blurRadius: 24,
+                    offset: const Offset(0, 12),
+                  ),
+                ],
+              ),
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  // Glowing Play Button
+                  Container(
+                    width: 56,
+                    height: 56,
+                    decoration: BoxDecoration(
+                      color: colors.primary,
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: colors.primary.withValues(alpha: 0.4),
+                          blurRadius: 16,
+                          offset: const Offset(0, 6),
                         ),
-                        blurRadius: 24,
-                        offset: const Offset(0, 8),
+                      ],
+                    ),
+                    child: Icon(
+                      Icons.play_arrow_rounded,
+                      color: colors.onPrimary,
+                      size: 36,
+                    ),
+                  ),
+                  // Abstract UI line (Bottom left)
+                  Positioned(
+                    bottom: 16,
+                    left: 16,
+                    child: Container(
+                      width: 48,
+                      height: 6,
+                      decoration: BoxDecoration(
+                        color: colors.onSurfaceVariant.withValues(alpha: 0.3),
+                        borderRadius: BorderRadius.circular(4),
                       ),
-                    ],
+                    ),
                   ),
-                  child: Center(child: _buildHappyFace(colors)),
-                ),
-
-                // ── Floating YouTube badge ──
-                Positioned(
-                  bottom: -16,
-                  right: -16,
-                  child: Transform.rotate(
-                    angle: 12 * math.pi / 180,
-                    child: _buildYouTubeBadge(colors),
+                  // Abstract UI line (Bottom right)
+                  Positioned(
+                    bottom: 16,
+                    right: 16,
+                    child: Container(
+                      width: 24,
+                      height: 6,
+                      decoration: BoxDecoration(
+                        color: colors.onSurfaceVariant.withValues(alpha: 0.3),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                    ),
                   ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  /// Happy face inside the blob
-  Widget _buildHappyFace(ColorScheme colors) {
-    final faceColor = colors.onTertiaryContainer;
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        // Eyes
-        Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: 10,
-              height: 16,
-              decoration: BoxDecoration(
-                color: faceColor,
-                borderRadius: BorderRadius.circular(AppRadius.full),
+                ],
               ),
             ),
-            const SizedBox(width: 28),
-            Container(
-              width: 10,
-              height: 16,
-              decoration: BoxDecoration(
-                color: faceColor,
-                borderRadius: BorderRadius.circular(AppRadius.full),
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 8),
-        // Smile
-        Container(
-          width: 48,
-          height: 24,
-          decoration: BoxDecoration(
-            border: Border(
-              bottom: BorderSide(color: faceColor, width: 3.5),
-            ),
-            borderRadius: const BorderRadius.only(
-              bottomLeft: Radius.circular(24),
-              bottomRight: Radius.circular(24),
-            ),
           ),
-        ),
-      ],
-    );
-  }
 
-  /// Official-style YouTube badge widget
-  Widget _buildYouTubeBadge(ColorScheme colors) {
-    return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppSizes.p12,
-        vertical: AppSizes.p8,
-      ),
-      decoration: BoxDecoration(
-        color: colors.surface,
-        borderRadius: AppRadius.roundedL,
-        boxShadow: [
-          BoxShadow(
-            color: colors.shadow.withValues(alpha: 0.14),
-            blurRadius: 16,
-            offset: const Offset(0, 6),
-          ),
-        ],
-      ),
-      child: SizedBox(
-        width: 64,
-        height: 44,
-        child: Center(
-          child: Container(
-            width: 48,
-            height: 32,
-            decoration: BoxDecoration(
-              color: const Color(0xFFFF0000),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: const Center(
+          // ── Floating Accent Elements ──
+          Positioned(
+            top: 40,
+            left: 30,
+            child: AnimatedBuilder(
+              animation: _bounceAnim,
+              builder: (context, child) {
+                return Transform.translate(
+                  offset: Offset(0, -_bounceAnim.value * 0.4),
+                  child: child,
+                );
+              },
               child: Icon(
-                Icons.play_arrow_rounded,
-                color: Colors.white,
-                size: AppIconSizes.md,
+                Icons.menu_book_rounded,
+                color: colors.secondary.withValues(alpha: 0.6),
+                size: 28,
               ),
             ),
           ),
-        ),
+          Positioned(
+            bottom: 50,
+            right: 25,
+            child: AnimatedBuilder(
+              animation: _bounceAnim,
+              builder: (context, child) {
+                return Transform.translate(
+                  offset: Offset(0, -_bounceAnim.value * 0.6),
+                  child: child,
+                );
+              },
+              child: Icon(
+                Icons.lightbulb_rounded,
+                color: colors.tertiary.withValues(alpha: 0.7),
+                size: 24,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
 
   // ════════════════════════════════════════════════════════════════
-  //  Text Section: Playful subtitle + Headline
+  //  Text Section: Professional Headline + Subtitle
   // ════════════════════════════════════════════════════════════════
   Widget _buildTextSection(ColorScheme colors) {
     return Column(
       children: [
-        // Playful handwritten-style text
         Text(
-          'Paste The Youtube Video Link Below',
+          'Your Learning Journey Starts Here',
           textAlign: TextAlign.center,
-          style: context.textTheme.headlineMedium?.copyWith(
-            color: colors.tertiary,
-            fontWeight: FontWeight.w400,
-            fontStyle: FontStyle.italic,
-            letterSpacing: 0.5,
+          style: context.textTheme.headlineSmall?.copyWith(
+            color: colors.onSurface,
+            fontWeight: FontWeight.w700,
+            letterSpacing: -0.5,
+          ),
+        ),
+        const Gap(12),
+        Text(
+          'Paste a YouTube link below to add a video and learn without distractions.',
+          textAlign: TextAlign.center,
+          style: context.textTheme.bodyLarge?.copyWith(
+            color: colors.onSurfaceVariant,
+            height: 1.4,
           ),
         ),
       ],
@@ -453,9 +421,7 @@ class _DashboardEmptyStateState extends State<DashboardEmptyState>
           decoration: BoxDecoration(
             color: colors.surface,
             borderRadius: AppRadius.roundedL,
-            border: Border.all(
-              color: colors.outlineVariant.withValues(alpha: 0.7),
-            ),
+            border: Border.all(color: colors.outlineVariant.withValues(alpha: 0.7)),
             boxShadow: [
               BoxShadow(
                 color: colors.shadow.withValues(alpha: 0.08),
@@ -468,18 +434,13 @@ class _DashboardEmptyStateState extends State<DashboardEmptyState>
             controller: _urlController,
             focusNode: _focusNode,
             decoration: InputDecoration(
-              hintText: 'https://youtube-video-url.com/...',
+              hintText: 'Paste YouTube link here...',
               hintStyle: TextStyle(
-                color: colors.onSurfaceVariant.withValues(
-                  alpha: 0.85,
-                ),
+                color: colors.onSurfaceVariant.withValues(alpha: 0.85),
               ),
               suffixIcon: IconButton(
                 onPressed: _pasteFromClipboard,
-                icon: Icon(
-                  Icons.content_paste_rounded,
-                  color: colors.primary,
-                ),
+                icon: Icon(Icons.content_paste_rounded, color: colors.primary),
                 tooltip: 'Paste from clipboard',
               ),
               border: const OutlineInputBorder(
@@ -495,26 +456,18 @@ class _DashboardEmptyStateState extends State<DashboardEmptyState>
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: AppRadius.roundedL,
-                borderSide: BorderSide(
-                  color: colors.primary,
-                  width: 2,
-                ),
+                borderSide: BorderSide(color: colors.primary, width: 2),
               ),
               errorBorder: OutlineInputBorder(
                 borderRadius: AppRadius.roundedL,
-                borderSide: BorderSide(
-                  color: colors.error,
-                  width: 1.4,
-                ),
+                borderSide: BorderSide(color: colors.error, width: 1.4),
               ),
               focusedErrorBorder: OutlineInputBorder(
                 borderRadius: AppRadius.roundedL,
                 borderSide: BorderSide(color: colors.error, width: 2),
               ),
               filled: true,
-              fillColor: colors.surfaceContainerHighest.withValues(
-                alpha: 0.35,
-              ),
+              fillColor: colors.surfaceContainerHighest.withValues(alpha: 0.35),
               contentPadding: const EdgeInsets.symmetric(
                 horizontal: AppSizes.p24,
                 vertical: AppSizes.p20,
@@ -544,13 +497,27 @@ class _DashboardEmptyStateState extends State<DashboardEmptyState>
                     fontWeight: FontWeight.w700,
                   ),
                 ),
-                const Gap(8),
-                Icon(
-                  Icons.add_circle_rounded,
-                  color: colors.onPrimary,
-                ),
               ],
             ),
+          ),
+        ),
+
+        const Gap(16),
+
+        // ── Open YouTube Launcher ──
+        TextButton.icon(
+          onPressed: _launchYouTube,
+          icon: Icon(Icons.open_in_new_rounded, color: colors.primary, size: 20),
+          label: Text(
+            'Open YouTube App',
+            style: context.textTheme.titleSmall?.copyWith(
+              color: colors.primary,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          style: TextButton.styleFrom(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            shape: const RoundedRectangleBorder(borderRadius: AppRadius.roundedM),
           ),
         ),
       ],
@@ -559,8 +526,9 @@ class _DashboardEmptyStateState extends State<DashboardEmptyState>
 
   @override
   void dispose() {
-    _focusNode..removeListener(_onFocusChanged)
-    ..dispose();
+    _focusNode
+      ..removeListener(_onFocusChanged)
+      ..dispose();
     _scrollController.dispose();
     _urlController.dispose();
     _staggerController.dispose();

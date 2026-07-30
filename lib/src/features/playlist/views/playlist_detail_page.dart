@@ -9,6 +9,7 @@ import 'package:levelup_tube/src/features/library/models/video.dart';
 import 'package:levelup_tube/src/features/library/views/dashboard_widgets/video_list_with_player.dart';
 import 'package:levelup_tube/src/features/playlist/viewmodels/playlist_detail_cubit.dart';
 import 'package:levelup_tube/src/features/playlist/viewmodels/playlist_detail_state.dart';
+import 'package:levelup_tube/src/features/playlist/views/playlist_page_widgets/playlist_empty_state.dart';
 
 class PlaylistDetailPage extends StatefulWidget {
   const PlaylistDetailPage({super.key});
@@ -97,11 +98,7 @@ class _PlaylistDetailPageState extends State<PlaylistDetailPage> {
               !_isTransitionCompleted) {
             body = const VideoListWithPlayer(isLoading: true, isEmpty: false);
           } else if (state is PlaylistDetailEmpty) {
-            body = const VideoListWithPlayer(
-              isLoading: false,
-              isEmpty: true,
-              emptyWidget: Center(child: Text('No videos in this playlist')),
-            );
+            body = const PlaylistEmptyState();
           } else if (state is PlaylistDetailLoaded) {
             body = _LoadedPlaylistBody();
           }
