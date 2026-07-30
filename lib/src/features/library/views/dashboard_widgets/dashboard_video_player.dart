@@ -74,18 +74,8 @@ class _DashboardVideoPlayerState extends State<DashboardVideoPlayer>
     _startHeartbeat();
   }
 
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.inactive || state == AppLifecycleState.hidden) {
-      _controller?.playerState.then((playerState) {
-        if (playerState == PlayerState.playing) {
-          if (mounted && context.read<PipCubit>().state.isSupported) {
-             context.read<PipCubit>().enterPipMode();
-          }
-        }
-      }).catchError((_) {});
-    }
-  }
+
+
 
   @override
   void didUpdateWidget(covariant DashboardVideoPlayer oldWidget) {
