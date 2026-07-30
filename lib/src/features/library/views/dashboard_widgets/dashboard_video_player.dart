@@ -255,6 +255,10 @@ class _DashboardVideoPlayerState extends State<DashboardVideoPlayer>
         print('===================================');
       }
 
+      if (mounted) {
+        context.read<PipCubit>().setVideoPlaying(value.playerState == PlayerState.playing);
+      }
+
       if (value.error != YoutubeError.none) {
         di.sl<AppLogger>().error(
           'VideoPlayer: YouTube error ${value.error.code} '

@@ -84,7 +84,7 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 
   Future<void> _handleRateAppTap() async {
-    await sl<AppReviewService>().requestReview();
+    await sl<AppReviewService>().openStoreListing();
   }
 
   @override

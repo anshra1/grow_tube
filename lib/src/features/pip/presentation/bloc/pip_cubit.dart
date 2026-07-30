@@ -1,7 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:levelup_tube/src/features/pip/data/pip_service.dart';
 import 'package:levelup_tube/src/features/pip/presentation/bloc/pip_state.dart';
-
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// Manages Picture-in-Picture state.
@@ -21,9 +20,13 @@ class PipCubit extends Cubit<PipState> {
   final PipService _service;
   final SharedPreferences _prefs;
 
+  bool _isVideoPlaying = false;
+  bool _isHomeTabActive = true;
+
   Future<void> _checkSupport() async {
     final supported = await _service.isPipSupported();
     emit(state.copyWith(isSupported: supported));
+    _updateAutoPip();
   }
 
   void _onPipChanged(bool isInPipMode) {
@@ -45,6 +48,28 @@ class PipCubit extends Cubit<PipState> {
   Future<void> setPipEnabled({required bool enabled}) async {
     await _prefs.setBool('pip_enabled', enabled);
     emit(state.copyWith(isEnabled: enabled));
+    _updateAutoPip();
+  }
+  // 
+  // ignore: avoid_positional_boolean_parameters
+  void setVideoPlaying(bool playing) {
+    if (_isVideoPlaying == playing) return;
+    _isVideoPlaying = playing;
+    _updateAutoPip();
+  }
+
+  //
+  // ignore: avoid_positional_boolean_parameters
+  void setHomeTabActive(bool active) {
+    if (_isHomeTabActive == active) return;
+    _isHomeTabActive = active;
+    _updateAutoPip();
+  }
+
+  void _updateAutoPip() {
+    if (!state.isSupported) return;
+    final shouldAutoEnter = _isVideoPlaying && _isHomeTabActive && state.isEnabled;
+    _service.setAutoEnterPip(shouldAutoEnter);
   }
 
   @override

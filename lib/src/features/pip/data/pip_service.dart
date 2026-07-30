@@ -26,6 +26,14 @@ class PipService {
     return result ?? false;
   }
 
+  /// Sets whether the app should seamlessly auto-enter PiP mode.
+  // ignore: avoid_positional_boolean_parameters
+  Future<void> setAutoEnterPip(bool enabled) async {
+    try {
+      await _channel.invokeMethod('setAutoEnterPip', {'enabled': enabled});
+    } on PlatformException catch (_) {}
+  }
+
   /// Checks whether the device supports PiP (Android 8.0+).
   Future<bool> isPipSupported() async {
     final result = await _channel.invokeMethod<bool>('isPipSupported');

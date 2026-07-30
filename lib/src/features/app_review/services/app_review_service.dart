@@ -14,10 +14,7 @@ class AppReviewService {
   Future<void> requestReview() async {
     try {
       if (await _inAppReview.isAvailable()) {
-        _logger.debug('In-App Review is available. Requesting review...');
-        await _inAppReview.requestReview();
       } else {
-        _logger.debug('In-App Review not available. Opening store listing...');
         await _inAppReview.openStoreListing();
       }
     } on Object catch (e, stack) {
@@ -25,7 +22,7 @@ class AppReviewService {
       // Fallback in case of absolute failure
       try {
         await _inAppReview.openStoreListing();
-      } on Object catch (fallbackError, fallbackStack) {
+      } on Exception catch (fallbackError, fallbackStack) {
         _logger.error(
           'Failed to open store listing fallback',
           error: fallbackError,
@@ -37,7 +34,31 @@ class AppReviewService {
             Uri.parse(AppLinks.playStore),
             mode: LaunchMode.externalApplication,
           );
-        } catch (_) {}
+        } on Exception catch (_) {}
+      }
+    }
+  }
+
+  /// Opens the store listing directly.
+  /// Use this for manual "Rate App" buttons in settings menus
+  /// to ensure the action never fails silently.
+  Future<void> openStoreListing() async {
+    try {
+      await _inAppReview.openStoreListing();
+    } on Exception catch (e, stack) {
+      _logger.error('Failed to open store listing directly', error: e, stackTrace: stack);
+      // Ultimate fallback if the plugin channel completely fails
+      try {
+        await launchUrl(
+          Uri.parse(AppLinks.playStore),
+          mode: LaunchMode.externalApplication,
+        );
+      } on Exception catch (e, stack) {
+        _logger.error(
+          'Failed to launch the url',
+          error: e,
+          stackTrace: stack,
+        );
       }
     }
   }

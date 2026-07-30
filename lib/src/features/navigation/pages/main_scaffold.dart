@@ -124,6 +124,9 @@ class _MainScaffoldState extends State<MainScaffold>
     if (index == 3) {
       context.read<SettingsCubit>().loadAllPlaylist();
     }
+    
+    context.read<PipCubit>().setHomeTabActive(index == 0);
+
     // For all tabs, switch the shell branch preserving navigator state.
     widget.navigationShell.goBranch(
       index,
