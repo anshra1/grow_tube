@@ -69,6 +69,15 @@ abstract class PlaylistRepository {
 
   /// Updates the title and/or local thumbnail path of a playlist.
   Future<void> updatePlaylistDetails(int id, {String? title, String? localThumbnailPath});
+
+  /// Searches playlists by title.
+  Future<List<PlaylistModel>> searchPlaylists(String query);
+
+  /// Searches videos by title or channel name.
+  Future<List<PlaylistVideoModel>> searchVideos(String query);
+
+  /// Searches videos by title or channel name within a specific playlist.
+  Future<List<PlaylistVideoModel>> searchVideosInPlaylist(int playlistId, String query);
 }
 
 class PlaylistRepositoryImpl implements PlaylistRepository {
@@ -458,6 +467,58 @@ class PlaylistRepositoryImpl implements PlaylistRepository {
       }
     } on Exception catch (e, st) {
       appLogger.handle(e, st, 'PlaylistRepository: Error updating playlist details');
+    }
+  }
+
+  @override
+  Future<List<PlaylistModel>> searchPlaylists(String query) async {
+    try {
+      if (query.trim().isEmpty) return [];
+      final q = playlistBox
+          .query(PlaylistModel_.title.contains(query, caseSensitive: false))
+          ..order(PlaylistModel_.createdAt, flags: Order.descending);
+      return q.build().find();
+    } on Exception catch (e, st) {
+      appLogger.handle(e, st, 'PlaylistRepository: Error searching playlists');
+      return [];
+    }
+  }
+
+  @override
+  Future<List<PlaylistVideoModel>> searchVideos(String query) async {
+    try {
+      if (query.trim().isEmpty) return [];
+      final q = videoBox
+          .query(PlaylistVideoModel_.title
+              .contains(query, caseSensitive: false)
+              .or(PlaylistVideoModel_.channelName.contains(query, caseSensitive: false)))
+          ..order(PlaylistVideoModel_.addedAt, flags: Order.descending);
+      return q.build().find();
+    } on Exception catch (e, st) {
+      appLogger.handle(e, st, 'PlaylistRepository: Error searching videos');
+      return [];
+    }
+  }
+
+  @override
+  Future<List<PlaylistVideoModel>> searchVideosInPlaylist(int playlistId, String query) async {
+    try {
+      if (query.trim().isEmpty) return [];
+      final playlist = playlistBox.get(playlistId);
+      if (playlist == null) return [];
+
+      final lowerQuery = query.toLowerCase();
+      final filtered = playlist.videos.where((v) {
+        return v.title.toLowerCase().contains(lowerQuery) ||
+               v.channelName.toLowerCase().contains(lowerQuery);
+      }).toList();
+      
+      // Sort by addedAt descending
+      filtered.sort((a, b) => b.addedAt.compareTo(a.addedAt));
+      return filtered;
+    } on Exception catch (e, st) {
+      appLogger.handle(e, st, 'PlaylistRepository: Error searching videos in playlist');
+      return [];
     }
   }
 }

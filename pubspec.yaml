@@ -1,7 +1,7 @@
 name: levelup_tube
 description: "A high-performance, distraction-free learning application."
 publish_to: 'none'
-version: 2.0.1+2
+version: 2.1.1+11
 
 environment:
   sdk: '>=3.9.0 <4.0.0'
@@ -29,6 +29,7 @@ dependencies:
   image_cropper: ^12.2.1
   image_picker: ^1.2.2
   in_app_review: ^2.0.12
+  
   internet_connection_checker_plus: ^2.9.1+2
   intl: ^0.19.0
   json_annotation: ^4.9.0
@@ -37,6 +38,7 @@ dependencies:
   package_info_plus: ^8.0.0
   path_provider: ^2.1.2
   receive_sharing_intent: 1.8.0
+  share_plus: ^12.0.2
   shared_preferences: ^2.2.3
   shimmer: ^3.0.0
   talker: ^5.1.13

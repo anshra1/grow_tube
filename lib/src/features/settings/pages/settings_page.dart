@@ -18,6 +18,8 @@ import 'package:levelup_tube/src/features/settings/pages/setting_page_widgets/se
 import 'package:levelup_tube/src/features/settings/pages/setting_page_widgets/setting_shimmer.dart';
 import 'package:levelup_tube/src/features/settings/viewmodels/setting_state.dart';
 import 'package:levelup_tube/src/features/settings/viewmodels/settings_cubit.dart';
+import 'package:package_info_plus/package_info_plus.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:talker_flutter/talker_flutter.dart';
 import 'package:toastification/toastification.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -52,11 +54,9 @@ class _SettingsPageState extends State<SettingsPage> {
 
     if (_titleTapCount >= 5) {
       _titleTapCount = 0;
-      Navigator.of(context).push(
-        MaterialPageRoute<void>(
-          builder: (context) => TalkerScreen(talker: talker),
-        ),
-      );
+      Navigator.of(
+        context,
+      ).push(MaterialPageRoute<void>(builder: (context) => TalkerScreen(talker: talker)));
       return;
     }
 
@@ -85,6 +85,12 @@ class _SettingsPageState extends State<SettingsPage> {
 
   Future<void> _handleRateAppTap() async {
     await sl<AppReviewService>().openStoreListing();
+  }
+
+  Future<void> _handleShareAppTap() async {
+    final packageInfo = await PackageInfo.fromPlatform();
+    final shareText = "Check out LevelUp Tube! It's a great distraction-free learning app. https://play.google.com/store/apps/details?id=${packageInfo.packageName}";
+    await SharePlus.instance.share(ShareParams(text: shareText));
   }
 
   @override
@@ -116,9 +122,7 @@ class _SettingsPageState extends State<SettingsPage> {
                           label: Text(
                             maxLines: 2,
                             label,
-                            style: const TextStyle(
-                              overflow: TextOverflow.ellipsis,
-                            ),
+                            style: const TextStyle(overflow: TextOverflow.ellipsis),
                           ),
                         );
                       }).toList(),
@@ -141,10 +145,13 @@ class _SettingsPageState extends State<SettingsPage> {
                 builder: (context, pipState) {
                   return SwitchListTile(
                     title: const Text('Picture-in-Picture (PiP)'),
-                    subtitle: const Text('Continue playing video in a small window when app is closed.'),
+                    subtitle: const Text(
+                      'Continue playing video in a small window when app is closed.',
+                    ),
                     value: pipState.isEnabled,
                     onChanged: pipState.isSupported
-                        ? (value) => context.read<PipCubit>().setPipEnabled(enabled: value)
+                        ? (value) =>
+                              context.read<PipCubit>().setPipEnabled(enabled: value)
                         : null,
                     secondary: const Icon(Icons.picture_in_picture_alt_rounded),
                   );
@@ -159,8 +166,7 @@ class _SettingsPageState extends State<SettingsPage> {
             child: SettingsCard(
               child: BlocBuilder<SettingsCubit, SettingsState>(
                 builder: (context, state) {
-                  if (state is SettingsLoadingState ||
-                      state is SettingsInitialState) {
+                  if (state is SettingsLoadingState || state is SettingsInitialState) {
                     return const SettingCardShimmer();
                   }
 
@@ -184,8 +190,7 @@ class _SettingsPageState extends State<SettingsPage> {
 
                     return Column(
                       children: state.allPlaylists.map((playlist) {
-                        final isSelected =
-                            playlist.id == state.defaultPlaylistId;
+                        final isSelected = playlist.id == state.defaultPlaylistId;
                         return ListTile(
                           leading: AnimatedSwitcher(
                             duration: const Duration(milliseconds: 300),
@@ -194,16 +199,11 @@ class _SettingsPageState extends State<SettingsPage> {
                             transitionBuilder: (child, animation) {
                               return ScaleTransition(
                                 scale: animation,
-                                child: FadeTransition(
-                                  opacity: animation,
-                                  child: child,
-                                ),
+                                child: FadeTransition(opacity: animation, child: child),
                               );
                             },
                             child: Icon(
-                              isSelected
-                                  ? Icons.check_circle
-                                  : Icons.circle_outlined,
+                              isSelected ? Icons.check_circle : Icons.circle_outlined,
                               key: ValueKey(isSelected),
                               color: isSelected
                                   ? context.colorScheme.primary
@@ -224,9 +224,9 @@ class _SettingsPageState extends State<SettingsPage> {
                           subtitle: Text(
                             '${playlist.videoCount} video${playlist.videoCount == 1 ? '' : 's'}',
                           ),
-                          onTap: () => context
-                              .read<SettingsCubit>()
-                              .setDefaultPlaylist(playlist.id),
+                          onTap: () => context.read<SettingsCubit>().setDefaultPlaylist(
+                            playlist.id,
+                          ),
                         );
                       }).toList(),
                     );
@@ -244,6 +244,12 @@ class _SettingsPageState extends State<SettingsPage> {
             child: SettingsCard(
               child: Column(
                 children: [
+                  ListTile(
+                    leading: const Icon(Icons.share_outlined),
+                    title: const Text('Share App'),
+                    trailing: const Icon(Icons.open_in_new, size: 18),
+                    onTap: _handleShareAppTap,
+                  ),
                   ListTile(
                     leading: const Icon(Icons.star_rate_rounded),
                     title: const Text('Rate App'),
