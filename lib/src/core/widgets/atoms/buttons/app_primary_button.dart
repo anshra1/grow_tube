@@ -32,7 +32,12 @@ class AppPrimaryButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return AppBaseButton(
-      onPressed: onPressed,
+      onPressed: onPressed == null
+          ? null
+          : () {
+              FocusManager.instance.primaryFocus?.unfocus();
+              onPressed?.call();
+            },
       leading: leading,
       trailing: trailing,
       state: state,

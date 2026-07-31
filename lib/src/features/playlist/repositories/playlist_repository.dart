@@ -251,7 +251,7 @@ class PlaylistRepositoryImpl implements PlaylistRepository {
 
       final alreadyLinked = playlist.videos.any((v) => v.youtubeId == video.youtubeId);
       if (alreadyLinked) {
-        throw const VideoException('Video already in playlist', code: 'already_exists');
+        return;
       }
 
       // A playlist owns its own video row. The same YouTube video may exist

@@ -10,33 +10,36 @@ import 'package:levelup_tube/src/features/playlist/views/playlist_page_widgets/p
 import 'package:shimmer/shimmer.dart';
 
 class AddVideoForm extends StatefulWidget {
-  const AddVideoForm({required this.urlController, super.key});
+  const AddVideoForm({
+    required this.urlController,
+    required this.selectedPlaylistIdNotifier,
+    super.key,
+  });
 
   final TextEditingController urlController;
+  final ValueNotifier<int?> selectedPlaylistIdNotifier;
 
   @override
   State<AddVideoForm> createState() => _AddVideoFormState();
 }
 
 class _AddVideoFormState extends State<AddVideoForm> {
-  final ValueNotifier<int?> _selectedPlaylistIdNotifier = ValueNotifier<int?>(null);
-
-  @override
-  void dispose() {
-    _selectedPlaylistIdNotifier.dispose();
-    super.dispose();
-  }
-
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
     return BlocConsumer<AddCubit, AddState>(
+      listenWhen: (previous, current) => current is AddInitial,
+      buildWhen: (previous, current) =>
+          current is AddInitial ||
+          current is AddLoading ||
+          current is AddVideoSuccess ||
+          current is AddError,
       listener: (context, state) {
         if (state is AddInitial &&
-            _selectedPlaylistIdNotifier.value == null &&
+            widget.selectedPlaylistIdNotifier.value == null &&
             state.defaultPlaylistId != null) {
-          _selectedPlaylistIdNotifier.value = state.defaultPlaylistId;
+          widget.selectedPlaylistIdNotifier.value = state.defaultPlaylistId;
         }
       },
       builder: (context, state) {
@@ -98,13 +101,13 @@ class _AddVideoFormState extends State<AddVideoForm> {
               )
             else
               ValueListenableBuilder<int?>(
-                valueListenable: _selectedPlaylistIdNotifier,
+                valueListenable: widget.selectedPlaylistIdNotifier,
                 builder: (context, selectedPlaylistId, child) {
                   return PlaylistSelector(
                     playlists: playlists!,
                     selectedId: selectedPlaylistId,
                     onChanged: (value) {
-                      _selectedPlaylistIdNotifier.value = value;
+                      widget.selectedPlaylistIdNotifier.value = value;
                     },
                   );
                 },
@@ -113,12 +116,12 @@ class _AddVideoFormState extends State<AddVideoForm> {
             ListenableBuilder(
               listenable: Listenable.merge([
                 widget.urlController,
-                _selectedPlaylistIdNotifier,
+                widget.selectedPlaylistIdNotifier,
               ]),
               builder: (context, child) {
                 final isEnabled =
                     widget.urlController.text.trim().isNotEmpty &&
-                    _selectedPlaylistIdNotifier.value != null &&
+                    widget.selectedPlaylistIdNotifier.value != null &&
                     !isAdding;
 
                 AppButtonState buttonState;
@@ -135,7 +138,7 @@ class _AddVideoFormState extends State<AddVideoForm> {
                   onPressed: isEnabled
                       ? () {
                           context.read<AddCubit>().addVideoToPlaylist(
-                            _selectedPlaylistIdNotifier.value!,
+                            widget.selectedPlaylistIdNotifier.value!,
                             widget.urlController.text.trim(),
                           );
                         }

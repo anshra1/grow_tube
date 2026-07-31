@@ -24,6 +24,10 @@ class _ImportPlaylistFormState extends State<ImportPlaylistForm> {
     final theme = Theme.of(context);
 
     return BlocBuilder<AddCubit, AddState>(
+      buildWhen: (previous, current) =>
+          current is AddLoading ||
+          current is ImportPlaylistSuccess ||
+          current is AddError,
       builder: (context, state) {
         final isAdding = state is AddLoading;
 

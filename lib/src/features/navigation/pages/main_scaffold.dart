@@ -10,6 +10,7 @@ import 'package:levelup_tube/src/features/clipboard/views/clipboard_video_prompt
 import 'package:levelup_tube/src/features/navigation/cubit/fullscreen_video_cubit.dart';
 import 'package:levelup_tube/src/features/pip/presentation/bloc/pip_cubit.dart';
 import 'package:levelup_tube/src/features/pip/presentation/bloc/pip_state.dart';
+import 'package:levelup_tube/src/core/widgets/molecules/app_info_toast.dart';
 import 'package:levelup_tube/src/features/settings/viewmodels/settings_cubit.dart';
 import 'package:toastification/toastification.dart';
 
@@ -46,6 +47,20 @@ class _MainScaffoldState extends State<MainScaffold>
                 state is ClipboardNavigateToDashboardState ||
                 state is ClipboardNavigateToPlaylistState) {
               Navigator.of(bottomSheetContext).pop();
+            }
+            if (state is ClipboardVideoAddedState) {
+              toastification.showCustom(
+                context: context,
+                autoCloseDuration: const Duration(seconds: 3),
+                alignment: Alignment.bottomCenter,
+                builder: (context, holder) {
+                  return const AppInfoToast(
+                    title: 'Added to Playlist',
+                    subtitle: 'Video successfully added to your list.',
+                    icon: Icons.check_circle_outline_rounded,
+                  );
+                },
+              );
             }
             if (state is ClipboardNavigateToDashboardState) {
               widget.navigationShell.goBranch(0);

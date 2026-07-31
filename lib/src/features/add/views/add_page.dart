@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
+import 'package:levelup_tube/src/core/widgets/molecules/app_info_toast.dart';
 import 'package:levelup_tube/src/core/widgets/template/app_scaffold.dart';
 import 'package:levelup_tube/src/features/add/viewmodels/add_cubit.dart';
 import 'package:levelup_tube/src/features/add/viewmodels/add_state.dart';
@@ -28,6 +29,9 @@ class _AddPageState extends State<AddPage> {
   final TextEditingController _playlistNameController = TextEditingController();
   final TextEditingController _importUrlController = TextEditingController();
 
+  final ValueNotifier<int?> _selectedPlaylistIdNotifier = ValueNotifier<int?>(null);
+  final ValueNotifier<String?> _imageNotifier = ValueNotifier<String?>(null);
+
   @override
   void initState() {
     super.initState();
@@ -40,26 +44,33 @@ class _AddPageState extends State<AddPage> {
     _videoUrlController.dispose();
     _playlistNameController.dispose();
     _importUrlController.dispose();
+    _selectedPlaylistIdNotifier.dispose();
+    _imageNotifier.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return BlocListener<AddCubit, AddState>(
+      listenWhen: (previous, current) {
+        return current is AddVideoSuccess ||
+            current is CreatePlaylistSuccess ||
+            current is ImportPlaylistSuccess ||
+            current is AddError;
+      },
       listener: (context, state) {
         if (state is AddVideoSuccess) {
           _videoUrlController.clear();
+          _selectedPlaylistIdNotifier.value = null;
           _showActionToast(
             context,
             'Video added successfully.',
             'WATCH',
-            () => context.go(
-              '/playlists/${state.playlistId}',
-              extra: state.videoUrl,
-            ),
+            () => context.go('/playlists/${state.playlistId}', extra: state.videoUrl),
           );
         } else if (state is CreatePlaylistSuccess) {
           _playlistNameController.clear();
+          _imageNotifier.value = null;
           _showToast(
             context,
             'Success!',
@@ -76,12 +87,7 @@ class _AddPageState extends State<AddPage> {
           );
         } else if (state is AddError) {
           FocusManager.instance.primaryFocus?.unfocus();
-          _showToast(
-            context,
-            'Error!',
-            state.message,
-            ToastificationType.error,
-          );
+          _showToast(context, 'Error!', state.message, ToastificationType.error);
         }
       },
       child: AppScaffold(
@@ -134,12 +140,7 @@ class _AddPageState extends State<AddPage> {
                       alignment: Alignment.topCenter,
                       children: <Widget>[
                         ...previousChildren.map(
-                          (child) => Positioned(
-                            top: 0,
-                            left: 0,
-                            right: 0,
-                            child: child,
-                          ),
+                          (child) => Positioned(top: 0, left: 0, right: 0, child: child),
                         ),
                         if (currentChild != null) currentChild,
                       ],
@@ -174,11 +175,13 @@ class _AddPageState extends State<AddPage> {
         return AddVideoForm(
           key: const ValueKey('AddVideoForm'),
           urlController: _videoUrlController,
+          selectedPlaylistIdNotifier: _selectedPlaylistIdNotifier,
         );
       case 1:
         return CreatePlaylistForm(
           key: const ValueKey('CreatePlaylistForm'),
           nameController: _playlistNameController,
+          imageNotifier: _imageNotifier,
         );
       case 2:
         return ImportPlaylistForm(
@@ -196,14 +199,20 @@ class _AddPageState extends State<AddPage> {
     String description,
     ToastificationType type,
   ) {
-    toastification.show(
+    toastification.showCustom(
       context: context,
-      type: type,
-      style: ToastificationStyle.flatColored,
-      title: Text(title),
-      description: Text(description),
       autoCloseDuration: const Duration(seconds: 4),
       alignment: Alignment.bottomCenter,
+      builder: (context, holder) {
+        return AppInfoToast(
+          title: title,
+          subtitle: description,
+          icon: type == ToastificationType.error
+              ? Icons.error_outline
+              : Icons.check_circle_outline,
+          isError: type == ToastificationType.error,
+        );
+      },
     );
   }
 
@@ -213,60 +222,20 @@ class _AddPageState extends State<AddPage> {
     String actionLabel,
     VoidCallback onAction,
   ) {
-    final theme = Theme.of(context);
     toastification.showCustom(
       context: context,
       autoCloseDuration: const Duration(seconds: 5),
       alignment: Alignment.bottomCenter,
       builder: (context, holder) {
-        return Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          decoration: BoxDecoration(
-            color: theme.colorScheme.inverseSurface,
-            borderRadius: BorderRadius.circular(12),
-            boxShadow: const [
-              BoxShadow(
-                color: Colors.black12,
-                blurRadius: 16,
-                offset: Offset(0, 8),
-              ),
-            ],
-          ),
-          child: Row(
-            children: [
-              Expanded(
-                child: Text(
-                  title,
-                  style: TextStyle(
-                    color: theme.colorScheme.onInverseSurface,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ),
-              TextButton(
-                onPressed: () {
-                  toastification.dismissById(holder.id);
-                  onAction();
-                },
-                child: Text(
-                  actionLabel,
-                  style: TextStyle(
-                    color: theme.colorScheme.inversePrimary,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-              IconButton(
-                onPressed: () => toastification.dismissById(holder.id),
-                icon: Icon(
-                  Icons.close,
-                  color: theme.colorScheme.onInverseSurface,
-                  size: 20,
-                ),
-              ),
-            ],
-          ),
+        return AppInfoToast(
+          title: 'Success!',
+          subtitle: title,
+          icon: Icons.check_circle_outline,
+          actionLabel: actionLabel,
+          onAction: () {
+            toastification.dismissById(holder.id);
+            onAction();
+          },
         );
       },
     );

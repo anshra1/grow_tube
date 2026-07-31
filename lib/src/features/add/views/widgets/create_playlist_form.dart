@@ -15,24 +15,19 @@ import 'package:uuid/uuid.dart';
 class CreatePlaylistForm extends StatefulWidget {
   const CreatePlaylistForm({
     required this.nameController,
+    required this.imageNotifier,
     super.key,
   });
 
   final TextEditingController nameController;
+  final ValueNotifier<String?> imageNotifier;
 
   @override
   State<CreatePlaylistForm> createState() => _CreatePlaylistFormState();
 }
 
 class _CreatePlaylistFormState extends State<CreatePlaylistForm> {
-  final ValueNotifier<String?> _imageNotifier = ValueNotifier(null);
   final ImagePicker _picker = ImagePicker();
-
-  @override
-  void dispose() {
-    _imageNotifier.dispose();
-    super.dispose();
-  }
 
   Future<void> _pickImage() async {
     final image = await _picker.pickImage(source: ImageSource.gallery);
@@ -64,7 +59,7 @@ class _CreatePlaylistFormState extends State<CreatePlaylistForm> {
 
         if (croppedFile != null) {
           final path = await saveImageToLocalStorage(XFile(croppedFile.path));
-          _imageNotifier.value = path;
+          widget.imageNotifier.value = path;
         }
       } on Exception catch (e) {
         if (mounted) {
@@ -96,9 +91,14 @@ class _CreatePlaylistFormState extends State<CreatePlaylistForm> {
     final theme = Theme.of(context);
 
     return BlocConsumer<AddCubit, AddState>(
+      listenWhen: (previous, current) => current is CreatePlaylistSuccess,
+      buildWhen: (previous, current) =>
+          current is AddLoading ||
+          current is CreatePlaylistSuccess ||
+          current is AddError,
       listener: (context, state) {
         if (state is CreatePlaylistSuccess) {
-          _imageNotifier.value = null;
+          widget.imageNotifier.value = null;
         }
       },
       builder: (context, state) {
@@ -112,7 +112,7 @@ class _CreatePlaylistFormState extends State<CreatePlaylistForm> {
               child: GestureDetector(
                 onTap: _pickImage,
                 child: ValueListenableBuilder<String?>(
-                  valueListenable: _imageNotifier,
+                  valueListenable: widget.imageNotifier,
                   builder: (context, imagePath, child) {
                     return AspectRatio(
                       aspectRatio: 16 / 9,
@@ -199,7 +199,7 @@ class _CreatePlaylistFormState extends State<CreatePlaylistForm> {
                       ? () {
                           context.read<AddCubit>().createPlaylist(
                                 widget.nameController.text.trim(),
-                                localThumbnailPath: _imageNotifier.value,
+                                localThumbnailPath: widget.imageNotifier.value,
                               );
                         }
                       : null,
