@@ -22,7 +22,10 @@ abstract class PlaylistRepository {
 
   /// Imports a YouTube playlist by its URL, fetching its metadata and all its videos.
   /// Returns the local database ID of the newly imported playlist.
-  Future<int> importYoutubePlaylist(String playlistUrl);
+  Future<int> importYoutubePlaylist(
+    String playlistUrl, {
+    void Function(int current, int total, String title, String? thumbnailUrl)? onProgress,
+  });
 
   /// Checks if a YouTube playlist with the given [youtubePlaylistId] has already been imported.
   Future<bool> isPlaylistImported(String youtubePlaylistId);
@@ -139,7 +142,10 @@ class PlaylistRepositoryImpl implements PlaylistRepository {
   }
 
   @override
-  Future<int> importYoutubePlaylist(String playlistUrl) async {
+  Future<int> importYoutubePlaylist(
+    String playlistUrl, {
+    void Function(int current, int total, String title, String? thumbnailUrl)? onProgress,
+  }) async {
     final playlistId = YoutubeUrlParser.extractPlaylistId(playlistUrl);
     if (playlistId == null) {
       throw const VideoException('Invalid YouTube playlist URL.', code: 'invalidUrl');
@@ -159,6 +165,14 @@ class PlaylistRepositoryImpl implements PlaylistRepository {
     }
 
     final videoModels = <PlaylistVideoModel>[];
+    
+    final totalVideos = videoIds.length;
+    var currentProgress = 0;
+    
+    final pTitle = playlistMeta['title'] as String;
+    final pThumb = playlistMeta['thumbnailUrl'] as String?;
+    
+    onProgress?.call(0, totalVideos, pTitle, pThumb);
 
     for (final videoId in videoIds) {
       try {
@@ -175,6 +189,9 @@ class PlaylistRepositoryImpl implements PlaylistRepository {
       } on Exception catch (e) {
         appLogger.warning('PlaylistRepository: Skipping video $videoId — $e');
       }
+      
+      currentProgress++;
+      onProgress?.call(currentProgress, totalVideos, pTitle, pThumb);
     }
 
     if (videoModels.isEmpty) {

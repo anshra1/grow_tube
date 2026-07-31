@@ -21,6 +21,23 @@ final class AddLoading extends AddState {
   const AddLoading();
 }
 
+final class ImportPlaylistProgress extends AddState {
+  const ImportPlaylistProgress({
+    required this.currentProgress,
+    required this.totalVideos,
+    required this.title,
+    this.thumbnailUrl,
+  });
+
+  final int currentProgress;
+  final int totalVideos;
+  final String title;
+  final String? thumbnailUrl;
+
+  @override
+  List<Object?> get props => [currentProgress, totalVideos, title, thumbnailUrl];
+}
+
 final class AddVideoSuccess extends AddState {
   const AddVideoSuccess(this.playlistId, this.videoUrl);
   final int playlistId;

@@ -79,7 +79,19 @@ class AddCubit extends Cubit<AddState> {
 
     emit(const AddLoading());
     try {
-      final newId = await _repository.importYoutubePlaylist(url);
+      final newId = await _repository.importYoutubePlaylist(
+        url,
+        onProgress: (current, total, title, thumbnail) {
+          emit(
+            ImportPlaylistProgress(
+              currentProgress: current,
+              totalVideos: total,
+              title: title,
+              thumbnailUrl: thumbnail,
+            ),
+          );
+        },
+      );
       emit(ImportPlaylistSuccess(newId));
       await loadPlaylists();
     } on Exception catch (e, st) {

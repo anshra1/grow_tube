@@ -5,6 +5,7 @@ import 'package:levelup_tube/src/core/widgets/atoms/buttons/app_button_state.dar
 import 'package:levelup_tube/src/core/widgets/atoms/buttons/app_primary_button.dart';
 import 'package:levelup_tube/src/features/add/viewmodels/add_cubit.dart';
 import 'package:levelup_tube/src/features/add/viewmodels/add_state.dart';
+import 'package:levelup_tube/src/features/playlist/views/playlist_page_widgets/playlist_importing_card.dart';
 
 class ImportPlaylistForm extends StatefulWidget {
   const ImportPlaylistForm({
@@ -26,10 +27,11 @@ class _ImportPlaylistFormState extends State<ImportPlaylistForm> {
     return BlocBuilder<AddCubit, AddState>(
       buildWhen: (previous, current) =>
           current is AddLoading ||
+          current is ImportPlaylistProgress ||
           current is ImportPlaylistSuccess ||
           current is AddError,
       builder: (context, state) {
-        final isAdding = state is AddLoading;
+        final isAdding = state is AddLoading || state is ImportPlaylistProgress;
 
         return Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -61,37 +63,45 @@ class _ImportPlaylistFormState extends State<ImportPlaylistForm> {
               ),
             ),
             const Gap(32),
-            ListenableBuilder(
-              listenable: widget.urlController,
-              builder: (context, child) {
-                final isEnabled = widget.urlController.text.trim().isNotEmpty && !isAdding;
+            if (state is ImportPlaylistProgress)
+              PlaylistImportingCard(
+                title: state.title,
+                currentProgress: state.currentProgress,
+                totalVideos: state.totalVideos,
+                thumbnailUrl: state.thumbnailUrl,
+              )
+            else
+              ListenableBuilder(
+                listenable: widget.urlController,
+                builder: (context, child) {
+                  final isEnabled = widget.urlController.text.trim().isNotEmpty && !isAdding;
 
-                AppButtonState buttonState;
-                if (isAdding) {
-                  buttonState = AppButtonState.loading;
-                } else if (isEnabled) {
-                  buttonState = AppButtonState.enabled;
-                } else {
-                  buttonState = AppButtonState.disabled;
-                }
+                  AppButtonState buttonState;
+                  if (isAdding) {
+                    buttonState = AppButtonState.loading;
+                  } else if (isEnabled) {
+                    buttonState = AppButtonState.enabled;
+                  } else {
+                    buttonState = AppButtonState.disabled;
+                  }
 
-                return AppPrimaryButton(
-                  state: buttonState,
-                  onPressed: isEnabled
-                      ? () {
-                          context.read<AddCubit>().importPlaylist(
-                                widget.urlController.text.trim(),
-                              );
-                        }
-                      : null,
-                  padding: const EdgeInsets.symmetric(vertical: 18),
-                  child: const Text(
-                    'Import Playlist',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
-                  ),
-                );
-              },
-            ),
+                  return AppPrimaryButton(
+                    state: buttonState,
+                    onPressed: isEnabled
+                        ? () {
+                            context.read<AddCubit>().importPlaylist(
+                                  widget.urlController.text.trim(),
+                                );
+                          }
+                        : null,
+                    padding: const EdgeInsets.symmetric(vertical: 18),
+                    child: const Text(
+                      'Import Playlist',
+                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                    ),
+                  );
+                },
+              ),
           ],
         );
       },

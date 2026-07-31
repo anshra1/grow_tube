@@ -47,13 +47,21 @@ final class PlaylistErrorState extends PlaylistState {
 final class PlaylistImportingState extends PlaylistState {
   const PlaylistImportingState({
     required this.playlists,
+    this.currentProgress = 0,
+    this.totalVideos = 0,
+    this.title = 'Loading...',
+    this.thumbnailUrl,
     this.message = 'Importing playlist...',
   });
   final List<PlaylistModel> playlists;
+  final int currentProgress;
+  final int totalVideos;
+  final String title;
+  final String? thumbnailUrl;
   final String message;
 
   @override
-  List<Object?> get props => [playlists, message];
+  List<Object?> get props => [playlists, currentProgress, totalVideos, title, thumbnailUrl, message];
 }
 
 /// Playlist details (title/thumbnail) updated successfully.

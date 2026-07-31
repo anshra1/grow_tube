@@ -75,7 +75,20 @@ class PlaylistCubit extends Cubit<PlaylistState> {
     emit(PlaylistImportingState(playlists: currentPlaylists));
 
     try {
-      await _repository.importYoutubePlaylist(url);
+      await _repository.importYoutubePlaylist(
+        url,
+        onProgress: (current, total, title, thumbnail) {
+          emit(
+            PlaylistImportingState(
+              playlists: currentPlaylists,
+              currentProgress: current,
+              totalVideos: total,
+              title: title,
+              thumbnailUrl: thumbnail,
+            ),
+          );
+        },
+      );
       unawaited(di.sl<AnalyticsService>().logEvent(name: 'playlist_imported'));
       await loadPlaylists();
     } on Exception catch (e, st) {

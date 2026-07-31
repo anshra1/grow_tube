@@ -14,6 +14,7 @@ import 'package:levelup_tube/src/features/playlist/viewmodels/playlist_cubit.dar
 import 'package:levelup_tube/src/features/playlist/viewmodels/playlist_state.dart';
 import 'package:levelup_tube/src/features/playlist/views/edit_playlist_page.dart';
 import 'package:levelup_tube/src/features/playlist/views/playlist_page_widgets/playlist_card.dart';
+import 'package:levelup_tube/src/features/playlist/views/playlist_page_widgets/playlist_importing_card.dart';
 import 'package:levelup_tube/src/features/playlist/views/playlist_page_widgets/playlist_list_shimmer.dart';
 import 'package:levelup_tube/src/features/search/models/video_search_result.dart';
 import 'package:levelup_tube/src/features/search/viewmodels/search_cubit.dart';
@@ -127,12 +128,15 @@ class PlaylistsPage extends StatelessWidget {
                 child: _buildList(context, playlists),
               ),
 
-              PlaylistImportingState(:final playlists, :final message) => Column(
-                children: [
-                  const LinearProgressIndicator(),
-                  Padding(padding: const EdgeInsets.all(8), child: Text(message)),
-                  Expanded(child: _buildList(context, playlists)),
-                ],
+              PlaylistImportingState(
+                :final playlists,
+                :final currentProgress,
+                :final totalVideos,
+                :final title,
+                :final thumbnailUrl,
+              ) => RefreshIndicator(
+                onRefresh: () => context.read<PlaylistCubit>().loadPlaylists(),
+                child: _buildList(context, playlists, importingState: state as PlaylistImportingState),
               ),
 
               _ => const SizedBox.shrink(),
@@ -149,12 +153,28 @@ class PlaylistsPage extends StatelessWidget {
     );
   }
 
-  Widget _buildList(BuildContext context, List<PlaylistModel> playlists) {
+  Widget _buildList(
+    BuildContext context, 
+    List<PlaylistModel> playlists, {
+    PlaylistImportingState? importingState,
+  }) {
+    final itemCount = playlists.length + (importingState != null ? 1 : 0);
+
     return ListView.builder(
       padding: const EdgeInsets.only(left: 8, right: 8, top: 8),
-      itemCount: playlists.length,
+      itemCount: itemCount,
       itemBuilder: (context, index) {
-        final playlist = playlists[index];
+        if (importingState != null && index == 0) {
+          return PlaylistImportingCard(
+            title: importingState.title,
+            currentProgress: importingState.currentProgress,
+            totalVideos: importingState.totalVideos,
+            thumbnailUrl: importingState.thumbnailUrl,
+          );
+        }
+
+        final playlistIndex = importingState != null ? index - 1 : index;
+        final playlist = playlists[playlistIndex];
         return Padding(
           padding: const EdgeInsets.only(bottom: 8),
           child: PlaylistCard(
