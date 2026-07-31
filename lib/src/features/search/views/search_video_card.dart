@@ -133,7 +133,10 @@ class SearchVideoCard extends StatelessWidget {
                                 if (customSubtitle != null) ...[
                                   const Gap(6),
                                   Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 6,
+                                      vertical: 2,
+                                    ),
                                     decoration: BoxDecoration(
                                       color: context.colorScheme.secondaryContainer,
                                       borderRadius: BorderRadius.circular(4),

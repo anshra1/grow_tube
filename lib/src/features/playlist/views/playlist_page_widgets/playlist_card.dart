@@ -1,4 +1,5 @@
 import 'dart:io';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -37,9 +38,9 @@ class PlaylistCard extends StatelessWidget {
           boxShadow: AppShadows.card,
         ),
         child: Material(
-           color: context.colorScheme.surface,
-           borderRadius: AppRadius.roundedL,
-           clipBehavior: Clip.antiAlias,
+          color: context.colorScheme.surface,
+          borderRadius: AppRadius.roundedL,
+          clipBehavior: Clip.antiAlias,
           child: InkWell(
             borderRadius: AppRadius.roundedL,
             overlayColor: WidgetStateProperty.resolveWith((states) {
@@ -58,7 +59,7 @@ class PlaylistCard extends StatelessWidget {
             child: Padding(
               padding: const EdgeInsets.only(left: 4, right: 4),
               child: SizedBox(
-                height: 100,
+                height: 110,
                 width: double.infinity,
                 child: Row(
                   children: [
@@ -73,120 +74,118 @@ class PlaylistCard extends StatelessWidget {
                               width: 144, // Constrain thumbnail width
                               child: ClipRRect(
                                 borderRadius: AppRadius.roundedM,
-                                child: AspectRatio(
-                                  aspectRatio: 16 / 9,
-                                  child: playlist.localThumbnailPath != null &&
-                                          playlist.localThumbnailPath!.isNotEmpty &&
-                                          File(playlist.localThumbnailPath!).existsSync()
-                                      ? Stack(
-                                          fit: StackFit.expand,
-                                          children: [
-                                            Image.file(
-                                              File(playlist.localThumbnailPath!),
-                                              fit: BoxFit.cover,
-                                              errorBuilder: (context, error, stackTrace) =>
-                                                  _placeholderBox(context),
-                                            ),
-                                            // Playlist icon overlay (bottom-right)
-                                            Positioned(
-                                              bottom: 4,
-                                              right: 4,
-                                              child: Container(
-                                                padding: const EdgeInsets.symmetric(
-                                                  horizontal: 4,
-                                                  vertical: 2,
-                                                ),
-                                                decoration: BoxDecoration(
-                                                  color: Colors.black.withValues(alpha: 0.8),
-                                                  borderRadius: AppRadius.roundedS,
-                                                ),
-                                                child: Row(
-                                                  mainAxisSize: MainAxisSize.min,
-                                                  children: [
-                                                    const Icon(
-                                                      Icons.playlist_play,
-                                                      color: Colors.white,
-                                                      size: 14,
-                                                    ),
-                                                    const SizedBox(width: 2),
-                                                    Text(
-                                                      '${playlist.videoCount}',
-                                                      style: const TextStyle(
-                                                        color: Colors.white,
-                                                        fontSize: 10,
-                                                        fontWeight: FontWeight.w500,
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
+                                child:
+                                    playlist.localThumbnailPath != null &&
+                                        playlist.localThumbnailPath!.isNotEmpty &&
+                                        File(playlist.localThumbnailPath!).existsSync()
+                                    ? Stack(
+                                        fit: StackFit.expand,
+                                        children: [
+                                          Image.file(
+                                            File(playlist.localThumbnailPath!),
+                                            fit: BoxFit.cover,
+                                            errorBuilder: (context, error, stackTrace) =>
+                                                _placeholderBox(context),
+                                          ),
+                                          // Playlist icon overlay (bottom-right)
+                                          Positioned(
+                                            bottom: 4,
+                                            right: 4,
+                                            child: Container(
+                                              padding: const EdgeInsets.symmetric(
+                                                horizontal: 4,
+                                                vertical: 2,
                                               ),
-                                            ),
-                                          ],
-                                        )
-                                      : playlist.thumbnailUrl != null
-                                          ? Stack(
-                                              fit: StackFit
-                                                  .expand, // Ensures children fill the AspectRatio
-                                              children: [
-                                                CachedNetworkImage(
-                                                  imageUrl: playlist.thumbnailUrl!,
-                                                  fit: BoxFit
-                                                      .cover, // Use cover for better fit
-                                                  memCacheWidth: 480,
-                                                  memCacheHeight: 270,
-                                                  placeholder: (context, url) =>
-                                                      Shimmer.fromColors(
-                                                        baseColor: context
-                                                            .colorScheme
-                                                            .surfaceContainerHighest,
-                                                        highlightColor: context
-                                                            .colorScheme
-                                                            .surfaceContainer,
-                                                        child: Container(color: Colors.white),
-                                                      ),
-                                                  errorWidget: (context, url, error) =>
-                                                      _placeholderBox(context),
+                                              decoration: BoxDecoration(
+                                                color: Colors.black.withValues(
+                                                  alpha: 0.8,
                                                 ),
-                                                // Playlist icon overlay (bottom-right)
-                                                Positioned(
-                                                  bottom: 4,
-                                                  right: 4,
-                                                  child: Container(
-                                                    padding: const EdgeInsets.symmetric(
-                                                      horizontal: 4,
-                                                      vertical: 2,
-                                                    ),
-                                                    decoration: BoxDecoration(
-                                                      color: Colors.black.withValues(
-                                                        alpha: 0.8,
-                                                      ),
-                                                      borderRadius: AppRadius.roundedS,
-                                                    ),
-                                                    child: Row(
-                                                      mainAxisSize: MainAxisSize.min,
-                                                      children: [
-                                                        const Icon(
-                                                          Icons.playlist_play,
-                                                          color: Colors.white,
-                                                          size: 14,
-                                                        ),
-                                                        const SizedBox(width: 2),
-                                                        Text(
-                                                          '${playlist.videoCount}',
-                                                          style: const TextStyle(
-                                                            color: Colors.white,
-                                                            fontSize: 10,
-                                                            fontWeight: FontWeight.w500,
-                                                          ),
-                                                        ),
-                                                      ],
+                                                borderRadius: AppRadius.roundedS,
+                                              ),
+                                              child: Row(
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: [
+                                                  const Icon(
+                                                    Icons.playlist_play,
+                                                    color: Colors.white,
+                                                    size: 14,
+                                                  ),
+                                                  const SizedBox(width: 2),
+                                                  Text(
+                                                    '${playlist.videoCount}',
+                                                    style: const TextStyle(
+                                                      color: Colors.white,
+                                                      fontSize: 10,
+                                                      fontWeight: FontWeight.w500,
                                                     ),
                                                   ),
+                                                ],
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      )
+                                    : playlist.thumbnailUrl != null
+                                    ? Stack(
+                                        fit: StackFit.expand,
+                                        children: [
+                                          CachedNetworkImage(
+                                            imageUrl: playlist.thumbnailUrl!,
+                                            fit: BoxFit.cover,
+                                            memCacheWidth: 480,
+                                            memCacheHeight: 270,
+                                            placeholder: (context, url) =>
+                                                Shimmer.fromColors(
+                                                  baseColor: context
+                                                      .colorScheme
+                                                      .surfaceContainerHighest,
+                                                  highlightColor: context
+                                                      .colorScheme
+                                                      .surfaceContainer,
+                                                  child: Container(color: Colors.white),
                                                 ),
-                                              ],
-                                            )
-                                          : _placeholderBox(context),
-                                ),
+                                            errorWidget: (context, url, error) =>
+                                                _placeholderBox(context),
+                                          ),
+                                          // Playlist icon overlay (bottom-right)
+                                          Positioned(
+                                            bottom: 4,
+                                            right: 4,
+                                            child: Container(
+                                              padding: const EdgeInsets.symmetric(
+                                                horizontal: 4,
+                                                vertical: 2,
+                                              ),
+                                              decoration: BoxDecoration(
+                                                color: Colors.black.withValues(
+                                                  alpha: 0.8,
+                                                ),
+                                                borderRadius: AppRadius.roundedS,
+                                              ),
+                                              child: Row(
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: [
+                                                  const Icon(
+                                                    Icons.playlist_play,
+                                                    color: Colors.white,
+                                                    size: 14,
+                                                  ),
+                                                  const SizedBox(width: 2),
+                                                  Text(
+                                                    '${playlist.videoCount}',
+                                                    style: const TextStyle(
+                                                      color: Colors.white,
+                                                      fontSize: 10,
+                                                      fontWeight: FontWeight.w500,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      )
+                                    : _placeholderBox(context),
                               ),
                             ),
                           ),
@@ -268,15 +267,38 @@ class PlaylistCard extends StatelessWidget {
   }
 
   Widget _placeholderBox(BuildContext context) {
-    return ColoredBox(
-      color: context.colorScheme.surfaceContainerHighest,
-      child: Center(
-        child: Icon(
-          Icons.playlist_play_rounded,
-          color: context.colorScheme.onSurfaceVariant,
-          size: 40,
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        Image.asset('assets/images/playlist_placeholder.jpg', fit: BoxFit.cover),
+        // Playlist icon overlay (bottom-right)
+        Positioned(
+          bottom: 4,
+          right: 4,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+            decoration: BoxDecoration(
+              color: Colors.black.withValues(alpha: 0.8),
+              borderRadius: AppRadius.roundedS,
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.playlist_play, color: Colors.white, size: 14),
+                const SizedBox(width: 2),
+                Text(
+                  '${playlist.videoCount}',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 10,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+          ),
         ),
-      ),
+      ],
     );
   }
 }
