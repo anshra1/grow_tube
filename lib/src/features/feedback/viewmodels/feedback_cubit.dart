@@ -48,7 +48,7 @@ class FeedbackCubit extends Cubit<FeedbackState> {
       await _feedbackService.deleteFeedback(id);
       // Refresh the list after deleting
       await fetchFeedbacks();
-    } catch (e) {
+    } on Exception catch (e) {
       emit(FeedbackError('Failed to delete feedback: $e'));
     }
   }
