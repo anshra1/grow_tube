@@ -7,6 +7,7 @@ import 'package:levelup_tube/src/core/services/logging_service/app_logger.dart';
 import 'package:levelup_tube/src/core/utils/youtube_url_parser.dart';
 import 'package:levelup_tube/src/features/playlist/models/playlist_model.dart';
 import 'package:levelup_tube/src/features/playlist/models/playlist_video_model.dart';
+import 'package:levelup_tube/src/features/playlist/models/video_search_result.dart';
 import 'package:levelup_tube/src/features/playlist/services/youtube_api_service.dart';
 
 abstract class PlaylistRepository {
@@ -74,7 +75,7 @@ abstract class PlaylistRepository {
   Future<List<PlaylistModel>> searchPlaylists(String query);
 
   /// Searches videos by title or channel name.
-  Future<List<PlaylistVideoModel>> searchVideos(String query);
+  Future<List<VideoSearchResult>> searchVideos(String query);
 
   /// Searches videos by title or channel name within a specific playlist.
   Future<List<PlaylistVideoModel>> searchVideosInPlaylist(int playlistId, String query);
@@ -485,15 +486,28 @@ class PlaylistRepositoryImpl implements PlaylistRepository {
   }
 
   @override
-  Future<List<PlaylistVideoModel>> searchVideos(String query) async {
+  Future<List<VideoSearchResult>> searchVideos(String query) async {
     try {
       if (query.trim().isEmpty) return [];
-      final q = videoBox
-          .query(PlaylistVideoModel_.title
-              .contains(query, caseSensitive: false)
-              .or(PlaylistVideoModel_.channelName.contains(query, caseSensitive: false)))
-          ..order(PlaylistVideoModel_.addedAt, flags: Order.descending);
-      return q.build().find();
+      final lowerQuery = query.toLowerCase();
+      final playlists = playlistBox.getAll();
+      final results = <VideoSearchResult>[];
+      
+      for (final playlist in playlists) {
+        for (final video in playlist.videos) {
+          if (video.title.toLowerCase().contains(lowerQuery) ||
+              video.channelName.toLowerCase().contains(lowerQuery)) {
+            results.add(VideoSearchResult(
+              video: video,
+              playlistId: playlist.id,
+              playlistTitle: playlist.title,
+            ));
+          }
+        }
+      }
+      
+      results.sort((a, b) => b.video.addedAt.compareTo(a.video.addedAt));
+      return results;
     } on Exception catch (e, st) {
       appLogger.handle(e, st, 'PlaylistRepository: Error searching videos');
       return [];
@@ -511,10 +525,10 @@ class PlaylistRepositoryImpl implements PlaylistRepository {
       final filtered = playlist.videos.where((v) {
         return v.title.toLowerCase().contains(lowerQuery) ||
                v.channelName.toLowerCase().contains(lowerQuery);
-      }).toList();
+      }).toList()
       
       // Sort by addedAt descending
-      filtered.sort((a, b) => b.addedAt.compareTo(a.addedAt));
+      ..sort((a, b) => b.addedAt.compareTo(a.addedAt));
       return filtered;
     } on Exception catch (e, st) {
       appLogger.handle(e, st, 'PlaylistRepository: Error searching videos in playlist');

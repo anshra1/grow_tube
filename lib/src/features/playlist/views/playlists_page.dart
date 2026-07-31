@@ -3,17 +3,22 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:levelup_tube/src/core/design_system/app_radius.dart';
 import 'package:levelup_tube/src/core/design_system/app_sizes.dart';
+import 'package:levelup_tube/src/core/di/injection_container.dart' as di;
 import 'package:levelup_tube/src/core/extensions/context_extensions.dart';
 import 'package:levelup_tube/src/core/widgets/atoms/top_header.dart';
 import 'package:levelup_tube/src/core/widgets/template/app_scaffold.dart';
 import 'package:levelup_tube/src/features/add/viewmodels/add_cubit.dart';
 import 'package:levelup_tube/src/features/add/viewmodels/add_state.dart';
 import 'package:levelup_tube/src/features/playlist/models/playlist_model.dart';
+import 'package:levelup_tube/src/features/playlist/models/video_search_result.dart';
+import 'package:levelup_tube/src/features/playlist/repositories/playlist_repository.dart';
 import 'package:levelup_tube/src/features/playlist/viewmodels/playlist_cubit.dart';
 import 'package:levelup_tube/src/features/playlist/viewmodels/playlist_state.dart';
+import 'package:levelup_tube/src/features/playlist/viewmodels/search_cubit.dart';
 import 'package:levelup_tube/src/features/playlist/views/edit_playlist_page.dart';
 import 'package:levelup_tube/src/features/playlist/views/playlist_page_widgets/playlist_card.dart';
 import 'package:levelup_tube/src/features/playlist/views/playlist_page_widgets/playlist_list_shimmer.dart';
+import 'package:levelup_tube/src/features/playlist/views/video_search_delegate.dart';
 import 'package:levelup_tube/src/features/settings/viewmodels/setting_state.dart';
 import 'package:levelup_tube/src/features/settings/viewmodels/settings_cubit.dart';
 import 'package:toastification/toastification.dart';
@@ -49,6 +54,30 @@ class PlaylistsPage extends StatelessWidget {
       child: AppScaffold(
         appBar: AppBar(
           title: const TopHeaderText('Playlist'),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.search),
+              onPressed: () async {
+                final searchCubit = SearchCubit(repository: di.sl<PlaylistRepository>());
+                final result = await showSearch(
+                  context: context,
+                  delegate: VideoSearchDelegate(searchCubit: searchCubit),
+                );
+              await  searchCubit.close();
+
+                if (result != null && context.mounted) {
+                  if (result is PlaylistModel) {
+                    await context.push('/playlists/${result.id}');
+                  } else if (result is VideoSearchResult) {
+                    final videoUrl =
+                        result.video.originalUrl ??
+                        'https://youtube.com/watch?v=${result.video.youtubeId}';
+                    await context.push('/playlists/${result.playlistId}', extra: videoUrl);
+                  }
+                }
+              },
+            ),
+          ],
         ),
         body: BlocConsumer<PlaylistCubit, PlaylistState>(
           listener: (context, state) {
