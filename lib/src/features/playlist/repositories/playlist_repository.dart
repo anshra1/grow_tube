@@ -7,8 +7,8 @@ import 'package:levelup_tube/src/core/services/logging_service/app_logger.dart';
 import 'package:levelup_tube/src/core/utils/youtube_url_parser.dart';
 import 'package:levelup_tube/src/features/playlist/models/playlist_model.dart';
 import 'package:levelup_tube/src/features/playlist/models/playlist_video_model.dart';
-import 'package:levelup_tube/src/features/playlist/models/video_search_result.dart';
 import 'package:levelup_tube/src/features/playlist/services/youtube_api_service.dart';
+import 'package:levelup_tube/src/features/search/models/video_search_result.dart';
 
 abstract class PlaylistRepository {
   /// Fetches all playlists currently stored in the local database, ordered by newest first.
@@ -119,7 +119,7 @@ class PlaylistRepositoryImpl implements PlaylistRepository {
       }
       return playlist;
     } on Exception catch (e, st) {
-       appLogger.warning('PlaylistRepository: error  $e — $st');
+      appLogger.warning('PlaylistRepository: error  $e — $st');
       return null;
     }
   }
@@ -475,9 +475,9 @@ class PlaylistRepositoryImpl implements PlaylistRepository {
   Future<List<PlaylistModel>> searchPlaylists(String query) async {
     try {
       if (query.trim().isEmpty) return [];
-      final q = playlistBox
-          .query(PlaylistModel_.title.contains(query, caseSensitive: false))
-          ..order(PlaylistModel_.createdAt, flags: Order.descending);
+      final q = playlistBox.query(
+        PlaylistModel_.title.contains(query, caseSensitive: false),
+      )..order(PlaylistModel_.createdAt, flags: Order.descending);
       return q.build().find();
     } on Exception catch (e, st) {
       appLogger.handle(e, st, 'PlaylistRepository: Error searching playlists');
@@ -492,20 +492,22 @@ class PlaylistRepositoryImpl implements PlaylistRepository {
       final lowerQuery = query.toLowerCase();
       final playlists = playlistBox.getAll();
       final results = <VideoSearchResult>[];
-      
+
       for (final playlist in playlists) {
         for (final video in playlist.videos) {
           if (video.title.toLowerCase().contains(lowerQuery) ||
               video.channelName.toLowerCase().contains(lowerQuery)) {
-            results.add(VideoSearchResult(
-              video: video,
-              playlistId: playlist.id,
-              playlistTitle: playlist.title,
-            ));
+            results.add(
+              VideoSearchResult(
+                video: video,
+                playlistId: playlist.id,
+                playlistTitle: playlist.title,
+              ),
+            );
           }
         }
       }
-      
+
       results.sort((a, b) => b.video.addedAt.compareTo(a.video.addedAt));
       return results;
     } on Exception catch (e, st) {
@@ -515,20 +517,23 @@ class PlaylistRepositoryImpl implements PlaylistRepository {
   }
 
   @override
-  Future<List<PlaylistVideoModel>> searchVideosInPlaylist(int playlistId, String query) async {
+  Future<List<PlaylistVideoModel>> searchVideosInPlaylist(
+    int playlistId,
+    String query,
+  ) async {
     try {
       if (query.trim().isEmpty) return [];
       final playlist = playlistBox.get(playlistId);
       if (playlist == null) return [];
 
       final lowerQuery = query.toLowerCase();
-      final filtered = playlist.videos.where((v) {
-        return v.title.toLowerCase().contains(lowerQuery) ||
-               v.channelName.toLowerCase().contains(lowerQuery);
-      }).toList()
-      
-      // Sort by addedAt descending
-      ..sort((a, b) => b.addedAt.compareTo(a.addedAt));
+      final filtered =
+          playlist.videos.where((v) {
+              return v.title.toLowerCase().contains(lowerQuery) ||
+                  v.channelName.toLowerCase().contains(lowerQuery);
+            }).toList()
+            // Sort by addedAt descending
+            ..sort((a, b) => b.addedAt.compareTo(a.addedAt));
       return filtered;
     } on Exception catch (e, st) {
       appLogger.handle(e, st, 'PlaylistRepository: Error searching videos in playlist');

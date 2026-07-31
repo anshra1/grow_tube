@@ -1,5 +1,5 @@
 import 'package:levelup_tube/src/features/playlist/models/playlist_model.dart';
-import 'package:levelup_tube/src/features/playlist/models/video_search_result.dart';
+import 'package:levelup_tube/src/features/search/models/video_search_result.dart';
 
 abstract class SearchState {
   const SearchState();

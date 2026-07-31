@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:levelup_tube/main.dart';
 import 'package:levelup_tube/src/core/constants/app_links.dart';
 import 'package:levelup_tube/src/core/design_system/app_sizes.dart';
@@ -89,7 +90,8 @@ class _SettingsPageState extends State<SettingsPage> {
 
   Future<void> _handleShareAppTap() async {
     final packageInfo = await PackageInfo.fromPlatform();
-    final shareText = "Check out LevelUp Tube! It's a great distraction-free learning app. https://play.google.com/store/apps/details?id=${packageInfo.packageName}";
+    final shareText =
+        "Check out LevelUp Tube! It's a great distraction-free learning app. https://play.google.com/store/apps/details?id=${packageInfo.packageName}";
     await SharePlus.instance.share(ShareParams(text: shareText));
   }
 
@@ -244,6 +246,13 @@ class _SettingsPageState extends State<SettingsPage> {
             child: SettingsCard(
               child: Column(
                 children: [
+                  ListTile(
+                    leading: const Icon(Icons.feedback_outlined),
+                    title: const Text('Send Feedback'),
+                    trailing: const Icon(Icons.chevron_right, size: 18),
+                    onTap: () => context.go('/settings/feedback'),
+                  ),
+                  const Divider(height: 1),
                   ListTile(
                     leading: const Icon(Icons.share_outlined),
                     title: const Text('Share App'),

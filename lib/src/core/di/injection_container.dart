@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_remote_config/firebase_remote_config.dart';
@@ -23,6 +24,8 @@ import 'package:levelup_tube/src/features/clipboard/viewmodels/clipboard_cubit.d
 import 'package:levelup_tube/src/features/connectivity/data/internet_connection_service.dart';
 import 'package:levelup_tube/src/features/connectivity/presentation/bloc/connectivity_cubit.dart';
 import 'package:levelup_tube/src/features/connectivity/presentation/widgets/connectivity_toast_controller.dart';
+import 'package:levelup_tube/src/features/feedback/services/feedback_service.dart';
+import 'package:levelup_tube/src/features/feedback/viewmodels/feedback_cubit.dart';
 import 'package:levelup_tube/src/features/pip/data/pip_service.dart';
 import 'package:levelup_tube/src/features/pip/presentation/bloc/pip_cubit.dart';
 import 'package:levelup_tube/src/features/playlist/models/playlist_model.dart';
@@ -51,7 +54,9 @@ Future<void> init() async {
   sl.registerLazySingleton(() => store);
 
   final apiKey = AppConfig.requireYoutubeApiKey();
-  sl.registerLazySingleton(() => YoutubeApiService(apiKey: apiKey));
+  sl
+    ..registerLazySingleton(() => YoutubeApiService(apiKey: apiKey))
+    ..registerLazySingleton(() => FirebaseFirestore.instance);
 
   // SharedPreferences
   final prefs = await SharedPreferences.getInstance();
@@ -70,6 +75,7 @@ Future<void> init() async {
     )
     ..registerLazySingleton(() => AppReviewService(sl()))
     ..registerLazySingleton(() => FirebaseRemoteConfig.instance)
+    ..registerLazySingleton(() => FeedbackService(firestore: sl(), appLogger: sl()))
     ..registerLazySingleton(() => AppUpdateService(sl(), sl(), sl()));
 
   // MIGRATION SCRIPT
@@ -115,6 +121,7 @@ Future<void> init() async {
     ..registerFactory(() => PlaylistCubit(sl()))
     ..registerFactory(() => SettingsCubit(sl()))
     ..registerFactory(() => AddCubit(sl()))
+    ..registerFactory(() => FeedbackCubit(feedbackService: sl()))
     ..registerLazySingleton(() => ClipboardCubit(repository: sl()));
 
   ClipboardService().init(sl<Box<ClipboardHistoryModel>>());

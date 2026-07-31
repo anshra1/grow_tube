@@ -8,13 +8,13 @@ import 'package:levelup_tube/src/features/clipboard/viewmodels/clipboard_cubit.d
 import 'package:levelup_tube/src/features/clipboard/viewmodels/clipboard_state.dart';
 import 'package:levelup_tube/src/features/library/models/video.dart';
 import 'package:levelup_tube/src/features/library/views/dashboard_widgets/video_list_with_player.dart';
-import 'package:levelup_tube/src/features/playlist/models/video_search_result.dart';
 import 'package:levelup_tube/src/features/playlist/repositories/playlist_repository.dart';
 import 'package:levelup_tube/src/features/playlist/viewmodels/playlist_detail_cubit.dart';
 import 'package:levelup_tube/src/features/playlist/viewmodels/playlist_detail_state.dart';
-import 'package:levelup_tube/src/features/playlist/viewmodels/search_cubit.dart';
 import 'package:levelup_tube/src/features/playlist/views/playlist_page_widgets/playlist_empty_state.dart';
-import 'package:levelup_tube/src/features/playlist/views/video_search_delegate.dart';
+import 'package:levelup_tube/src/features/search/models/video_search_result.dart';
+import 'package:levelup_tube/src/features/search/viewmodels/search_cubit.dart';
+import 'package:levelup_tube/src/features/search/views/video_search_delegate.dart';
 
 class PlaylistDetailPage extends StatefulWidget {
   const PlaylistDetailPage({super.key});
@@ -86,8 +86,7 @@ class _PlaylistDetailPageState extends State<PlaylistDetailPage> {
             ).showSnackBar(SnackBar(content: Text(state.message)));
           }
         },
-        buildWhen: (previous, current) =>
-            current is! VideoAddPlaylistSuccessState,
+        buildWhen: (previous, current) => current is! VideoAddPlaylistSuccessState,
         builder: (context, state) {
           String? title;
           if (state is PlaylistDetailLoaded) {
@@ -128,18 +127,23 @@ class _PlaylistDetailPageState extends State<PlaylistDetailPage> {
                 onPressed: () => Navigator.pop(context),
               ),
               actions: [
-                if (cubit.playlistId != null || (state is PlaylistDetailLoaded && state.videosState.playlist.id != 0))
+                if (cubit.playlistId != null ||
+                    (state is PlaylistDetailLoaded && state.videosState.playlist.id != 0))
                   IconButton(
                     icon: const Icon(Icons.search),
                     onPressed: () async {
-                      final pId = cubit.playlistId ?? (state is PlaylistDetailLoaded ? state.videosState.playlist.id : null);
+                      final pId =
+                          cubit.playlistId ??
+                          (state is PlaylistDetailLoaded
+                              ? state.videosState.playlist.id
+                              : null);
                       if (pId == null) return;
 
                       final searchCubit = SearchCubit(
                         repository: di.sl<PlaylistRepository>(),
                         playlistId: pId,
                       );
-                      
+
                       final result = await showSearch(
                         context: context,
                         delegate: VideoSearchDelegate(searchCubit: searchCubit),
@@ -148,7 +152,9 @@ class _PlaylistDetailPageState extends State<PlaylistDetailPage> {
 
                       if (result != null && context.mounted) {
                         if (result is VideoSearchResult) {
-                       await   context.read<PlaylistDetailCubit>().selectVideo(result.video.toEntity());
+                          await context.read<PlaylistDetailCubit>().selectVideo(
+                            result.video.toEntity(),
+                          );
                         }
                       }
                     },
@@ -171,9 +177,7 @@ class _PlaylistDetailPageState extends State<PlaylistDetailPage> {
           mainAxisSize: MainAxisSize.min,
           children: [
             ListTile(
-              leading: Icon(
-                video.isPinned ? Icons.push_pin_outlined : Icons.push_pin,
-              ),
+              leading: Icon(video.isPinned ? Icons.push_pin_outlined : Icons.push_pin),
               title: Text(video.isPinned ? 'Unpin' : 'Pin'),
               onTap: () {
                 Navigator.pop(bottomSheetContext);
@@ -228,12 +232,11 @@ class _LoadedPlaylistBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Use BlocSelector for each independent part of the state
-    final videosState = context
-        .select<PlaylistDetailCubit, PlaylistVideosState?>(
-          (cubit) => cubit.state is PlaylistDetailLoaded
-              ? (cubit.state as PlaylistDetailLoaded).videosState
-              : null,
-        );
+    final videosState = context.select<PlaylistDetailCubit, PlaylistVideosState?>(
+      (cubit) => cubit.state is PlaylistDetailLoaded
+          ? (cubit.state as PlaylistDetailLoaded).videosState
+          : null,
+    );
     final heroVideoState = context.select<PlaylistDetailCubit, HeroVideoState?>(
       (cubit) => cubit.state is PlaylistDetailLoaded
           ? (cubit.state as PlaylistDetailLoaded).heroVideoState

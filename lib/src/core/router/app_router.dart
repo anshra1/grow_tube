@@ -4,6 +4,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:levelup_tube/src/core/di/injection_container.dart' as di;
 import 'package:levelup_tube/src/features/add/views/add_page.dart';
+import 'package:levelup_tube/src/features/feedback/pages/feedback_list_page.dart';
+import 'package:levelup_tube/src/features/feedback/pages/feedback_page.dart';
+import 'package:levelup_tube/src/features/feedback/viewmodels/feedback_cubit.dart';
 import 'package:levelup_tube/src/features/library/views/dashboard_page.dart';
 import 'package:levelup_tube/src/features/navigation/pages/main_scaffold.dart';
 import 'package:levelup_tube/src/features/playlist/models/playlist_model.dart';
@@ -182,6 +185,32 @@ class AppRouter {
                   state: state,
                   child: const SettingsPage(),
                 ),
+                routes: [
+                  GoRoute(
+                    path: 'feedback',
+                    pageBuilder: (context, state) => _buildPageWithSlideTransition(
+                      context: context,
+                      state: state,
+                      child: BlocProvider(
+                        create: (_) => di.sl<FeedbackCubit>(),
+                        child: const FeedbackPage(),
+                      ),
+                    ),
+                    routes: [
+                      GoRoute(
+                        path: 'admin',
+                        pageBuilder: (context, state) => _buildPageWithSlideTransition(
+                          context: context,
+                          state: state,
+                          child: BlocProvider(
+                            create: (_) => di.sl<FeedbackCubit>(),
+                            child: const FeedbackListPage(),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
             ],
           ),
