@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:levelup_tube/src/core/constants/app_strings.dart';
-import 'package:levelup_tube/src/core/extensions/context_extensions.dart';
-import 'package:levelup_tube/src/core/widgets/molecules/custom_alert_dialog.dart';
+import 'package:levelup_tube/src/core/widgets/molecules/custom_delete_dialog.dart';
 import 'package:levelup_tube/src/features/add/viewmodels/add_cubit.dart';
 import 'package:levelup_tube/src/features/add/viewmodels/add_state.dart';
 import 'package:levelup_tube/src/features/clipboard/viewmodels/clipboard_cubit.dart';
@@ -120,30 +119,10 @@ class DashboardPage extends StatelessWidget {
     final cubit = context.read<PlaylistDetailCubit>();
     showDialog<void>(
       context: context,
-      builder: (dialogContext) => CustomAlertDialog(
+      builder: (dialogContext) => CustomDeleteDialog(
         title: AppStrings.dashboardDeleteTitle,
-        content: Text.rich(
-          TextSpan(
-            children: [
-              const TextSpan(text: AppStrings.dashboardDeleteConfirm),
-              const TextSpan(text: ' '),
-              TextSpan(
-                text: '"${video.title}"',
-                style: const TextStyle(fontWeight: FontWeight.bold),
-              ),
-              const TextSpan(text: '?'),
-            ],
-          ),
-          maxLines: 3,
-          overflow: TextOverflow.ellipsis,
-          style: context.textTheme.bodyMedium?.copyWith(
-            color: context.colorScheme.onSurfaceVariant,
-          ),
-          textAlign: TextAlign.center,
-        ),
-        cancelText: AppStrings.commonCancel,
-        confirmText: AppStrings.commonDelete,
-        onCancel: () => Navigator.of(dialogContext).pop(),
+        description: AppStrings.dashboardDeleteConfirm,
+        highlightText: video.title,
         onConfirm: () {
           cubit.removeVideo(video.id);
           Navigator.of(dialogContext).pop();

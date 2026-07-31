@@ -3,11 +3,14 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:levelup_tube/src/core/design_system/app_radius.dart';
+import 'package:levelup_tube/src/core/widgets/atoms/app_text_field.dart';
 import 'package:levelup_tube/src/core/widgets/atoms/buttons/app_primary_button.dart';
 import 'package:levelup_tube/src/core/widgets/atoms/top_header.dart';
 import 'package:levelup_tube/src/core/widgets/template/app_scaffold.dart';
 import 'package:levelup_tube/src/features/feedback/viewmodels/feedback_cubit.dart';
 import 'package:levelup_tube/src/features/feedback/viewmodels/feedback_state.dart';
+import 'package:toastification/toastification.dart';
 
 class FeedbackPage extends StatefulWidget {
   const FeedbackPage({super.key});
@@ -19,7 +22,9 @@ class FeedbackPage extends StatefulWidget {
 class _FeedbackPageState extends State<FeedbackPage> {
   final _descriptionController = TextEditingController();
   final _emailController = TextEditingController();
-  String _selectedCategory = 'Feature Request';
+  final ValueNotifier<String> _selectedCategory = ValueNotifier<String>(
+    'Feature Request',
+  );
 
   final List<String> _categories = [
     'Feature Request',
@@ -47,13 +52,14 @@ class _FeedbackPageState extends State<FeedbackPage> {
   void dispose() {
     _descriptionController.dispose();
     _emailController.dispose();
+    _selectedCategory.dispose();
     _tapTimer?.cancel();
     super.dispose();
   }
 
   void _submit() {
     context.read<FeedbackCubit>().submitFeedback(
-      category: _selectedCategory,
+      category: _selectedCategory.value,
       description: _descriptionController.text,
       email: _emailController.text,
     );
@@ -73,14 +79,24 @@ class _FeedbackPageState extends State<FeedbackPage> {
             current is FeedbackSuccess || current is FeedbackError,
         listener: (context, state) {
           if (state is FeedbackSuccess) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Feedback submitted successfully!')),
+            toastification.show(
+              context: context,
+              type: ToastificationType.success,
+              style: ToastificationStyle.fillColored,
+              title: const Text('Success'),
+              description: const Text('Feedback submitted successfully!'),
+              autoCloseDuration: const Duration(seconds: 3),
             );
             Navigator.of(context).pop();
           } else if (state is FeedbackError) {
-            ScaffoldMessenger.of(
-              context,
-            ).showSnackBar(SnackBar(content: Text(state.message)));
+            toastification.show(
+              context: context,
+              type: ToastificationType.error,
+              style: ToastificationStyle.fillColored,
+              title: const Text('Error'),
+              description: Text(state.message),
+              autoCloseDuration: const Duration(seconds: 5),
+            );
           }
         },
         builder: (context, state) {
@@ -91,44 +107,44 @@ class _FeedbackPageState extends State<FeedbackPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                DropdownButtonFormField<String>(
-                  initialValue: _selectedCategory,
-                  decoration: const InputDecoration(
-                    labelText: 'Category',
-                    border: OutlineInputBorder(),
-                  ),
-                  items: _categories.map((category) {
-                    return DropdownMenuItem(value: category, child: Text(category));
-                  }).toList(),
-                  onChanged: isLoading
-                      ? null
-                      : (value) {
-                          if (value != null) {
-                            setState(() {
-                              _selectedCategory = value;
-                            });
-                          }
-                        },
+                ValueListenableBuilder<String>(
+                  valueListenable: _selectedCategory,
+                  builder: (context, selectedCategoryValue, child) {
+                    return DropdownButtonFormField<String>(
+                      initialValue: selectedCategoryValue,
+                      decoration: InputDecoration(
+                        labelText: 'Category',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      items: _categories.map((category) {
+                        return DropdownMenuItem(value: category, child: Text(category));
+                      }).toList(),
+                      onChanged: isLoading
+                          ? null
+                          : (value) {
+                              if (value != null) {
+                                _selectedCategory.value = value;
+                              }
+                            },
+                    );
+                  },
                 ),
                 const SizedBox(height: 16),
-                TextField(
+                AppTextField(
                   controller: _descriptionController,
-                  decoration: const InputDecoration(
-                    labelText: 'Description',
-                    alignLabelWithHint: true,
-                    border: OutlineInputBorder(),
-                  ),
+                  labelText: 'Description',
                   minLines: 5,
                   maxLines: null,
+                  cornerRadius: AppRadius.roundedM,
                   enabled: !isLoading,
                 ),
                 const SizedBox(height: 16),
-                TextField(
+                AppTextField(
                   controller: _emailController,
-                  decoration: const InputDecoration(
-                    labelText: 'Email (Optional)',
-                    border: OutlineInputBorder(),
-                  ),
+                  cornerRadius: AppRadius.roundedM,
+                  labelText: 'Email / Mobile No (Optional)',
                   keyboardType: TextInputType.emailAddress,
                   enabled: !isLoading,
                 ),

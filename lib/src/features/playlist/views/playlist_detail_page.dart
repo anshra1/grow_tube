@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:levelup_tube/src/core/di/injection_container.dart' as di;
 import 'package:levelup_tube/src/core/extensions/context_extensions.dart';
+import 'package:levelup_tube/src/core/widgets/molecules/custom_delete_dialog.dart';
 import 'package:levelup_tube/src/core/widgets/template/app_scaffold.dart';
 import 'package:levelup_tube/src/features/clipboard/viewmodels/clipboard_cubit.dart';
 import 'package:levelup_tube/src/features/clipboard/viewmodels/clipboard_state.dart';
@@ -188,8 +189,8 @@ class _PlaylistDetailPageState extends State<PlaylistDetailPage> {
               },
             ),
             ListTile(
-              leading: const Icon(Icons.playlist_remove),
-              title: const Text('Remove from Playlist'),
+              leading: const Icon(Icons.delete),
+              title: const Text('Delete from Playlist'),
               onTap: () {
                 Navigator.pop(bottomSheetContext);
                 _showRemoveFromPlaylistDialog(context, video);
@@ -204,25 +205,14 @@ class _PlaylistDetailPageState extends State<PlaylistDetailPage> {
   void _showRemoveFromPlaylistDialog(BuildContext context, Video video) {
     showDialog<void>(
       context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: const Text('Remove from Playlist?'),
-        content: Text(
-          'Remove "${video.title}" from this playlist?\n\n'
-          'The video will remain in your library.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(dialogContext),
-            child: const Text('Cancel'),
-          ),
-          FilledButton(
-            onPressed: () {
-              context.read<PlaylistDetailCubit>().removeVideo(video.id);
-              Navigator.pop(dialogContext);
-            },
-            child: const Text('Remove'),
-          ),
-        ],
+      builder: (dialogContext) => CustomDeleteDialog(
+        title: 'Delete from Playlist?',
+        icon: Icons.delete,
+        description: 'delete "${video.title}" from this playlist?',
+        onConfirm: () {
+          context.read<PlaylistDetailCubit>().removeVideo(video.id);
+          Navigator.pop(dialogContext);
+        },
       ),
     );
   }

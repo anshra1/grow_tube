@@ -4,15 +4,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
+import 'package:levelup_tube/src/core/constants/app_strings.dart';
 import 'package:levelup_tube/src/core/design_system/app_radius.dart';
 import 'package:levelup_tube/src/core/design_system/app_shadows.dart';
 import 'package:levelup_tube/src/core/design_system/app_sizes.dart';
 import 'package:levelup_tube/src/core/di/injection_container.dart' as di;
 import 'package:levelup_tube/src/core/extensions/context_extensions.dart';
+import 'package:levelup_tube/src/core/widgets/molecules/custom_delete_dialog.dart';
 import 'package:levelup_tube/src/features/connectivity/presentation/bloc/connectivity_cubit.dart';
 import 'package:levelup_tube/src/features/connectivity/presentation/widgets/connectivity_toast_controller.dart';
 import 'package:levelup_tube/src/features/library/models/video.dart';
-import 'package:levelup_tube/src/features/library/views/dashboard_widgets/delete_video_dialog.dart';
 import 'package:levelup_tube/src/features/playlist/viewmodels/playlist_detail_cubit.dart';
 
 class DashboardVideoCard extends StatelessWidget {
@@ -53,10 +54,13 @@ class DashboardVideoCard extends StatelessWidget {
         () {
           showDialog<void>(
             context: context,
-            builder: (dialogContext) => DeleteVideoDialog(
-              videoTitle: video.title,
-              onDelete: () {
+            builder: (dialogContext) => CustomDeleteDialog(
+              title: AppStrings.dashboardDeleteTitle,
+              description: AppStrings.dashboardDeleteConfirm,
+              highlightText: video.title,
+              onConfirm: () {
                 context.read<PlaylistDetailCubit>().removeVideo(video.id);
+                Navigator.of(dialogContext).pop();
               },
             ),
           );
@@ -119,7 +123,7 @@ class DashboardVideoCard extends StatelessWidget {
                                     width: 120,
                                     height: 67,
                                     child: CachedNetworkImage(
-                                    //  scale: 1.2,
+                                      //  scale: 1.2,
                                       imageUrl: video.thumbnailUrl,
                                       fit: BoxFit.cover, // Fill the whole box
                                     ),
@@ -178,7 +182,10 @@ class DashboardVideoCard extends StatelessWidget {
                                 if (customSubtitle != null) ...[
                                   const Gap(4),
                                   Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 6,
+                                      vertical: 2,
+                                    ),
                                     decoration: BoxDecoration(
                                       color: context.colorScheme.secondaryContainer,
                                       borderRadius: BorderRadius.circular(4),

@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:levelup_tube/src/core/design_system/app_radius.dart';
-import 'package:levelup_tube/src/core/design_system/app_sizes.dart';
 import 'package:levelup_tube/src/core/di/injection_container.dart' as di;
 import 'package:levelup_tube/src/core/extensions/context_extensions.dart';
 import 'package:levelup_tube/src/core/widgets/atoms/top_header.dart';
+import 'package:levelup_tube/src/core/widgets/molecules/custom_delete_dialog.dart';
 import 'package:levelup_tube/src/core/widgets/template/app_scaffold.dart';
 import 'package:levelup_tube/src/features/add/viewmodels/add_cubit.dart';
 import 'package:levelup_tube/src/features/add/viewmodels/add_state.dart';
@@ -232,50 +231,14 @@ class PlaylistsPage extends StatelessWidget {
   void _showDeleteDialog(BuildContext context, PlaylistModel playlist) {
     showDialog<void>(
       context: context,
-      builder: (dialogContext) => AlertDialog(
-        insetPadding: const EdgeInsets.all(AppSizes.p16),
-        shape: const RoundedRectangleBorder(borderRadius: AppRadius.roundedXL),
-        backgroundColor: context.colorScheme.surface,
-        surfaceTintColor: Colors.transparent,
-        title: Text(
-          'Delete Playlist?',
-          style: context.textTheme.titleLarge?.copyWith(
-            fontWeight: FontWeight.bold,
-            color: context.colorScheme.onSurface,
-          ),
-          textAlign: TextAlign.center,
-        ),
-        content: Text(
-          'Are you sure you want to delete ?',
-          style: context.textTheme.bodyMedium?.copyWith(
-            color: context.colorScheme.onSurfaceVariant,
-          ),
-          textAlign: TextAlign.center,
-        ),
-        actionsPadding: const EdgeInsets.fromLTRB(
-          AppSizes.p16,
-          0,
-          AppSizes.p16,
-          AppSizes.p16,
-        ),
-        actionsAlignment: MainAxisAlignment.spaceEvenly,
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(dialogContext),
-            child: Text(
-              'Cancel',
-              style: TextStyle(color: context.colorScheme.onSurfaceVariant),
-            ),
-          ),
-          TextButton(
-            onPressed: () {
-              context.read<PlaylistCubit>().deletePlaylist(playlist.id);
-              Navigator.pop(dialogContext);
-            },
-            style: TextButton.styleFrom(foregroundColor: context.colorScheme.error),
-            child: const Text('Delete', style: TextStyle(fontWeight: FontWeight.bold)),
-          ),
-        ],
+      builder: (dialogContext) => CustomDeleteDialog(
+        title: 'Delete Playlist?',
+        description: 'Are you sure you want to delete',
+        highlightText: playlist.title,
+        onConfirm: () {
+          context.read<PlaylistCubit>().deletePlaylist(playlist.id);
+          Navigator.pop(dialogContext);
+        },
       ),
     );
   }

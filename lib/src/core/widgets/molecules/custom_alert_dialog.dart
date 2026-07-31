@@ -13,8 +13,11 @@ class CustomAlertDialog extends StatelessWidget {
     required this.onConfirm,
     super.key,
     this.confirmTextColor,
+    this.confirmBackgroundColor,
+    this.icon,
+    this.iconColor,
   });
-  
+
   final String title;
   final Widget content;
   final String cancelText;
@@ -22,46 +25,87 @@ class CustomAlertDialog extends StatelessWidget {
   final VoidCallback onCancel;
   final VoidCallback onConfirm;
   final Color? confirmTextColor;
+  final Color? confirmBackgroundColor;
+  final IconData? icon;
+  final Color? iconColor;
 
   @override
   Widget build(BuildContext context) {
-    return AlertDialog(
+    return Dialog(
       insetPadding: const EdgeInsets.all(AppSizes.p16),
       shape: const RoundedRectangleBorder(borderRadius: AppRadius.roundedXL),
       backgroundColor: context.colorScheme.surface,
       surfaceTintColor: Colors.transparent,
-      title: Text(
-        title,
-        style: context.textTheme.titleLarge?.copyWith(
-          fontWeight: FontWeight.bold,
-          color: context.colorScheme.onSurface,
+      child: Padding(
+        padding: const EdgeInsets.all(AppSizes.p24),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Expanded(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: context.textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: context.colorScheme.onSurface,
+                    ),
+                  ),
+                  const SizedBox(height: AppSizes.p8),
+                  DefaultTextStyle(
+                    style:
+                        context.textTheme.bodyMedium?.copyWith(
+                          color: context.colorScheme.onSurfaceVariant,
+                        ) ??
+                        const TextStyle(),
+                    child: content,
+                  ),
+                  const SizedBox(height: AppSizes.p24),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      TextButton(
+                        onPressed: onCancel,
+                        style: TextButton.styleFrom(
+                          foregroundColor: context.colorScheme.onSurface,
+                        ),
+                        child: Text(
+                          cancelText,
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                      const SizedBox(width: AppSizes.p8),
+                      FilledButton(
+                        onPressed: onConfirm,
+                        style: FilledButton.styleFrom(
+                          backgroundColor:
+                              confirmBackgroundColor ?? context.colorScheme.error,
+                          foregroundColor:
+                              confirmTextColor ?? context.colorScheme.onError,
+                          shape: const RoundedRectangleBorder(
+                            borderRadius: AppRadius.roundedM,
+                          ),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: AppSizes.p24,
+                            vertical: AppSizes.p12,
+                          ),
+                        ),
+                        child: Text(
+                          confirmText,
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
-        textAlign: TextAlign.center,
       ),
-      content: content,
-      actionsPadding: const EdgeInsets.fromLTRB(
-        AppSizes.p16,
-        0,
-        AppSizes.p16,
-        AppSizes.p16,
-      ),
-      actionsAlignment: MainAxisAlignment.spaceEvenly,
-      actions: [
-        TextButton(
-          onPressed: onCancel,
-          child: Text(
-            cancelText,
-            style: TextStyle(color: context.colorScheme.onSurfaceVariant),
-          ),
-        ),
-        TextButton(
-          onPressed: onConfirm,
-          style: TextButton.styleFrom(
-            foregroundColor: confirmTextColor ?? context.colorScheme.error,
-          ),
-          child: Text(confirmText, style: const TextStyle(fontWeight: FontWeight.bold)),
-        ),
-      ],
     );
   }
 }

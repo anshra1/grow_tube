@@ -39,18 +39,22 @@ Future<void> main() async {
 
   // Pass all uncaught "fatal" errors from the framework to Crashlytics
   FlutterError.onError = (errorDetails) {
-    if (!kDebugMode) {
+    if (kDebugMode) {
+      FlutterError.dumpErrorToConsole(errorDetails);
+    } else {
       FirebaseCrashlytics.instance.recordFlutterFatalError(errorDetails);
     }
   };
 
   // Pass all uncaught asynchronous errors that aren't handled by the Flutter framework to Crashlytics
   PlatformDispatcher.instance.onError = (error, stack) {
-    if (!kDebugMode) {
+    if (kDebugMode) {
+      talker.handle(error, stack, 'Uncaught async error');
+      return false; // Return false to let Flutter's default handler also print to console
+    } else {
       FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
+      return true; // Return true to indicate we handled the error
     }
-
-    return true;
   };
 
   // Initialize DI

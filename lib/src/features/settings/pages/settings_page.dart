@@ -249,7 +249,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   ListTile(
                     leading: const Icon(Icons.feedback_outlined),
                     title: const Text('Send Feedback'),
-                    trailing: const Icon(Icons.chevron_right, size: 18),
+                    //trailing: const Icon(Icons.chevron_right, size: 18),
                     onTap: () => context.go('/settings/feedback'),
                   ),
                   const Divider(height: 1),
