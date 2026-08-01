@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:bloc/bloc.dart';
 import 'package:levelup_tube/src/features/feedback/services/feedback_service.dart';
 import 'package:levelup_tube/src/features/feedback/viewmodels/feedback_state.dart';
@@ -13,6 +15,7 @@ class FeedbackCubit extends Cubit<FeedbackState> {
     required String category,
     required String description,
     String? email,
+    List<File>? attachments,
   }) async {
     if (description.trim().isEmpty) {
       emit(const FeedbackError('Description cannot be empty'));
@@ -26,10 +29,15 @@ class FeedbackCubit extends Cubit<FeedbackState> {
         category: category,
         description: description,
         email: email,
+        attachments: attachments,
       );
-      emit(const FeedbackSuccess());
-    } on Exception catch (e) {
-      emit(FeedbackError('Failed to submit feedback: $e'));
+      if (!isClosed) {
+        emit(const FeedbackSuccess());
+      }
+    }on Exception catch (e) {
+      if (!isClosed) {
+        emit(FeedbackError('Failed to submit feedback: $e'));
+      }
     }
   }
 
@@ -37,19 +45,28 @@ class FeedbackCubit extends Cubit<FeedbackState> {
     emit(const FeedbackLoading());
     try {
       final feedbacks = await _feedbackService.getAllFeedbacks();
-      emit(FeedbackAdminListLoaded(feedbacks));
-    } on Exception catch (e) {
-      emit(FeedbackError(e.toString()));
+      if (!isClosed) {
+        emit(FeedbackAdminListLoaded(feedbacks));
+      }
+    }on Exception catch (e) {
+      if (!isClosed) {
+        emit(FeedbackError(e.toString()));
+      }
     }
   }
 
   Future<void> deleteFeedback(String id) async {
     try {
       await _feedbackService.deleteFeedback(id);
+      if (!isClosed) {
+        emit(const FeedbackSuccess());
+      }
       // Refresh the list after deleting
       await fetchFeedbacks();
-    } on Exception catch (e) {
-      emit(FeedbackError('Failed to delete feedback: $e'));
+    }on Exception catch (e) {
+      if (!isClosed) {
+        emit(FeedbackError('Failed to delete feedback: $e'));
+      }
     }
   }
 }

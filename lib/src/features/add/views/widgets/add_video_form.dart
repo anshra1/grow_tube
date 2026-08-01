@@ -113,41 +113,45 @@ class _AddVideoFormState extends State<AddVideoForm> {
                 },
               ),
             const Gap(32),
-            ListenableBuilder(
-              listenable: Listenable.merge([
-                widget.urlController,
-                widget.selectedPlaylistIdNotifier,
-              ]),
-              builder: (context, child) {
-                final isEnabled =
-                    widget.urlController.text.trim().isNotEmpty &&
-                    widget.selectedPlaylistIdNotifier.value != null &&
-                    !isAdding;
+            ValueListenableBuilder<int?>(
+              valueListenable: widget.selectedPlaylistIdNotifier,
+              builder: (context, selectedPlaylistId, child) {
+                return ListenableBuilder(
+                  listenable: widget.urlController,
+                  builder: (context, child) {
+                    final effectivePlaylistId = selectedPlaylistId ??
+                        (playlists?.isNotEmpty ?? false ? playlists!.first.id : null);
 
-                AppButtonState buttonState;
-                if (isAdding) {
-                  buttonState = AppButtonState.loading;
-                } else if (isEnabled) {
-                  buttonState = AppButtonState.enabled;
-                } else {
-                  buttonState = AppButtonState.disabled;
-                }
+                    final isEnabled = widget.urlController.text.trim().isNotEmpty &&
+                        effectivePlaylistId != null &&
+                        !isAdding;
 
-                return AppPrimaryButton(
-                  state: buttonState,
-                  onPressed: isEnabled
-                      ? () {
-                          context.read<AddCubit>().addVideoToPlaylist(
-                            widget.selectedPlaylistIdNotifier.value!,
-                            widget.urlController.text.trim(),
-                          );
-                        }
-                      : null,
-                  padding: const EdgeInsets.symmetric(vertical: 18),
-                  child: const Text(
-                    'Add Video',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
-                  ),
+                    AppButtonState buttonState;
+                    if (isAdding) {
+                      buttonState = AppButtonState.loading;
+                    } else if (isEnabled) {
+                      buttonState = AppButtonState.enabled;
+                    } else {
+                      buttonState = AppButtonState.disabled;
+                    }
+
+                    return AppPrimaryButton(
+                      state: buttonState,
+                      onPressed: isEnabled
+                          ? () {
+                              context.read<AddCubit>().addVideoToPlaylist(
+                                effectivePlaylistId,
+                                widget.urlController.text.trim(),
+                              );
+                            }
+                          : null,
+                      padding: const EdgeInsets.symmetric(vertical: 18),
+                      child: const Text(
+                        'Add Video',
+                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                      ),
+                    );
+                  },
                 );
               },
             ),

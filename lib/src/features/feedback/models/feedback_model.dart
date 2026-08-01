@@ -6,6 +6,7 @@ class FeedbackModel {
     required this.category,
     required this.description,
     this.email,
+    this.attachmentUrls,
     this.createdAt,
   });
 
@@ -20,6 +21,7 @@ class FeedbackModel {
       category: data['category'] as String? ?? 'General Feedback',
       description: data['description'] as String? ?? '',
       email: data['email'] as String?,
+      attachmentUrls: (data['attachmentUrls'] as List<dynamic>?)?.cast<String>(),
       createdAt: (data['createdAt'] as Timestamp?)?.toDate(),
     );
   }
@@ -27,5 +29,6 @@ class FeedbackModel {
   final String category;
   final String description;
   final String? email;
+  final List<String>? attachmentUrls;
   final DateTime? createdAt;
 }

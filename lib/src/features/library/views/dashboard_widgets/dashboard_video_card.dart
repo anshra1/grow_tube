@@ -105,7 +105,8 @@ class DashboardVideoCard extends StatelessWidget {
             onLongPress: handleOptions,
             child: Padding(
               padding: const EdgeInsets.all(AppSizes.p4),
-              child: IntrinsicHeight(
+              child: SizedBox(
+                height: 100,
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [

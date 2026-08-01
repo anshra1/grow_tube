@@ -50,6 +50,7 @@ class _FeedbackListPageState extends State<FeedbackListPage> {
           if (state is FeedbackError) {
             toastification.show(
               context: context,
+              alignment: Alignment.bottomCenter,
               type: ToastificationType.error,
               style: ToastificationStyle.fillColored,
               title: const Text('Error'),
@@ -59,6 +60,7 @@ class _FeedbackListPageState extends State<FeedbackListPage> {
           } else if (state is FeedbackSuccess) {
             toastification.show(
               context: context,
+              alignment: Alignment.bottomCenter,
               type: ToastificationType.success,
               style: ToastificationStyle.fillColored,
               title: const Text('Success'),
@@ -86,14 +88,15 @@ class _FeedbackListPageState extends State<FeedbackListPage> {
 
                 return GestureDetector(
                   onLongPress: () {
+                    final cubit = context.read<FeedbackCubit>();
                     showDialog<void>(
                       context: context,
-                      builder: (context) => CustomDeleteDialog(
+                      builder: (dialogContext) => CustomDeleteDialog(
                         title: 'Delete Feedback?',
                         description: 'Are you sure you want to delete this feedback?',
                         onConfirm: () {
-                          Navigator.pop(context);
-                          context.read<FeedbackCubit>().deleteFeedback(feedback.id);
+                          Navigator.pop(dialogContext);
+                          cubit.deleteFeedback(feedback.id);
                         },
                       ),
                     );

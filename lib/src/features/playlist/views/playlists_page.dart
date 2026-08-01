@@ -130,14 +130,11 @@ class PlaylistsPage extends StatelessWidget {
 
               PlaylistImportingState(
                 :final playlists,
-                :final currentProgress,
-                :final totalVideos,
-                :final title,
-                :final thumbnailUrl,
-              ) => RefreshIndicator(
-                onRefresh: () => context.read<PlaylistCubit>().loadPlaylists(),
-                child: _buildList(context, playlists, importingState: state as PlaylistImportingState),
-              ),
+              ) =>
+                RefreshIndicator(
+                  onRefresh: () => context.read<PlaylistCubit>().loadPlaylists(),
+                  child: _buildList(context, playlists, importingState: state),
+                ),
 
               _ => const SizedBox.shrink(),
             };
@@ -154,7 +151,7 @@ class PlaylistsPage extends StatelessWidget {
   }
 
   Widget _buildList(
-    BuildContext context, 
+    BuildContext context,
     List<PlaylistModel> playlists, {
     PlaylistImportingState? importingState,
   }) {

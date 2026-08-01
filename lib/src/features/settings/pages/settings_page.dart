@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:levelup_tube/main.dart';
-import 'package:levelup_tube/src/core/constants/app_links.dart';
 import 'package:levelup_tube/src/core/design_system/app_sizes.dart';
 import 'package:levelup_tube/src/core/di/injection_container.dart';
 import 'package:levelup_tube/src/core/extensions/context_extensions.dart';
@@ -22,8 +21,6 @@ import 'package:levelup_tube/src/features/settings/viewmodels/settings_cubit.dar
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:talker_flutter/talker_flutter.dart';
-import 'package:toastification/toastification.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
@@ -33,7 +30,6 @@ class SettingsPage extends StatefulWidget {
 }
 
 class _SettingsPageState extends State<SettingsPage> {
-  static final Uri _privacyPolicyUri = Uri.parse(AppLinks.privacyPolicy);
   Timer? _tapResetTimer;
   int _titleTapCount = 0;
 
@@ -64,24 +60,6 @@ class _SettingsPageState extends State<SettingsPage> {
     _tapResetTimer = Timer(const Duration(milliseconds: 700), () {
       _titleTapCount = 0;
     });
-  }
-
-  Future<void> _handlePrivacyTap() async {
-    final launched = await launchUrl(
-      _privacyPolicyUri,
-      mode: LaunchMode.externalApplication,
-    );
-
-    if (!launched && mounted) {
-      toastification.show(
-        context: context,
-        type: ToastificationType.error,
-        style: ToastificationStyle.fillColored,
-        title: const Text('Could not open Privacy Policy'),
-        autoCloseDuration: const Duration(seconds: 4),
-        alignment: Alignment.bottomCenter,
-      );
-    }
   }
 
   Future<void> _handleRateAppTap() async {
@@ -240,8 +218,8 @@ class _SettingsPageState extends State<SettingsPage> {
             ),
           ),
 
-          // ── About & Privacy Section ──────────────────────────────────────────
-          const SectionHeader(title: 'About'),
+          // ── Support & Feedback Section ──────────────────────────────────────────
+          const SectionHeader(title: 'Support & Feedback'),
           SliverToBoxAdapter(
             child: SettingsCard(
               child: Column(
@@ -252,24 +230,26 @@ class _SettingsPageState extends State<SettingsPage> {
                     //trailing: const Icon(Icons.chevron_right, size: 18),
                     onTap: () => context.go('/settings/feedback'),
                   ),
-                  const Divider(height: 1),
+
                   ListTile(
                     leading: const Icon(Icons.share_outlined),
                     title: const Text('Share App'),
                     trailing: const Icon(Icons.open_in_new, size: 18),
                     onTap: _handleShareAppTap,
                   ),
+
                   ListTile(
                     leading: const Icon(Icons.star_rate_rounded),
                     title: const Text('Rate App'),
                     trailing: const Icon(Icons.open_in_new, size: 18),
                     onTap: _handleRateAppTap,
                   ),
+
                   ListTile(
-                    leading: const Icon(Icons.privacy_tip_outlined),
-                    title: const Text('Privacy Policy'),
-                    trailing: const Icon(Icons.open_in_new, size: 18),
-                    onTap: _handlePrivacyTap,
+                    leading: const Icon(Icons.info_outline),
+                    title: const Text('About'),
+                    trailing: const Icon(Icons.chevron_right, size: 18),
+                    onTap: () => context.go('/settings/about'),
                   ),
                 ],
               ),

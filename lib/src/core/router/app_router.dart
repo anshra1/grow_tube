@@ -15,6 +15,7 @@ import 'package:levelup_tube/src/features/playlist/viewmodels/playlist_detail_cu
 import 'package:levelup_tube/src/features/playlist/views/edit_playlist_page.dart';
 import 'package:levelup_tube/src/features/playlist/views/playlist_detail_page.dart';
 import 'package:levelup_tube/src/features/playlist/views/playlists_page.dart';
+import 'package:levelup_tube/src/features/settings/pages/about_app_page.dart';
 import 'package:levelup_tube/src/features/settings/pages/settings_page.dart';
 
 // (e.g., the playlist import flow triggered from the clipboard toast).
@@ -209,6 +210,14 @@ class AppRouter {
                         ),
                       ),
                     ],
+                  ),
+                  GoRoute(
+                    path: 'about',
+                    pageBuilder: (context, state) => _buildPageWithSlideTransition(
+                      context: context,
+                      state: state,
+                      child: const AboutAppPage(),
+                    ),
                   ),
                 ],
               ),

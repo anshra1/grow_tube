@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:levelup_tube/src/core/di/injection_container.dart' as di;
 import 'package:levelup_tube/src/core/services/logging_service/app_logger.dart';
 import 'package:levelup_tube/src/features/feedback/models/feedback_model.dart';
@@ -15,21 +18,38 @@ class FeedbackService {
     required String category,
     required String description,
     String? email,
+    List<File>? attachments,
   }) async {
     try {
+      final attachmentUrls = <String>[];
+
+      if (attachments != null && attachments.isNotEmpty) {
+        for (final file in attachments) {
+          final fileName =
+              '${DateTime.now().millisecondsSinceEpoch}_${file.path.split('/').last}';
+          final ref = FirebaseStorage.instance.ref().child(
+            'feedback_attachments/$fileName',
+          );
+          final uploadTask = await ref.putFile(file);
+          final url = await uploadTask.ref.getDownloadURL();
+          attachmentUrls.add(url);
+        }
+      }
+
       await _firestore.collection('feedbacks').add({
         'category': category,
         'description': description.trim(),
         if (email != null && email.trim().isNotEmpty) 'email': email.trim(),
+        if (attachmentUrls.isNotEmpty) 'attachmentUrls': attachmentUrls,
         'createdAt': FieldValue.serverTimestamp(),
       });
     } on FirebaseException catch (e, stackTrace) {
       _appLogger.handle(e, stackTrace, 'FeedbackService: Firebase error [${e.code}]');
 
       throw Exception(e.message ?? 'An unexpected error occurred');
-    } on Exception catch (e, stackTrace) {
+    } catch (e, stackTrace) {
       _appLogger.handle(e, stackTrace, 'FeedbackService: Error submitting feedback');
-      throw Exception('An unexpected error occurred.');
+      throw Exception('An unexpected error occurred: $e');
     }
   }
 
@@ -65,9 +85,9 @@ class FeedbackService {
         'FeedbackService: Firebase error deleting feedback [${e.code}]',
       );
       throw Exception(e.message ?? 'An error occurred while deleting feedback.');
-    } on Exception catch (e, stackTrace) {
+    } catch (e, stackTrace) {
       _appLogger.handle(e, stackTrace, 'FeedbackService: Error deleting feedback');
-      throw Exception('An unexpected error occurred while deleting feedback.');
+      throw Exception('An unexpected error occurred while deleting feedback: $e');
     }
   }
 }

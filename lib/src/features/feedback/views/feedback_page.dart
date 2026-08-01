@@ -1,8 +1,11 @@
 import 'dart:async';
+import 'dart:io';
 
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:levelup_tube/src/core/design_system/app_radius.dart';
 import 'package:levelup_tube/src/core/widgets/atoms/app_text_field.dart';
 import 'package:levelup_tube/src/core/widgets/atoms/buttons/app_primary_button.dart';
@@ -25,6 +28,7 @@ class _FeedbackPageState extends State<FeedbackPage> {
   final ValueNotifier<String> _selectedCategory = ValueNotifier<String>(
     'Feature Request',
   );
+  final ValueNotifier<List<File>> _attachments = ValueNotifier<List<File>>([]);
 
   final List<String> _categories = [
     'Feature Request',
@@ -53,6 +57,7 @@ class _FeedbackPageState extends State<FeedbackPage> {
     _descriptionController.dispose();
     _emailController.dispose();
     _selectedCategory.dispose();
+    _attachments.dispose();
     _tapTimer?.cancel();
     super.dispose();
   }
@@ -62,6 +67,7 @@ class _FeedbackPageState extends State<FeedbackPage> {
       category: _selectedCategory.value,
       description: _descriptionController.text,
       email: _emailController.text,
+      attachments: _attachments.value,
     );
   }
 
@@ -81,6 +87,7 @@ class _FeedbackPageState extends State<FeedbackPage> {
           if (state is FeedbackSuccess) {
             toastification.show(
               context: context,
+              alignment: Alignment.bottomCenter,
               type: ToastificationType.success,
               style: ToastificationStyle.fillColored,
               title: const Text('Success'),
@@ -91,6 +98,7 @@ class _FeedbackPageState extends State<FeedbackPage> {
           } else if (state is FeedbackError) {
             toastification.show(
               context: context,
+              alignment: Alignment.bottomCenter,
               type: ToastificationType.error,
               style: ToastificationStyle.fillColored,
               title: const Text('Error'),
@@ -147,6 +155,171 @@ class _FeedbackPageState extends State<FeedbackPage> {
                   labelText: 'Email / Mobile No (Optional)',
                   keyboardType: TextInputType.emailAddress,
                   enabled: !isLoading,
+                ),
+                const SizedBox(height: 24),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Screenshots or recordings (optional)',
+                      style: Theme.of(
+                        context,
+                      ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w500),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'Tap screenshot to edit or remove sensitive info',
+                      style: Theme.of(
+                        context,
+                      ).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
+                    ),
+                    const SizedBox(height: 12),
+                    ValueListenableBuilder<List<File>>(
+                      valueListenable: _attachments,
+                      builder: (context, attachmentsList, child) {
+                        return Wrap(
+                          spacing: 12,
+                          runSpacing: 12,
+                          children: [
+                            ...attachmentsList.map((file) {
+                              final isAudio =
+                                  file.path.toLowerCase().endsWith('.mp3') ||
+                                  file.path.toLowerCase().endsWith('.wav') ||
+                                  file.path.toLowerCase().endsWith('.m4a') ||
+                                  file.path.toLowerCase().endsWith('.aac');
+                              return Stack(
+                                clipBehavior: Clip.none,
+                                children: [
+                                  Container(
+                                    width: 80,
+                                    height: 80,
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(12),
+                                      border: Border.all(
+                                        color: Colors.grey.withValues(alpha: .3),
+                                      ),
+                                      color: isAudio
+                                          ? Colors.blue.withValues(alpha: .1)
+                                          : null,
+                                    ),
+                                    child: isAudio
+                                        ? const Center(
+                                            child: Icon(
+                                              Icons.audiotrack,
+                                              size: 32,
+                                              color: Colors.blue,
+                                            ),
+                                          )
+                                        : ClipRRect(
+                                            borderRadius: BorderRadius.circular(12),
+                                            child: Image.file(file, fit: BoxFit.cover),
+                                          ),
+                                  ),
+                                  Positioned(
+                                    top: -8,
+                                    right: -8,
+                                    child: GestureDetector(
+                                      onTap: () {
+                                        final newList = List<File>.from(
+                                          _attachments.value,
+                                        )..remove(file);
+                                        _attachments.value = newList;
+                                      },
+                                      child: Container(
+                                        decoration: const BoxDecoration(
+                                          color: Colors.white,
+                                          shape: BoxShape.circle,
+                                        ),
+                                        child: Icon(
+                                          Icons.cancel,
+                                          color: Colors.grey[800],
+                                          size: 24,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              );
+                            }),
+                            GestureDetector(
+                              onTap: () async {
+                                final picker = ImagePicker();
+                                final images = await picker.pickMultiImage();
+                                if (images.isNotEmpty) {
+                                  final newList = List<File>.from(_attachments.value)
+                                    ..addAll(images.map((e) => File(e.path)));
+                                  _attachments.value = newList;
+                                }
+                              },
+                              child: Container(
+                                width: 80,
+                                height: 80,
+                                decoration: BoxDecoration(
+                                  color: Colors.grey.withValues(alpha: .1),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: const Center(
+                                  child: Icon(
+                                    Icons.image_outlined,
+                                    color: Colors.black87,
+                                    size: 28,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            GestureDetector(
+                              onTap: () async {
+                                try {
+                                  final result = await FilePicker.pickFiles(
+                                    type: FileType.custom,
+                                    allowedExtensions: [
+                                      'mp3',
+                                      'wav',
+                                      'm4a',
+                                      'aac',
+                                      'ogg',
+                                    ],
+                                  );
+                                  if (result != null &&
+                                      result.files.single.path != null) {
+                                    final newList = List<File>.from(_attachments.value)
+                                      ..add(File(result.files.single.path!));
+                                    _attachments.value = newList;
+                                  }
+                                } on Exception catch (e) {
+                                  toastification.show(
+                                    //
+                                    // ignore: use_build_context_synchronously
+                                    context: context,
+                                    type: ToastificationType.error,
+                                    style: ToastificationStyle.fillColored,
+                                    title: const Text('Error'),
+                                    description: Text('Could not open file picker: $e'),
+                                    autoCloseDuration: const Duration(seconds: 3),
+                                  );
+                                }
+                              },
+                              child: Container(
+                                width: 80,
+                                height: 80,
+                                decoration: BoxDecoration(
+                                  color: Colors.grey.withValues(alpha: .1),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: const Center(
+                                  child: Icon(
+                                    Icons.audiotrack_outlined,
+                                    color: Colors.black87,
+                                    size: 28,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        );
+                      },
+                    ),
+                  ],
                 ),
                 const SizedBox(height: 24),
                 AppPrimaryButton(
