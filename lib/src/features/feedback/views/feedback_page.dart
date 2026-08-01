@@ -110,11 +110,13 @@ class _FeedbackPageState extends State<FeedbackPage> {
         builder: (context, state) {
           final isLoading = state is FeedbackLoading;
 
-          return SingleChildScrollView(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
+          return Stack(
+            children: [
+              SingleChildScrollView(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
                 ValueListenableBuilder<String>(
                   valueListenable: _selectedCategory,
                   builder: (context, selectedCategoryValue, child) {
@@ -324,19 +326,38 @@ class _FeedbackPageState extends State<FeedbackPage> {
                 const SizedBox(height: 24),
                 AppPrimaryButton(
                   onPressed: isLoading ? null : _submit,
-                  child: isLoading
-                      ? const SizedBox(
-                          height: 20,
-                          width: 20,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      : const Text('Submit Feedback'),
+                  child: const Text('Submit Feedback'),
                 ),
               ],
             ),
-          );
-        },
-      ),
+          ),
+          if (isLoading)
+            Container(
+              color: Colors.black.withValues(alpha: .4),
+              alignment: Alignment.center,
+              child: Card(
+                color: Theme.of(context).colorScheme.surface,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const CircularProgressIndicator(),
+                      const SizedBox(width: 16),
+                      Text(
+                        'Sending...',
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+        ],
+      );
+    },
+  ),
     );
   }
 }
