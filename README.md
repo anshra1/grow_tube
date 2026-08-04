@@ -1,6 +1,6 @@
 # 🎓 LevelUp Tube
 
-A **distraction-free YouTube learning app** built with Flutter. Save videos, track watch progress, and resume where you left off — without ads, recommendations, or comments.
+A **high-performance, distraction-free learning application** built with Flutter. Save videos, organize playlists, track watch progress, and resume where you left off — without ads, recommendations, or comments.
 
 ---
 
@@ -9,54 +9,50 @@ A **distraction-free YouTube learning app** built with Flutter. Save videos, tra
 | Feature | Description |
 |---|---|
 | 📥 **Save Videos** | Paste any YouTube URL → metadata is fetched via YouTube Data API v3 |
+| 🗂️ **Playlists** | Organize your saved videos into custom playlists for structured learning |
 | ▶️ **Inline Player** | Distraction-free YouTube player — no ads, no recommendations, no comments |
-| 📊 **Progress Tracking** | Auto-saves watch position every 60 seconds. Resume exactly where you left off |
+| 📺 **Picture-in-Picture (PiP)** | Continue watching videos while navigating the app or using other apps |
+| 📊 **Progress Tracking** | Auto-saves watch position. Resume exactly where you left off |
 | 🔄 **Smart Resume** | Videos watched >95% restart from the beginning; others resume from saved position |
 | 📋 **Clipboard Detection** | Copy a YouTube URL anywhere → open the app → instant "Add / Watch Now" prompt |
 | 📱 **Fullscreen Mode** | Custom landscape fullscreen with smooth fade transition |
 | 🌗 **Theme Toggle** | Switch between light, dark, and system theme |
 | 📶 **Offline Alerts** | Toasts when internet drops or reconnects, so you know why YouTube buffers |
-| 🗑️ **Library Management** | Long-press to delete. Tap to play. Hero video player shows your last watched video |
+| 🔍 **Search** | Easily search through your saved library and playlists |
+| 🚀 **Over-The-Air Updates** | Seamless app updates powered by Shorebird |
 
 ---
 
 ## 🏗️ Architecture
 
-Built with **Clean Architecture** — 3 layers with strict dependency rules:
-
-```
-┌──────────────────────────────────────────────────┐
-│              PRESENTATION LAYER                  │
-│  BLoC (Events → States) + Flutter Widgets        │
-├──────────────────────────────────────────────────┤
-│                DOMAIN LAYER                      │
-│  Entities (pure Dart) + Use Cases + Repo Iface   │
-├──────────────────────────────────────────────────┤
-│                 DATA LAYER                       │
-│  Models (ObjectBox) + DataSources + Repo Impl    │
-└──────────────────────────────────────────────────┘
-```
+Built with a **Feature-Driven Architecture** utilizing an MVVM-inspired pattern with Cubits. The app is divided into distinct feature modules, ensuring high cohesion and low coupling.
 
 ### Folder Structure
 
 ```
 lib/src/
 ├── core/
-│   ├── common/        # ResultFuture typedef, UseCase base classes
-│   ├── connectivity/  # ConnectivityCubit (online/offline state)
+│   ├── config/        # Environment and app configuration
 │   ├── di/            # GetIt dependency injection
 │   ├── error/         # Exception & Failure hierarchy
 │   ├── router/        # GoRouter setup
-│   ├── services/      # ClipboardService, Connectivity, Logging (AppLogger facade)
-│   ├── mixins/        # ClipboardMonitorMixin
+│   ├── services/      # Core services (Logging, Crashlytics)
 │   ├── design_system/ # Design tokens (sizes, radius, shadows, colors, theme)
-│   └── widgets/       # Reusable UI components (Atomic Design buttons)
+│   └── widgets/       # Reusable UI components
 └── features/
-    └── library/
-        ├── data/          # VideoModel, DataSources (local + remote), Repo impl
-        ├── domain/        # Video entity (freezed), Repo interface, 6 Use Cases
-        └── presentation/  # LibraryBloc, Dashboard page, 8 widgets
+    ├── library/       # Core video management
+    ├── playlist/      # Playlist creation and management
+    ├── pip/           # Picture-in-Picture functionality
+    ├── clipboard/     # Clipboard URL detection
+    └── ...            # Other independent feature modules
 ```
+
+Inside each feature, the structure typically follows:
+- `models/` - Data representations
+- `repositories/` - Data access layer
+- `services/` - Feature-specific business logic or external integrations
+- `viewmodels/` - State management (Cubits)
+- `views/` - UI components and pages
 
 ---
 
@@ -64,32 +60,26 @@ lib/src/
 
 | Category | Package | Purpose |
 |---|---|---|
-| **State Management** | `flutter_bloc` | Predictable state with sealed events/states |
+| **State Management** | `flutter_bloc` | Predictable state management via Cubits |
 | **Local Database** | `objectbox` | High-performance NoSQL with typed queries |
-| **Error Handling** | `fpdart` | Functional `Either<Failure, T>` — no uncaught exceptions |
+| **Backend & Analytics** | Firebase | Crashlytics, Analytics, Remote Config, and Storage |
 | **Code Gen** | `freezed` | Immutable entities with `copyWith` & pattern matching |
-| **Equality** | `equatable` | Value equality for BLoC states & Failure classes |
 | **DI** | `get_it` | Service locator with lazy singletons |
 | **Routing** | `go_router` | Declarative navigation with route observer |
-| **Networking** | `http` | YouTube Data API v3 requests |
-| **Video Metadata** | YouTube Data API v3 | Stable metadata via REST (API key required) |
 | **Video Player** | `youtube_player_iframe` | Distraction-free embedded player |
-| **Connectivity** | `internet_connection_checker_plus` | Online/offline detection for toasts |
-| **Logging** | `talker` | Structured logging with in-app log viewer |
-| **Crash Reporting** | `firebase_crashlytics` | Production error tracking |
+| **OTA Updates** | `shorebird` | Over-the-air hot updates |
+| **Logging** | `talker_flutter` | Structured logging with in-app log viewer |
 | **Image Caching** | `cached_network_image` | Thumbnail caching with shimmer |
 
 ---
 
 ## 🔑 Design Patterns
 
-- **Clean Architecture** — 3 layers, dependency inversion
-- **Repository Pattern** — abstracts local/remote data sources
-- **Use Case Pattern** — single-purpose callable classes
+- **Feature-First Organization** — Code grouped by feature rather than layer
+- **Repository Pattern** — Abstracts data sources (ObjectBox, Firebase)
 - **Service Locator** — GetIt for dependency injection
-- **Strategy Pattern** — pluggable logging backends (AppLogger)
-- **Observer Pattern** — BLoC, WidgetsBindingObserver
-- **Mixin Composition** — ClipboardMonitorMixin for lifecycle-aware clipboard detection
+- **Observer Pattern** — BLoC, TalkerBlocObserver
+- **Singleton Services** — Global services initialized at startup
 
 ---
 
@@ -122,27 +112,7 @@ flutter run --dart-define=YOUTUBE_API_KEY=YOUR_KEY
 1. Create a Firebase project at [console.firebase.google.com](https://console.firebase.google.com)
 2. Add your Android/iOS app and download config files
 3. Replace `lib/firebase_options.dart` with your generated options
-
----
-
-## 📐 Error Handling
-
-Two-layer pattern ensures exceptions never leak to the UI:
-
-```
-DataSource throws VideoException("duplicate")
-       ↓
-Repository catches → returns Left(VideoFailure(message, code))
-       ↓
-BLoC calls result.fold(onFailure, onSuccess)
-       ↓
-UI shows toast via BlocListener
-```
-
-```dart
-// Type alias for clean signatures
-typedef ResultFuture<T> = Future<Either<Failure, T>>;
-```
+4. Place `google-services.json` in `android/app/` and `GoogleService-Info.plist` in `ios/Runner/`
 
 ---
 
