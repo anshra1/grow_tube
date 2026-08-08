@@ -4,7 +4,6 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:get_it/get_it.dart';
 import 'package:internet_connection_checker_plus/internet_connection_checker_plus.dart';
-import 'package:objectbox/objectbox.dart';
 import 'package:levelup_tube/firebase_options.dart';
 import 'package:levelup_tube/main.dart';
 import 'package:levelup_tube/objectbox.g.dart'; // Generated
