@@ -10,7 +10,7 @@ import 'package:levelup_tube/src/core/extensions/context_extensions.dart';
 import 'package:levelup_tube/src/core/theme/theme_cubit.dart';
 import 'package:levelup_tube/src/core/widgets/atoms/top_header.dart';
 import 'package:levelup_tube/src/core/widgets/template/app_scaffold.dart';
-import 'package:levelup_tube/src/features/app_review/services/app_review_service.dart';
+import 'package:levelup_tube/src/features/app_review/app_review_service.dart';
 import 'package:levelup_tube/src/features/pip/presentation/bloc/pip_cubit.dart';
 import 'package:levelup_tube/src/features/pip/presentation/bloc/pip_state.dart';
 import 'package:levelup_tube/src/features/settings/pages/setting_page_widgets/section_header.dart';

@@ -8,6 +8,7 @@ import 'package:levelup_tube/src/features/clipboard/viewmodels/clipboard_cubit.d
 import 'package:levelup_tube/src/features/clipboard/viewmodels/clipboard_state.dart';
 import 'package:levelup_tube/src/features/clipboard/views/clipboard_playlist_prompt.dart';
 import 'package:levelup_tube/src/features/clipboard/views/clipboard_video_prompt.dart';
+import 'package:levelup_tube/src/features/connectivity/presentation/widgets/connectivity_banner.dart';
 import 'package:levelup_tube/src/features/navigation/cubit/fullscreen_video_cubit.dart';
 import 'package:levelup_tube/src/features/pip/presentation/bloc/pip_cubit.dart';
 import 'package:levelup_tube/src/features/pip/presentation/bloc/pip_state.dart';
@@ -168,30 +169,36 @@ class _MainScaffoldState extends State<MainScaffold>
                 body: widget.navigationShell,
                 bottomNavigationBar: hideNavigation
                     ? null
-                    : NavigationBar(
-                        selectedIndex: _effectiveIndex,
-                        onDestinationSelected: _onDestinationSelected,
-                        destinations: const [
-                          NavigationDestination(
-                            icon: Icon(Icons.home_outlined),
-                            selectedIcon: Icon(Icons.home),
-                            label: 'Home',
-                          ),
-                          NavigationDestination(
-                            icon: Icon(Icons.playlist_play_outlined),
-                            selectedIcon: Icon(Icons.playlist_play),
-                            label: 'Playlists',
-                          ),
-                          // "Add" is an action, not a tab — visual affordance only.
-                          NavigationDestination(
-                            icon: Icon(Icons.add_circle_outline),
-                            selectedIcon: Icon(Icons.add_circle),
-                            label: 'Add',
-                          ),
-                          NavigationDestination(
-                            icon: Icon(Icons.settings_outlined),
-                            selectedIcon: Icon(Icons.settings),
-                            label: 'Settings',
+                    : Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const ConnectivityBanner(),
+                          NavigationBar(
+                            selectedIndex: _effectiveIndex,
+                            onDestinationSelected: _onDestinationSelected,
+                            destinations: const [
+                              NavigationDestination(
+                                icon: Icon(Icons.home_outlined),
+                                selectedIcon: Icon(Icons.home),
+                                label: 'Home',
+                              ),
+                              NavigationDestination(
+                                icon: Icon(Icons.playlist_play_outlined),
+                                selectedIcon: Icon(Icons.playlist_play),
+                                label: 'Playlists',
+                              ),
+                              // "Add" is an action, not a tab — visual affordance only.
+                              NavigationDestination(
+                                icon: Icon(Icons.add_circle_outline),
+                                selectedIcon: Icon(Icons.add_circle),
+                                label: 'Add',
+                              ),
+                              NavigationDestination(
+                                icon: Icon(Icons.settings_outlined),
+                                selectedIcon: Icon(Icons.settings),
+                                label: 'Settings',
+                              ),
+                            ],
                           ),
                         ],
                       ),
