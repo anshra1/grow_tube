@@ -81,7 +81,7 @@ class AppRouter {
                     state: state,
                     child: BlocProvider(
                       create: (_) =>
-                          PlaylistDetailCubit(repository: di.sl())..loadAndPlay(url),
+                          PlaylistDetailCubit(repository: di.sl(), prefs: di.sl())..loadAndPlay(url),
                       child: const DashboardPage(),
                     ),
                   );
@@ -128,7 +128,7 @@ class AppRouter {
                         state: state,
                         child: BlocProvider(
                           create: (_) =>
-                              PlaylistDetailCubit(playlistId: id, repository: di.sl())
+                              PlaylistDetailCubit(playlistId: id, repository: di.sl(), prefs: di.sl())
                                 ..loadAndPlay(url),
                           child: const PlaylistDetailPage(),
                         ),
@@ -146,6 +146,7 @@ class AppRouter {
                           create: (_) => PlaylistDetailCubit(
                             playlistId: playlistModel.id,
                             repository: di.sl(),
+                            prefs: di.sl(),
                           ),
                           child: EditPlaylistPage(playlistModel: playlistModel),
                         ),
@@ -263,7 +264,7 @@ class AppRouter {
                 state: state,
                 child: BlocProvider(
                   create: (_) =>
-                      PlaylistDetailCubit(playlistId: id, repository: di.sl())
+                      PlaylistDetailCubit(playlistId: id, repository: di.sl(), prefs: di.sl())
                         ..loadAndPlay(url),
                   child: const PlaylistDetailPage(),
                 ),

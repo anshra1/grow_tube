@@ -1,8 +1,8 @@
 #!/bin/sh
 # This is a generated file; do not edit or check into version control.
 export "FLUTTER_ROOT=/home/ansh/Software/flutter/flutter"
-export "FLUTTER_APPLICATION_PATH=/home/ansh/Studio Projects/grow_tube"
-export "FLUTTER_FRAMEWORK_SWIFT_PACKAGE_PATH=/home/ansh/Studio Projects/grow_tube/macos/Flutter/ephemeral/Packages/.packages/FlutterFramework"
+export "FLUTTER_APPLICATION_PATH=/home/ansh/studio/LevelUp"
+export "FLUTTER_FRAMEWORK_SWIFT_PACKAGE_PATH=/home/ansh/studio/LevelUp/macos/Flutter/ephemeral/Packages/.packages/FlutterFramework"
 export "COCOAPODS_PARALLEL_CODE_SIGN=true"
 export "FLUTTER_BUILD_DIR=build"
 export "FLUTTER_BUILD_NAME=2.3.0"

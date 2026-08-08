@@ -23,6 +23,7 @@ class SettingsLoadedState extends SettingsState {
   const SettingsLoadedState({
     required this.allPlaylists,
     required this.defaultPlaylistId,
+    required this.isAutoplayEnabled,
   });
 
   final List<PlaylistModel> allPlaylists;
@@ -31,18 +32,23 @@ class SettingsLoadedState extends SettingsState {
   /// Null only if there are no playlists at all.
   final int? defaultPlaylistId;
 
+  /// Whether autoplay next video is enabled
+  final bool isAutoplayEnabled;
+
   SettingsLoadedState copyWith({
     List<PlaylistModel>? allPlaylists,
     int? defaultPlaylistId,
+    bool? isAutoplayEnabled,
   }) {
     return SettingsLoadedState(
       allPlaylists: allPlaylists ?? this.allPlaylists,
       defaultPlaylistId: defaultPlaylistId ?? this.defaultPlaylistId,
+      isAutoplayEnabled: isAutoplayEnabled ?? this.isAutoplayEnabled,
     );
   }
 
   @override
-  List<Object?> get props => [allPlaylists, defaultPlaylistId];
+  List<Object?> get props => [allPlaylists, defaultPlaylistId, isAutoplayEnabled];
 }
 
 class SettingsErrorState extends SettingsState {

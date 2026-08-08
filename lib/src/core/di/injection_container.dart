@@ -119,7 +119,7 @@ Future<void> init() async {
     // ============================================================
     ..registerFactory(() => ConnectivityCubit(sl()))
     ..registerFactory(() => PlaylistCubit(sl()))
-    ..registerFactory(() => SettingsCubit(sl()))
+    ..registerFactory(() => SettingsCubit(sl(), sl()))
     ..registerFactory(() => AddCubit(sl()))
     ..registerFactory(() => FeedbackCubit(feedbackService: sl()))
     ..registerLazySingleton(() => ClipboardCubit(repository: sl()));

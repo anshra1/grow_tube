@@ -117,25 +117,41 @@ class _SettingsPageState extends State<SettingsPage> {
             ),
           ),
 
-          // ── Picture-in-Picture Section ───────────────────────────────
+          // ── Player Section ───────────────────────────────
           const SectionHeader(title: 'Player'),
           SliverToBoxAdapter(
             child: SettingsCard(
-              child: BlocBuilder<PipCubit, PipState>(
-                builder: (context, pipState) {
-                  return SwitchListTile(
-                    title: const Text('Picture-in-Picture (PiP)'),
-                    subtitle: const Text(
-                      'Continue playing video in a small window when app is closed.',
-                    ),
-                    value: pipState.isEnabled,
-                    onChanged: pipState.isSupported
-                        ? (value) =>
-                              context.read<PipCubit>().setPipEnabled(enabled: value)
-                        : null,
-                    secondary: const Icon(Icons.picture_in_picture_alt_rounded),
-                  );
-                },
+              child: Column(
+                children: [
+                  BlocBuilder<PipCubit, PipState>(
+                    builder: (context, pipState) {
+                      return SwitchListTile(
+                        title: const Text('Picture-in-Picture (PiP)'),
+                        subtitle: const Text(
+                          'Continue playing video in a small window when app is closed.',
+                        ),
+                        value: pipState.isEnabled,
+                        onChanged: pipState.isSupported
+                            ? (value) =>
+                                  context.read<PipCubit>().setPipEnabled(enabled: value)
+                            : null,
+                      );
+                    },
+                  ),
+                  BlocBuilder<SettingsCubit, SettingsState>(
+                    builder: (context, state) {
+                      final isEnabled = state is! SettingsLoadedState || state.isAutoplayEnabled;
+                      return SwitchListTile(
+                        title: const Text('Autoplay Next Video'),
+                        subtitle: const Text('Automatically play the next video in the playlist'),
+                        value: isEnabled,
+                        onChanged: state is SettingsLoadedState 
+                            ? (val) => context.read<SettingsCubit>().toggleAutoplay(val) 
+                            : null,
+                      );
+                    },
+                  ),
+                ],
               ),
             ),
           ),

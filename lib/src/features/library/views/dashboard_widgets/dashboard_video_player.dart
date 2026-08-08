@@ -50,6 +50,7 @@ class _DashboardVideoPlayerState extends State<DashboardVideoPlayer>
   late final AnimationController _animController;
   late final Animation<double> _fadeAnimation;
   late PlaylistDetailCubit _playlistDetailCubit;
+  bool _isHandlingEnd = false;
 
   @override
   void didChangeDependencies() {
@@ -247,6 +248,13 @@ class _DashboardVideoPlayerState extends State<DashboardVideoPlayer>
 
       if (mounted) {
         context.read<PipCubit>().setVideoPlaying(value.playerState == PlayerState.playing);
+      }
+
+      if (value.playerState == PlayerState.playing) {
+        _isHandlingEnd = false;
+      } else if (value.playerState == PlayerState.ended && !_isHandlingEnd) {
+        _isHandlingEnd = true;
+        unawaited(_playlistDetailCubit.playNextVideo());
       }
 
       if (value.error != YoutubeError.none) {

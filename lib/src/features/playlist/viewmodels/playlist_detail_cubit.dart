@@ -10,13 +10,18 @@ import 'package:levelup_tube/src/features/library/models/video.dart';
 import 'package:levelup_tube/src/features/playlist/repositories/playlist_repository.dart';
 import 'package:levelup_tube/src/features/playlist/viewmodels/playlist_detail_state.dart';
 
+import 'package:levelup_tube/src/features/settings/viewmodels/settings_cubit.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
 class PlaylistDetailCubit extends Cubit<PlaylistDetailState> {
-  PlaylistDetailCubit({required PlaylistRepository repository, this.playlistId})
+  PlaylistDetailCubit({required PlaylistRepository repository, required SharedPreferences prefs, this.playlistId})
     : _repository = repository,
+      _prefs = prefs,
       super(const PlaylistDetailInitial());
 
   final int? playlistId;
   final PlaylistRepository _repository;
+  final SharedPreferences _prefs;
 
   /// Tracks which video the user explicitly selected as hero.
   int? _selectedHeroId;
@@ -284,6 +289,35 @@ class PlaylistDetailCubit extends Cubit<PlaylistDetailState> {
       } else {
         await selectVideo(currentState.videosState.videos.first);
       }
+    }
+  }
+
+  /// Automatically plays the next video if autoplay is enabled.
+  Future<void> playNextVideo() async {
+    try {
+      final autoplay = _prefs.getBool(SettingsCubit.autoplayKey) ?? true;
+      if (!autoplay) return;
+
+      final currentState = state;
+      if (currentState is PlaylistDetailLoaded) {
+        final videos = currentState.videosState.videos;
+        if (videos.isEmpty) return;
+
+        final heroId = currentState.heroVideoState.heroVideo?.id ?? _selectedHeroId;
+        if (heroId == null) return;
+
+        final currentIndex = videos.indexWhere((v) => v.id == heroId);
+        if (currentIndex != -1) {
+          if (currentIndex + 1 < videos.length) {
+            await selectVideo(videos[currentIndex + 1]);
+          } else {
+            // Loop back to start
+            await selectVideo(videos.first);
+          }
+        }
+      }
+    } catch (e, st) {
+      di.sl<AppLogger>().handle(e, st, 'PlaylistDetailCubit: playNextVideo error');
     }
   }
 
