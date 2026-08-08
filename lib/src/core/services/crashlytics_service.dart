@@ -1,4 +1,5 @@
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+import 'package:levelup_tube/src/core/error/exception.dart';
 import 'package:levelup_tube/src/core/services/logging_service/logging_service.dart';
 
 /// Firebase Crashlytics implementation of [LoggingService].
@@ -15,6 +16,10 @@ class CrashlyticsLoggingService implements LoggingService {
   }) {
     // Only send error and fatal level logs to Crashlytics to save quota
     if (level == LogLevel.error || level == LogLevel.fatal) {
+      if (error != null && _isUserError(error)) {
+        return;
+      }
+
       if (error != null) {
         recordError(error, stackTrace, message);
       } else {
@@ -25,7 +30,18 @@ class CrashlyticsLoggingService implements LoggingService {
 
   @override
   void handle(Object error, StackTrace stackTrace, String message) {
+    if (_isUserError(error)) {
+      return;
+    }
     recordError(error, stackTrace, message);
+  }
+
+  bool _isUserError(Object error) {
+    if (error is VideoException) {
+      // e.g. 'invalidUrl', 'already_exists', 'videoUnavailable'
+      return true;
+    }
+    return false;
   }
 
   @override

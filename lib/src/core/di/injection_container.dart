@@ -90,7 +90,7 @@ Future<void> init() async {
     ..registerLazySingleton(() => AppUpdateService(sl(), sl(), sl()));
 
   // MIGRATION SCRIPT
-  await MigrationService.run(store, prefs, sl());
+  await MigrationService.run(sl<Store>(), prefs, sl());
 
   // APP UPDATE INIT
   await sl<AppUpdateService>().init();

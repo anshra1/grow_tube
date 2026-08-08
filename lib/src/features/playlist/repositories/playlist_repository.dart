@@ -153,7 +153,7 @@ class PlaylistRepositoryImpl implements PlaylistRepository {
 
     final alreadyImported = await isPlaylistImported(playlistId);
     if (alreadyImported) {
-      throw Exception('This playlist has already been imported.');
+      throw const VideoException('This playlist has already been imported.', code: 'already_exists');
     }
 
     final playlistMeta = await apiService.fetchPlaylistDetails(playlistId);
