@@ -4,6 +4,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:get_it/get_it.dart';
 import 'package:internet_connection_checker_plus/internet_connection_checker_plus.dart';
+import 'package:objectbox/objectbox.dart';
 import 'package:levelup_tube/firebase_options.dart';
 import 'package:levelup_tube/main.dart';
 import 'package:levelup_tube/objectbox.g.dart'; // Generated
@@ -50,8 +51,18 @@ Future<void> init() async {
   // External
   // ============================================================
   final docsDir = await getApplicationDocumentsDirectory();
-  final store = await openStore(directory: '${docsDir.path}/objectbox');
-  sl.registerLazySingleton(() => store);
+  final storePath = '${docsDir.path}/objectbox';
+  
+  if (!sl.isRegistered<Store>()) {
+    Store store;
+    try {
+      store = await openStore(directory: storePath);
+    } catch (e) {
+      // If store is already open (e.g. after a hot restart), attach to it.
+      store = Store.attach(getObjectBoxModel(), storePath);
+    }
+    sl.registerLazySingleton<Store>(() => store);
+  }
 
   final apiKey = AppConfig.requireYoutubeApiKey();
   sl
