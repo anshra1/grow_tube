@@ -78,6 +78,10 @@ class SearchVideoCard extends StatelessWidget {
                                     child: CachedNetworkImage(
                                       imageUrl: video.thumbnailUrl,
                                       fit: BoxFit.cover,
+                                      errorWidget: (context, url, error) => Image.asset(
+                                        'assets/images/no_image_available.png',
+                                        fit: BoxFit.cover,
+                                      ),
                                     ),
                                   ),
                                 ),

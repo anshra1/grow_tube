@@ -127,6 +127,10 @@ class DashboardVideoCard extends StatelessWidget {
                                       //  scale: 1.2,
                                       imageUrl: video.thumbnailUrl,
                                       fit: BoxFit.cover, // Fill the whole box
+                                      errorWidget: (context, url, error) => Image.asset(
+                                        'assets/images/no_image_available.png',
+                                        fit: BoxFit.cover,
+                                      ),
                                     ),
                                   ),
                                 ),
