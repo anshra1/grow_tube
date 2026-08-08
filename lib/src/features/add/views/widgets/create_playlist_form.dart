@@ -29,47 +29,58 @@ class CreatePlaylistForm extends StatefulWidget {
 class _CreatePlaylistFormState extends State<CreatePlaylistForm> {
   final ImagePicker _picker = ImagePicker();
 
-  Future<void> _pickImage() async {
-    final image = await _picker.pickImage(source: ImageSource.gallery);
-    if (image != null) {
-      if (!mounted) return;
-      try {
-        final croppedFile = await ImageCropper().cropImage(
-          sourcePath: image.path,
-          aspectRatio: const CropAspectRatio(ratioX: 16, ratioY: 9),
-          compressQuality: 80,
-          maxWidth: 1280,
-          maxHeight: 720,
-          uiSettings: [
-            AndroidUiSettings(
-              toolbarTitle: 'Crop Image',
-              toolbarColor: Theme.of(context).colorScheme.primary,
-              toolbarWidgetColor: Theme.of(context).colorScheme.onPrimary,
-              initAspectRatio: CropAspectRatioPreset.ratio16x9,
-              lockAspectRatio: true,
-            ),
-            IOSUiSettings(
-              title: 'Crop Image',
-              aspectRatioLockEnabled: true,
-              resetAspectRatioEnabled: false,
-              aspectRatioPickerButtonHidden: true,
-            ),
-          ],
-        );
+  bool _isPickerActive = false;
 
-        if (croppedFile != null) {
-          final path = await saveImageToLocalStorage(XFile(croppedFile.path));
-          widget.imageNotifier.value = path;
-        }
-      } on Exception catch (e) {
-        if (mounted) {
-          toastification.show(
-            context: context,
-            title: const Text('Error'),
-            description: Text('Failed to save image: $e'),
-            type: ToastificationType.error,
+  Future<void> _pickImage() async {
+    if (_isPickerActive) return;
+    _isPickerActive = true;
+
+    try {
+      final image = await _picker.pickImage(source: ImageSource.gallery);
+      if (image != null) {
+        if (!mounted) return;
+        try {
+          final croppedFile = await ImageCropper().cropImage(
+            sourcePath: image.path,
+            aspectRatio: const CropAspectRatio(ratioX: 16, ratioY: 9),
+            compressQuality: 80,
+            maxWidth: 1280,
+            maxHeight: 720,
+            uiSettings: [
+              AndroidUiSettings(
+                toolbarTitle: 'Crop Image',
+                toolbarColor: Theme.of(context).colorScheme.primary,
+                toolbarWidgetColor: Theme.of(context).colorScheme.onPrimary,
+                initAspectRatio: CropAspectRatioPreset.ratio16x9,
+                lockAspectRatio: true,
+              ),
+              IOSUiSettings(
+                title: 'Crop Image',
+                aspectRatioLockEnabled: true,
+                resetAspectRatioEnabled: false,
+                aspectRatioPickerButtonHidden: true,
+              ),
+            ],
           );
+
+          if (croppedFile != null) {
+            final path = await saveImageToLocalStorage(XFile(croppedFile.path));
+            widget.imageNotifier.value = path;
+          }
+        } on Exception catch (e) {
+          if (mounted) {
+            toastification.show(
+              context: context,
+              title: const Text('Error'),
+              description: Text('Failed to save image: $e'),
+              type: ToastificationType.error,
+            );
+          }
         }
+      }
+    } finally {
+      if (mounted) {
+        _isPickerActive = false;
       }
     }
   }
