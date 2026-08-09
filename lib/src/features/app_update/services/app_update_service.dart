@@ -4,6 +4,7 @@ import 'package:levelup_tube/src/core/services/logging_service/app_logger.dart';
 import 'package:levelup_tube/src/features/app_update/utils/version_comparator.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
 enum UpdateStatus { upToDate, softUpdate, hardUpdate }
 
 class AppUpdateService {
@@ -14,7 +15,6 @@ class AppUpdateService {
   final SharedPreferences _prefs;
 
   static const _skippedVersionKey = 'skipped_update_version';
-
 
   Future<void> init() async {
     try {
@@ -50,7 +50,6 @@ class AppUpdateService {
 
       final minVersion = _remoteConfig.getString('min_app_version');
       final latestVersion = _remoteConfig.getString('latest_app_version');
-
 
       if (VersionComparator.isVersionLower(currentVersion, minVersion)) {
         return UpdateStatus.hardUpdate;
