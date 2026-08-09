@@ -172,7 +172,6 @@ class _MainScaffoldState extends State<MainScaffold>
                     : Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          const ConnectivityBanner(),
                           NavigationBar(
                             selectedIndex: _effectiveIndex,
                             onDestinationSelected: _onDestinationSelected,
@@ -200,6 +199,7 @@ class _MainScaffoldState extends State<MainScaffold>
                               ),
                             ],
                           ),
+                          const ConnectivityBanner(),
                         ],
                       ),
               );

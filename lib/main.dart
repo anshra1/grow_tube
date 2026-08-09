@@ -16,7 +16,6 @@ import 'package:levelup_tube/src/features/add/viewmodels/add_cubit.dart';
 import 'package:levelup_tube/src/features/app_update/widgets/app_update_listener.dart';
 import 'package:levelup_tube/src/features/clipboard/viewmodels/clipboard_cubit.dart';
 import 'package:levelup_tube/src/features/connectivity/presentation/bloc/connectivity_cubit.dart';
-import 'package:levelup_tube/src/features/connectivity/presentation/widgets/connectivity_toast_listener.dart';
 import 'package:levelup_tube/src/features/navigation/cubit/fullscreen_video_cubit.dart';
 import 'package:levelup_tube/src/features/pip/presentation/bloc/pip_cubit.dart';
 import 'package:levelup_tube/src/features/settings/viewmodels/settings_cubit.dart';
@@ -110,9 +109,7 @@ class LevelUp extends StatelessWidget {
               routerConfig: AppRouter.router,
               builder: (context, child) {
                 return _DismissKeyboardOnTap(
-                  child: ConnectivityToastListener(
-                    child: AppUpdateListener(child: child ?? const SizedBox.shrink()),
-                  ),
+                  child: AppUpdateListener(child: child ?? const SizedBox.shrink()),
                 );
               },
             );

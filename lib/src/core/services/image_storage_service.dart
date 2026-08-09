@@ -29,7 +29,7 @@ class ImageStorageService {
       if (file.existsSync()) {
         await file.delete();
       }
-    }on Exception catch (_) {
+    } on Exception catch (_) {
       // Ignore deletion errors
     }
   }

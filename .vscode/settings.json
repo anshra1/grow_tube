@@ -2,11 +2,10 @@
   "git.ignoreLimitWarning": true,
   "dart.lineLength": 90,
   "[dart]": {
-    "editor.formatOnSave": true,
-    "editor.formatOnType": true,
-    "editor.rulers": [
-      90
-    ]
+    "editor.formatOnSave": false,
+    "editor.formatOnType": false,
+    "editor.rulers": [90],
+    "editor.tabSize": 32
   },
   "flutterTools.displayGetxContextMenu": false,
   "flutterTools.displayMobxContextMenu": false,
@@ -14,5 +13,7 @@
   "flutterTools.displayModularContextMenu": false,
   "flutterTools.displaySignalsContextMenu": false,
   "workbench.editor.tabSizing": "fit",
-  "workbench.editor.titleScrollbarSizing": "large"
+  "workbench.editor.titleScrollbarSizing": "large",
+  "editor.tabSize": 32,
+  "editor.detectIndentation": false
 }

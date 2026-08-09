@@ -21,7 +21,7 @@ class AppUpdateService {
       await _remoteConfig.setConfigSettings(
         RemoteConfigSettings(
           fetchTimeout: const Duration(seconds: 30),
-          minimumFetchInterval: const Duration(hours: 12) ,
+          minimumFetchInterval: kDebugMode ? Duration.zero : const Duration(hours: 1),
         ),
       );
 
@@ -31,7 +31,9 @@ class AppUpdateService {
         'android_store_url': '',
         'ios_store_url': '',
       });
-      
+
+      // Fetch the newest values from Firebase and activate them
+      await _remoteConfig.fetchAndActivate();
     } on Exception catch (e, stack) {
       _logger.error(
         'Failed to init Remote Config for app update',
