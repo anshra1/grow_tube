@@ -186,6 +186,9 @@ class PlaylistsPage extends StatelessWidget {
   }
 
   void _showPlaylistOptionsBottomSheet(BuildContext context, PlaylistModel playlist) {
+    final settingsState = context.read<SettingsCubit>().state;
+    final isDefault = settingsState is SettingsLoadedState && settingsState.defaultPlaylistId == playlist.id;
+
     showModalBottomSheet<void>(
       context: context,
       useSafeArea: true,
@@ -204,6 +207,15 @@ class PlaylistsPage extends StatelessWidget {
                 );
               },
             ),
+            if (!isDefault)
+              ListTile(
+                leading: const Icon(Icons.check_circle_outline),
+                title: const Text('Set as default'),
+                onTap: () {
+                  Navigator.pop(bottomSheetContext);
+                  context.read<SettingsCubit>().setDefaultPlaylist(playlist.id);
+                },
+              ),
             if (!playlist.isSystemDefault) ...[
               ListTile(
                 leading: const Icon(Icons.edit_outlined),
@@ -234,7 +246,7 @@ class PlaylistsPage extends StatelessWidget {
             ] else ...[
               ListTile(
                 leading: const Icon(Icons.info_outline),
-                title: const Text('System Playlist'),
+                title: const Text('Default Playlist'),
                 subtitle: const Text('Cannot be edited or deleted.'),
                 onTap: () => Navigator.pop(bottomSheetContext),
               ),
