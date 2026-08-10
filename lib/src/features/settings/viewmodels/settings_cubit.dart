@@ -48,7 +48,7 @@ class SettingsCubit extends Cubit<SettingsState> {
       emit(currentState);
     }
   }
-
+  // ignore it
   // ignore: avoid_positional_boolean_parameters
   Future<void> toggleAutoplay(bool isEnabled) async {
     final currentState = state;

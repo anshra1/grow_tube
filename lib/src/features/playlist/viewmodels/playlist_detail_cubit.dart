@@ -316,7 +316,7 @@ class PlaylistDetailCubit extends Cubit<PlaylistDetailState> {
           }
         }
       }
-    } catch (e, st) {
+    }on Exception catch (e, st) {
       di.sl<AppLogger>().handle(e, st, 'PlaylistDetailCubit: playNextVideo error');
     }
   }

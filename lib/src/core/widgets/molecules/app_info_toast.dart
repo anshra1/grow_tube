@@ -10,6 +10,7 @@ class AppInfoToast extends StatefulWidget {
     required this.icon,
     this.actionLabel,
     this.onAction,
+    this.onClose,
     this.isError = false,
     this.isLoading = false,
     super.key,
@@ -20,6 +21,7 @@ class AppInfoToast extends StatefulWidget {
   final IconData icon;
   final String? actionLabel;
   final VoidCallback? onAction;
+  final VoidCallback? onClose;
   final bool isError;
   final bool isLoading;
 
@@ -213,6 +215,19 @@ class _AppInfoToastState extends State<AppInfoToast>
                                     ),
                                   ),
                                 ),
+                        ),
+                      ],
+                      if (widget.onClose != null) ...[
+                        const SizedBox(width: 4),
+                        IconButton(
+                          icon: Icon(Icons.close, color: onContainerColor.withValues(alpha: 0.7), size: 20),
+                          onPressed: widget.onClose,
+                          padding: EdgeInsets.zero,
+                          constraints: const BoxConstraints(),
+                          style: IconButton.styleFrom(
+                            minimumSize: const Size(32, 32),
+                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                          ),
                         ),
                       ],
                     ],

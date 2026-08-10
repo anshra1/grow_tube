@@ -196,6 +196,7 @@ class PlaylistsPage extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
+            
             ListTile(
               leading: Icon(playlist.isPinned ? Icons.push_pin_outlined : Icons.push_pin),
               title: Text(playlist.isPinned ? 'Unpin' : 'Pin'),

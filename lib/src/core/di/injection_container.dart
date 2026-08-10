@@ -56,7 +56,7 @@ Future<void> init() async {
     Store store;
     try {
       store = await openStore(directory: storePath);
-    } catch (e) {
+    }on Exception catch (_) {
       // If store is already open (e.g. after a hot restart), attach to it.
       store = Store.attach(getObjectBoxModel(), storePath);
     }

@@ -203,6 +203,7 @@ class _AddPageState extends State<AddPage> {
       context: context,
       autoCloseDuration: const Duration(seconds: 4),
       alignment: Alignment.bottomCenter,
+      dismissDirection: DismissDirection.horizontal,
       builder: (context, holder) {
         return AppInfoToast(
           title: title,
@@ -211,6 +212,7 @@ class _AddPageState extends State<AddPage> {
               ? Icons.error_outline
               : Icons.check_circle_outline,
           isError: type == ToastificationType.error,
+          onClose: () => toastification.dismissById(holder.id),
         );
       },
     );
@@ -226,6 +228,7 @@ class _AddPageState extends State<AddPage> {
       context: context,
       autoCloseDuration: const Duration(seconds: 5),
       alignment: Alignment.bottomCenter,
+      dismissDirection: DismissDirection.horizontal,
       builder: (context, holder) {
         return AppInfoToast(
           title: 'Success!',
@@ -236,6 +239,7 @@ class _AddPageState extends State<AddPage> {
             toastification.dismissById(holder.id);
             onAction();
           },
+          onClose: () => toastification.dismissById(holder.id),
         );
       },
     );
