@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:levelup_tube/src/core/di/injection_container.dart' as di;
 import 'package:levelup_tube/src/core/services/logging_service/app_logger.dart';
+import 'package:levelup_tube/src/features/playlist/models/playlist_model.dart';
 import 'package:levelup_tube/src/features/playlist/repositories/playlist_repository.dart';
 import 'package:levelup_tube/src/features/settings/viewmodels/setting_state.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -15,22 +16,27 @@ class SettingsCubit extends Cubit<SettingsState> {
 
   static const autoplayKey = 'is_autoplay_enabled';
 
-  Future<void> loadAllPlaylist() async {
+  StreamSubscription<List<PlaylistModel>>? _playlistsSubscription;
+
+  void watchPlaylists() {
+    _playlistsSubscription?.cancel();
     emit(const SettingsLoadingState());
-    try {
-      final playlists = await _repository.getAllPlaylists();
-      final defaultPlaylist = playlists.where((p) => p.isSystemDefault).firstOrNull;
-      emit(
-        SettingsLoadedState(
-          allPlaylists: playlists,
-          defaultPlaylistId: defaultPlaylist?.id,
-          isAutoplayEnabled: _prefs.getBool(autoplayKey) ?? true,
-        ),
-      );
-    } on Exception catch (e, st) {
-      di.sl<AppLogger>().handle(e, st, 'SettingsCubit: loadAllPlaylist error');
-      emit(SettingsErrorState(e.toString()));
-    }
+    _playlistsSubscription = _repository.watchAllPlaylists().listen(
+      (playlists) {
+        final defaultPlaylist = playlists.where((p) => p.isSystemDefault).firstOrNull;
+        emit(
+          SettingsLoadedState(
+            allPlaylists: playlists,
+            defaultPlaylistId: defaultPlaylist?.id,
+            isAutoplayEnabled: _prefs.getBool(autoplayKey) ?? true,
+          ),
+        );
+      },
+      onError: (Object e, StackTrace st) {
+        di.sl<AppLogger>().handle(e, st, 'SettingsCubit: watchPlaylists error');
+        emit(SettingsErrorState(e.toString()));
+      },
+    );
   }
 
   /// Atomically sets the given playlist as the system default and refreshes state.
@@ -40,7 +46,8 @@ class SettingsCubit extends Cubit<SettingsState> {
 
     try {
       await _repository.setDefaultPlaylist(playlistId);
-      emit(currentState.copyWith(defaultPlaylistId: playlistId));
+      // We don't need to manually emit the new state here since the stream will trigger it!
+      // But we can do it optimistically. Let's just let the stream handle it to avoid duplicate states.
     } on Exception catch (e, st) {
       di.sl<AppLogger>().handle(e, st, 'SettingsCubit: setDefaultPlaylist error');
       emit(SettingsErrorState(e.toString()));
@@ -56,5 +63,11 @@ class SettingsCubit extends Cubit<SettingsState> {
 
     await _prefs.setBool(autoplayKey, isEnabled);
     emit(currentState.copyWith(isAutoplayEnabled: isEnabled));
+  }
+
+  @override
+  Future<void> close() {
+    _playlistsSubscription?.cancel();
+    return super.close();
   }
 }

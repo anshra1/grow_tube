@@ -124,9 +124,10 @@ class DashboardVideoCard extends StatelessWidget {
                                     width: 120,
                                     height: 67,
                                     child: CachedNetworkImage(
-                                      //  scale: 1.2,
                                       imageUrl: video.thumbnailUrl,
-                                      fit: BoxFit.cover, // Fill the whole box
+                                      fit: BoxFit.cover,
+                                      memCacheWidth: 360, // 120 * 3 for high DPI
+                                      memCacheHeight: 201, // 67 * 3
                                       errorWidget: (context, url, error) => Image.asset(
                                         'assets/images/no_image_available.png',
                                         fit: BoxFit.cover,

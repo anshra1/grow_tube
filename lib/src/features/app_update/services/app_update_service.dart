@@ -34,11 +34,9 @@ class AppUpdateService {
 
       // Fetch the newest values from Firebase and activate them
       await _remoteConfig.fetchAndActivate();
-    } on Exception catch (e, stack) {
-      _logger.error(
-        'Failed to init Remote Config for app update',
-        error: e,
-        stackTrace: stack,
+    } on Exception catch (e) {
+      _logger.warning(
+        'Failed to init Remote Config for app update: $e',
       );
     }
   }

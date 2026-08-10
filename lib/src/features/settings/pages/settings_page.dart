@@ -36,7 +36,7 @@ class _SettingsPageState extends State<SettingsPage> {
   @override
   void initState() {
     super.initState();
-    context.read<SettingsCubit>().loadAllPlaylist();
+    context.read<SettingsCubit>().watchPlaylists();
   }
 
   @override

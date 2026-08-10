@@ -14,6 +14,9 @@ abstract class PlaylistRepository {
   /// Fetches all playlists currently stored in the local database, ordered by newest first.
   Future<List<PlaylistModel>> getAllPlaylists();
 
+  /// Watches all playlists currently stored in the local database and emits updates automatically.
+  Stream<List<PlaylistModel>> watchAllPlaylists();
+
   /// Retrieves a specific playlist by its local database ID.
   Future<PlaylistModel?> getPlaylist(int id);
 
@@ -109,6 +112,13 @@ class PlaylistRepositoryImpl implements PlaylistRepository {
     } on Exception catch (_) {
       return [];
     }
+  }
+
+  @override
+  Stream<List<PlaylistModel>> watchAllPlaylists() {
+    final query = playlistBox.query()
+      ..order(PlaylistModel_.createdAt, flags: Order.descending);
+    return query.watch(triggerImmediately: true).map((q) => q.find());
   }
 
   @override

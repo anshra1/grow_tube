@@ -12,7 +12,6 @@ import 'package:levelup_tube/src/features/connectivity/presentation/widgets/conn
 import 'package:levelup_tube/src/features/navigation/cubit/fullscreen_video_cubit.dart';
 import 'package:levelup_tube/src/features/pip/presentation/bloc/pip_cubit.dart';
 import 'package:levelup_tube/src/features/pip/presentation/bloc/pip_state.dart';
-import 'package:levelup_tube/src/features/settings/viewmodels/settings_cubit.dart';
 import 'package:toastification/toastification.dart';
 
 class MainScaffold extends StatefulWidget {
@@ -137,10 +136,6 @@ class _MainScaffoldState extends State<MainScaffold>
   // ---------------------------------------------------------------------------
 
   void _onDestinationSelected(int index) {
-    if (index == 3) {
-      context.read<SettingsCubit>().loadAllPlaylist();
-    }
-
     context.read<PipCubit>().setHomeTabActive(index == 0);
 
     // For all tabs, switch the shell branch preserving navigator state.
