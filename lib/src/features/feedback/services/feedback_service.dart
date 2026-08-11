@@ -44,11 +44,15 @@ class FeedbackService {
         'createdAt': FieldValue.serverTimestamp(),
       });
     } on FirebaseException catch (e, stackTrace) {
-      _appLogger.handle(e, stackTrace, 'FeedbackService: Firebase error [${e.code}]');
-
+      _appLogger..handle(e, stackTrace, 'FeedbackService: Firebase error [${e.code}]')
+      ..error('🔥 FIRESTORE ERROR: [${e.code}] ${e.message}', error: e, stackTrace: stackTrace);
+      if (e.code == 'permission-denied') {
+        throw Exception('Permission Denied: This action requires Firebase billing (Blaze plan) to be enabled.');
+      }
       throw Exception(e.message ?? 'An unexpected error occurred');
     } catch (e, stackTrace) {
-      _appLogger.handle(e, stackTrace, 'FeedbackService: Error submitting feedback');
+      _appLogger..handle(e, stackTrace, 'FeedbackService: Error submitting feedback')
+      ..error('🚨 UNKNOWN ERROR: $e', error: e, stackTrace: stackTrace);
       throw Exception('An unexpected error occurred: $e');
     }
   }

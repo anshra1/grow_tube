@@ -3,10 +3,7 @@ import 'package:levelup_tube/src/features/pip/data/pip_service.dart';
 import 'package:levelup_tube/src/features/pip/presentation/bloc/pip_state.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-/// Manages Picture-in-Picture state.
-///
-/// Uses a simple `bool` state — `true` when in PiP, `false` otherwise.
-/// Follows the same pattern as `ConnectivityCubit`.
+
 class PipCubit extends Cubit<PipState> {
   PipCubit(this._service, this._prefs) : super(const PipState()) {
     _service.onPipChanged = ({required bool isInPipMode}) {
