@@ -11,7 +11,7 @@ import 'package:levelup_tube/src/core/di/injection_container.dart' as di;
 import 'package:levelup_tube/src/core/router/app_router.dart';
 import 'package:levelup_tube/src/core/services/logging_service/talker_bloc_observer.dart';
 import 'package:levelup_tube/src/core/theme/theme_cubit.dart';
-import 'package:levelup_tube/src/core/widgets/pages/startup_error_app.dart';
+import 'package:levelup_tube/src/core/widgets/pages/startup_error_app_page.dart';
 import 'package:levelup_tube/src/features/add/viewmodels/add_cubit.dart';
 import 'package:levelup_tube/src/features/app_update/widgets/app_update_listener.dart';
 import 'package:levelup_tube/src/features/clipboard/viewmodels/clipboard_cubit.dart';
