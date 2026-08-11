@@ -136,8 +136,6 @@ class _MainScaffoldState extends State<MainScaffold>
   // ---------------------------------------------------------------------------
 
   void _onDestinationSelected(int index) {
-    context.read<PipCubit>().setHomeTabActive(index == 0);
-
     // For all tabs, switch the shell branch preserving navigator state.
     widget.navigationShell.goBranch(
       index,
@@ -151,8 +149,10 @@ class _MainScaffoldState extends State<MainScaffold>
     return BlocListener<PipCubit, PipState>(
       listenWhen: (previous, current) => !previous.isInPipMode && current.isInPipMode,
       listener: (context, pipState) {
-        if (pipState.isInPipMode && widget.navigationShell.currentIndex != 0) {
-          widget.navigationShell.goBranch(0);
+        if (pipState.isInPipMode && pipState.activeVideoTabIndex != null) {
+          if (widget.navigationShell.currentIndex != pipState.activeVideoTabIndex) {
+            widget.navigationShell.goBranch(pipState.activeVideoTabIndex!);
+          }
         }
       },
       child: BlocBuilder<PipCubit, PipState>(

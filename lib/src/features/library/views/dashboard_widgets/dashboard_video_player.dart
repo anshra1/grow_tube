@@ -7,6 +7,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:levelup_tube/main.dart';
 import 'package:levelup_tube/src/core/design_system/app_radius.dart';
 import 'package:levelup_tube/src/core/di/injection_container.dart' as di;
@@ -247,7 +248,19 @@ class _DashboardVideoPlayerState extends State<DashboardVideoPlayer>
       }
 
       if (mounted) {
-        context.read<PipCubit>().setVideoPlaying(value.playerState == PlayerState.playing);
+        var currentTabIndex = 0;
+        try {
+          final location = GoRouterState.of(context).uri.path;
+          if (location.startsWith('/playlists')) {
+            currentTabIndex = 1;
+          }
+        } on Exception catch (_) {}
+
+        context.read<PipCubit>().setVideoPlaying(
+          playing: value.playerState == PlayerState.playing,
+          videoId: widget.video.id,
+          tabIndex: currentTabIndex,
+        );
       }
 
       if (value.playerState == PlayerState.playing) {
@@ -386,8 +399,10 @@ class _DashboardVideoPlayerState extends State<DashboardVideoPlayer>
     return BlocListener<PipCubit, PipState>(
       listener: (context, pipState) {
         if (pipState.isInPipMode) {
-          if (!_overlayController.isShowing) {
-            setState(_overlayController.show);
+          if (pipState.activeVideoId == widget.video.id) {
+            if (!_overlayController.isShowing) {
+              setState(_overlayController.show);
+            }
           }
         } else {
           if (_overlayController.isShowing && !_fullscreenVideoCubit.state) {

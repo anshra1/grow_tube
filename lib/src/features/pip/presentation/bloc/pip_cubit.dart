@@ -21,7 +21,8 @@ class PipCubit extends Cubit<PipState> {
   final SharedPreferences _prefs;
 
   bool _isVideoPlaying = false;
-  bool _isHomeTabActive = true;
+  int? _activeVideoId;
+  int? activeVideoTabIndex;
 
   Future<void> _checkSupport() async {
     final supported = await _service.isPipSupported();
@@ -50,25 +51,23 @@ class PipCubit extends Cubit<PipState> {
     emit(state.copyWith(isEnabled: enabled));
     _updateAutoPip();
   }
-  // 
-  // ignore: avoid_positional_boolean_parameters
-  void setVideoPlaying(bool playing) {
-    if (_isVideoPlaying == playing) return;
-    _isVideoPlaying = playing;
-    _updateAutoPip();
-  }
-
-  //
-  // ignore: avoid_positional_boolean_parameters
-  void setHomeTabActive(bool active) {
-    if (_isHomeTabActive == active) return;
-    _isHomeTabActive = active;
+  void setVideoPlaying({required bool playing, required int videoId, int? tabIndex}) {
+    if (playing) {
+      _activeVideoId = videoId;
+      activeVideoTabIndex = tabIndex;
+      _isVideoPlaying = true;
+      emit(state.copyWith(activeVideoId: videoId, activeVideoTabIndex: tabIndex));
+    } else {
+      if (_activeVideoId == videoId) {
+        _isVideoPlaying = false;
+      }
+    }
     _updateAutoPip();
   }
 
   void _updateAutoPip() {
     if (!state.isSupported) return;
-    final shouldAutoEnter = _isVideoPlaying && _isHomeTabActive && state.isEnabled;
+    final shouldAutoEnter = _isVideoPlaying && state.isEnabled;
     _service.setAutoEnterPip(shouldAutoEnter);
   }
 
